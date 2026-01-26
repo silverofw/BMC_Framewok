@@ -1,0 +1,19 @@
+{
+    "name": "BMC.Build",
+    "rootNamespace": "",
+    "references": [
+        "YooAsset",
+        "YooAsset.Editor",
+        "HybridCLR.Runtime",
+        "HybridCLR.Editor"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

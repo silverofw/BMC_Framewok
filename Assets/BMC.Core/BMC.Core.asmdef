@@ -1,0 +1,19 @@
+{
+    "name": "BMC.Core",
+    "rootNamespace": "",
+    "references": [
+        "UniTask",
+        "YooAsset",
+        "Gilzoide.SqliteNet",
+        "HybridCLR.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

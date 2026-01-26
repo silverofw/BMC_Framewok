@@ -1,0 +1,19 @@
+{
+    "name": "BMC.UI",
+    "rootNamespace": "",
+    "references": [
+        "BMC.Core",
+        "UniTask",
+        "DOTweenPro.Scripts",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
