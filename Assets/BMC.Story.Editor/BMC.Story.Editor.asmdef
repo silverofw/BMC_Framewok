@@ -1,0 +1,17 @@
+{
+    "name": "BMC.Story.Editor",
+    "rootNamespace": "",
+    "references": [
+        "BMC.Story",
+        "BMC.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

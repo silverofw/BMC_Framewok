@@ -1,8 +1,8 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class Log
 {
-    public static string DefaultInfoColor = "#2ECC71"; // ¤@­ÓµÎªAªººñ¦â
+    public static string DefaultInfoColor = "#2ECC71"; // ä¸€å€‹èˆ’æœçš„ç¶ è‰²
     public static void Info(string log)
     {
 #if UNITY_EDITOR
