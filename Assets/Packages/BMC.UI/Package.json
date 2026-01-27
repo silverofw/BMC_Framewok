@@ -1,0 +1,25 @@
+{
+  "name": "com.bmc.ui",
+  "version": "1.0.0",
+  "displayName": "BMC UI System",
+  "description": "BMC 通用介面系統。",
+  "unity": "6000.0",
+  "dependencies": {
+    "com.bmc.core": "1.0.0",
+    "com.unity.modules.ui": "1.0.0",
+    "com.unity.textmeshpro": "3.0.6",
+    "com.cysharp.unitask": "2.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/silverofw/BMC_Framewok.git"
+  },
+  "author": {
+    "name": "silverofw",
+    "url": "https://github.com/silverofw"
+  },
+  "keywords": [
+    "bmc",
+    "ui"
+  ]
+}
