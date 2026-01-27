@@ -3,12 +3,10 @@ using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.UI;
 
 namespace BMC.Story
 {
-    [MovedFrom(true, "Assembly-CSharp", null, null)]
     public class StoryLinePanel : UIPanel
     {
         [Header("UI References")]
@@ -47,7 +45,7 @@ namespace BMC.Story
             // 1. 清理舊畫面
             ClearOldLayout();
 
-            // 2. 設定 Layout Group 參數 (確保間距符合 400 的要求)
+            // 2. 設定 Layout Group 參數
             SetupLayoutGroup();
 
             // 3. 建立速查表
@@ -77,17 +75,11 @@ namespace BMC.Story
         {
             if (contentRoot == null) return;
 
-            // 嘗試取得 HorizontalLayoutGroup，如果沒有就加一個 (或是手動設定已存在的)
             HorizontalLayoutGroup hGroup = contentRoot.GetComponent<HorizontalLayoutGroup>();
             if (hGroup != null)
             {
-                // 計算 Spacing：如果是 "間隔"(Gap)，則 Spacing = 400
-                // 如果是 "每個深度的跨度"(Stride)，則 Spacing = 400 - 300 = 100
-                // 這裡通常解釋為 Stride (中心點到中心點或是左邊到左邊的距離)
                 float spacing = depthSpacing - itemWidth;
                 hGroup.spacing = spacing;
-
-                // 確保子物件不會被強制撐大，而是維持我們設定的 Width
                 hGroup.childControlWidth = false;
                 hGroup.childForceExpandWidth = false;
             }
@@ -101,7 +93,7 @@ namespace BMC.Story
             queue.Enqueue((startNode, 0));
             visited.Add(startNode);
             nodeDepthMap[startNode] = 0;
-            currentMaxDepth = 0; // 重置最大深度
+            currentMaxDepth = 0;
 
             while (queue.Count > 0)
             {
@@ -109,11 +101,12 @@ namespace BMC.Story
 
                 CreateNodeUI(currentNode, currentDepth);
 
-                foreach (var choice in currentNode.Choices)
+                // 使用新的通用方法獲取所有目標 ID
+                foreach (string targetId in GetTargetNodeIds(currentNode))
                 {
-                    if (string.IsNullOrEmpty(choice.TargetNodeId)) continue;
+                    if (string.IsNullOrEmpty(targetId)) continue;
 
-                    if (idLookup.TryGetValue(choice.TargetNodeId, out StoryNode nextNode))
+                    if (idLookup.TryGetValue(targetId, out StoryNode nextNode))
                     {
                         if (!visited.Contains(nextNode))
                         {
@@ -127,7 +120,7 @@ namespace BMC.Story
                     }
                     else
                     {
-                        Debug.LogWarning($"[Layout Error] Node '{currentNode.Id}' 指向了不存在的 ID: '{choice.TargetNodeId}'");
+                        Debug.LogWarning($"[Layout Error] Node '{currentNode.Id}' 指向了不存在的 ID: '{targetId}'");
                     }
                 }
             }
@@ -148,7 +141,6 @@ namespace BMC.Story
             }
             itemObj.SetActive(true);
 
-            // 確保 Item 寬度正確 (如果 Prefab 已經是 300 則不需要，但以防萬一)
             RectTransform itemRect = itemObj.GetComponent<RectTransform>();
             if (itemRect != null)
             {
@@ -167,14 +159,12 @@ namespace BMC.Story
             newCol.transform.SetSiblingIndex(depth + 1);
             newCol.gameObject.SetActive(true);
 
-            // [關鍵修改] 強制設定 Column 寬度為 300
             RectTransform colRect = newCol.GetComponent<RectTransform>();
             if (colRect != null)
             {
                 colRect.sizeDelta = new Vector2(itemWidth, colRect.sizeDelta.y);
             }
 
-            // 如果 Column 上有 LayoutElement，也要設定它，以防被父層 LayoutGroup 忽略
             LayoutElement layoutElem = newCol.GetComponent<LayoutElement>();
             if (layoutElem == null) layoutElem = newCol.AddComponent<LayoutElement>();
             layoutElem.minWidth = itemWidth;
@@ -193,10 +183,12 @@ namespace BMC.Story
                 StoryNode parentNode = kvp.Key;
                 RectTransform parentRect = kvp.Value;
 
-                foreach (var choice in parentNode.Choices)
+                // 使用新的通用方法獲取所有連線目標
+                foreach (string targetId in GetTargetNodeIds(parentNode))
                 {
-                    if (string.IsNullOrEmpty(choice.TargetNodeId)) continue;
-                    if (idLookup.TryGetValue(choice.TargetNodeId, out StoryNode childNode))
+                    if (string.IsNullOrEmpty(targetId)) continue;
+
+                    if (idLookup.TryGetValue(targetId, out StoryNode childNode))
                     {
                         if (nodeToRectMap.TryGetValue(childNode, out RectTransform childRect))
                         {
@@ -214,28 +206,70 @@ namespace BMC.Story
         }
 
         /// <summary>
-        /// 使用 nodeDepthMap 與 currentMaxDepth 計算百分比，直接設定 horizontalNormalizedPosition
+        /// 核心輔助方法：遞歸獲取節點中所有可能跳轉的目標 ID
+        /// (包含 AutoJump, ShowChoices, GameDice, GameRoulette, GameQTE)
         /// </summary>
+        private IEnumerable<string> GetTargetNodeIds(StoryNode node)
+        {
+            // 1. 自動跳轉
+            if (!string.IsNullOrEmpty(node.AutoJumpNodeId)) yield return node.AutoJumpNodeId;
+
+            // 2. OnEnterEvents
+            if (node.OnEnterEvents != null)
+            {
+                foreach (var evt in node.OnEnterEvents)
+                {
+                    foreach (var id in GetTargetsFromEvent(evt)) yield return id;
+                }
+            }
+
+            // 3. OnExitEvents
+            if (node.OnExitEvents != null)
+            {
+                foreach (var evt in node.OnExitEvents)
+                {
+                    foreach (var id in GetTargetsFromEvent(evt)) yield return id;
+                }
+            }
+        }
+
+        private IEnumerable<string> GetTargetsFromEvent(StoryEvent evt)
+        {
+            switch (evt.ActionCase)
+            {
+                case StoryEvent.ActionOneofCase.ShowChoices:
+                    foreach (var c in evt.ShowChoices.Choices)
+                    {
+                        if (!string.IsNullOrEmpty(c.TargetNodeId)) yield return c.TargetNodeId;
+                    }
+                    break;
+                case StoryEvent.ActionOneofCase.GameDice:
+                    if (!string.IsNullOrEmpty(evt.GameDice.SuccessNodeId)) yield return evt.GameDice.SuccessNodeId;
+                    if (!string.IsNullOrEmpty(evt.GameDice.FailNodeId)) yield return evt.GameDice.FailNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GameRussianRoulette:
+                    if (!string.IsNullOrEmpty(evt.GameRussianRoulette.WinNodeId)) yield return evt.GameRussianRoulette.WinNodeId;
+                    if (!string.IsNullOrEmpty(evt.GameRussianRoulette.LoseNodeId)) yield return evt.GameRussianRoulette.LoseNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GameQte:
+                    if (!string.IsNullOrEmpty(evt.GameQte.SuccessNodeId)) yield return evt.GameQte.SuccessNodeId;
+                    if (!string.IsNullOrEmpty(evt.GameQte.FailNodeId)) yield return evt.GameQte.FailNodeId;
+                    break;
+            }
+        }
+
         private async UniTask ScrollToNode(StoryNode targetNode)
         {
             if (targetNode == null || !nodeDepthMap.ContainsKey(targetNode)) return;
 
-            // 等待一幀讓 ScrollRect 初始化內部狀態
             await UniTask.WaitForEndOfFrame();
-
-            // 停止慣性
             scrollRect.velocity = Vector2.zero;
 
             int targetDepth = nodeDepthMap[targetNode];
 
             if (currentMaxDepth > 0)
             {
-                // 計算當前深度在總深度中的比例 (0 ~ 1)
-                // Depth 0 -> 0.0
-                // Depth Max -> 1.0
-                // Depth Mid -> 0.5 (大約置中)
                 float normalizedPos = (float)targetDepth / currentMaxDepth;
-                Log.Info($"[Scroll] Target Depth: {targetDepth}, Max Depth: {currentMaxDepth}, Normalized Pos: {normalizedPos}");
                 scrollRect.horizontalNormalizedPosition = Mathf.Clamp01(normalizedPos);
             }
             else

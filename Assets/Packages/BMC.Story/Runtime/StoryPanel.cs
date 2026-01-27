@@ -1,10 +1,8 @@
 ﻿using BMC.UI;
 using UnityEngine;
-using UnityEngine.Scripting.APIUpdating;
 
 namespace BMC.Story
 {
-    [MovedFrom(true, "Assembly-CSharp", null, null)]
     public class StoryPanel : UIPanel
     {
         public TextAsset textAsset;
@@ -24,7 +22,7 @@ namespace BMC.Story
         private void Start()
         {
             StoryPlayer.Instance.LoadStory(textAsset.bytes);
-            linePanelBtn.OnClick = async () => { 
+            linePanelBtn.OnClick = async () => {
                 var p = await UIMgr.Instance.ShowPanel<StoryLinePanel>();
                 p.RefreshStoryLayout(StoryPlayer.Instance.StartNode, StoryPlayer.Instance._currentPackage);
             };
@@ -42,23 +40,34 @@ namespace BMC.Story
         void onNodePlay(StoryNode crt, StoryNode pre)
         {
             info.Set($"{crt.Id}");
-            ShowChoices(crt);
-        }
-
-        private void ShowChoices(StoryNode crt)
-        {
+            // 清除舊選項
             foreach (Transform child in choiceContainer) Destroy(child.gameObject);
 
-            foreach (var choice in crt.Choices)
+            // 新邏輯：遍歷 OnEnterEvents 尋找 ShowChoices 事件
+            if (crt.OnEnterEvents != null)
             {
-                var go = Instantiate(choiceButtonPrefab.gameObject, choiceContainer);
-                var textComp = go.GetComponentInChildren<UIText>();
-                if (textComp != null) textComp.Set(choice.Text);
-
-                string targetId = choice.TargetNodeId;
-                go.GetComponent<UIButton>().OnClick = () => OnChoiceSelected(targetId);
-                go.SetActive(true);
+                foreach (var evt in crt.OnEnterEvents)
+                {
+                    if (evt.ActionCase == StoryEvent.ActionOneofCase.ShowChoices)
+                    {
+                        foreach (var choice in evt.ShowChoices.Choices)
+                        {
+                            CreateChoiceButton(choice);
+                        }
+                    }
+                }
             }
+        }
+
+        private void CreateChoiceButton(Choice choice)
+        {
+            var go = Instantiate(choiceButtonPrefab.gameObject, choiceContainer);
+            var textComp = go.GetComponentInChildren<UIText>();
+            if (textComp != null) textComp.Set(choice.Text);
+
+            string targetId = choice.TargetNodeId;
+            go.GetComponent<UIButton>().OnClick = () => OnChoiceSelected(targetId);
+            go.SetActive(true);
         }
 
         private void OnChoiceSelected(string targetNodeId)

@@ -61,7 +61,6 @@ namespace BMC.Story.Editor
                 string directory = Path.GetDirectoryName(path);
                 if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
 
-                // 如果檔案存在，執行自動備份
                 if (File.Exists(path)) PerformBackup(path);
 
                 using (var output = File.Create(path)) package.WriteTo(output);
@@ -79,25 +78,17 @@ namespace BMC.Story.Editor
                 string dir = Path.GetDirectoryName(originalPath);
                 string fileName = Path.GetFileNameWithoutExtension(originalPath);
                 string extension = Path.GetExtension(originalPath);
-
-                // 修改：使用 "Backups~" 避免 Unity 生成 Meta 檔
                 string backupDir = Path.Combine(dir, "Backups~");
 
                 if (!Directory.Exists(backupDir)) Directory.CreateDirectory(backupDir);
 
                 string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                // 檔名格式: Name_Timestamp.ext.bak
                 string backupPath = Path.Combine(backupDir, $"{fileName}_{timestamp}{extension}.bak");
 
                 File.Copy(originalPath, backupPath, true);
-                Debug.Log($"[StoryEditorContext] Backup created: {backupPath}");
-
                 CleanUpOldBackups(backupDir, fileName);
             }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning($"[StoryEditorContext] Backup failed: {e.Message}");
-            }
+            catch { }
         }
 
         private static void CleanUpOldBackups(string backupDir, string baseFileName)
@@ -111,24 +102,18 @@ namespace BMC.Story.Editor
 
                 if (files.Count > 5)
                 {
-                    for (int i = 5; i < files.Count; i++)
-                    {
-                        try { files[i].Delete(); } catch { }
-                    }
+                    for (int i = 5; i < files.Count; i++) try { files[i].Delete(); } catch { }
                 }
             }
             catch { }
         }
 
-        // --- 取得可用備份列表 ---
         public static List<string> GetAvailableBackups(string originalPath)
         {
             try
             {
                 string dir = Path.GetDirectoryName(originalPath);
                 string fileName = Path.GetFileNameWithoutExtension(originalPath);
-
-                // 修改：讀取 "Backups~"
                 string backupDir = Path.Combine(dir, "Backups~");
 
                 if (!Directory.Exists(backupDir)) return new List<string>();
@@ -139,13 +124,9 @@ namespace BMC.Story.Editor
                                     .Select(f => f.FullName)
                                     .ToList();
             }
-            catch
-            {
-                return new List<string>();
-            }
+            catch { return new List<string>(); }
         }
 
-        // --- 還原指定備份 ---
         public static bool RestoreBackup(string backupPath, string targetPath)
         {
             if (!File.Exists(backupPath)) return false;
@@ -161,40 +142,29 @@ namespace BMC.Story.Editor
             }
         }
 
-        // --- 清除所有備份 ---
         public static void ClearAllBackups(string originalPath)
         {
             try
             {
                 string dir = Path.GetDirectoryName(originalPath);
-                string fileName = Path.GetFileNameWithoutExtension(originalPath);
-
-                // 修改：清除 "Backups~" 內的檔案
                 string backupDir = Path.Combine(dir, "Backups~");
-
-                if (!Directory.Exists(backupDir)) return;
-
-                var directoryInfo = new DirectoryInfo(backupDir);
-                var files = directoryInfo.GetFiles($"{fileName}_*.bak");
-
-                foreach (var file in files)
+                if (Directory.Exists(backupDir))
                 {
-                    try { file.Delete(); } catch { }
+                    string fileName = Path.GetFileNameWithoutExtension(originalPath);
+                    foreach (var file in new DirectoryInfo(backupDir).GetFiles($"{fileName}_*.bak"))
+                    {
+                        try { file.Delete(); } catch { }
+                    }
                 }
-
-                Debug.Log($"[StoryEditorContext] Cleared {files.Length} backup files for '{fileName}'.");
             }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning($"[StoryEditorContext] Failed to clear backups: {e.Message}");
-            }
+            catch { }
         }
 
         public static StoryPackage CreateDefaultPackage(string chapterId)
         {
             StoryPackage newPackage = new StoryPackage();
             newPackage.ChapterId = chapterId;
-            newPackage.Nodes.Add(new StoryNode { Id = "Start", VideoPath = "" });
+            newPackage.Nodes.Add(new StoryNode { Id = "Start" });
             return newPackage;
         }
 
@@ -218,7 +188,7 @@ namespace BMC.Story.Editor
         public static StoryNode CreateSpecificNode(StoryPackage package, string newId)
         {
             if (package.Nodes.Any(n => n.Id == newId)) return null;
-            var newNode = new StoryNode { Id = newId, VideoPath = "" };
+            var newNode = new StoryNode { Id = newId };
             package.Nodes.Add(newNode);
             return newNode;
         }
@@ -236,18 +206,13 @@ namespace BMC.Story.Editor
 
         public static int DeleteNodeAndCleanReferences(StoryPackage package, string nodeIdToDelete)
         {
-            int removedChoicesCount = 0;
+            int removedRefs = 0;
             foreach (var otherNode in package.Nodes)
             {
-                var choicesToRemove = otherNode.Choices.Where(c => c.TargetNodeId == nodeIdToDelete).ToList();
-                foreach (var c in choicesToRemove)
-                {
-                    otherNode.Choices.Remove(c);
-                    removedChoicesCount++;
-                }
+                removedRefs += RemoveReferencesTo(otherNode, nodeIdToDelete);
             }
             DeleteNode(package, nodeIdToDelete);
-            return removedChoicesCount;
+            return removedRefs;
         }
 
         public static int DeleteNodesAndCleanReferences(StoryPackage package, HashSet<string> nodesToDelete)
@@ -256,12 +221,10 @@ namespace BMC.Story.Editor
             foreach (var node in package.Nodes)
             {
                 if (nodesToDelete.Contains(node.Id)) continue;
-
-                var toRemove = node.Choices.Where(c => nodesToDelete.Contains(c.TargetNodeId)).ToList();
-                foreach (var c in toRemove)
+                // 從保留的節點中移除對將刪除節點的引用
+                foreach (var delId in nodesToDelete)
                 {
-                    node.Choices.Remove(c);
-                    removedRefs++;
+                    removedRefs += RemoveReferencesTo(node, delId);
                 }
             }
 
@@ -276,15 +239,121 @@ namespace BMC.Story.Editor
             var node = package.Nodes.FirstOrDefault(n => n.Id == oldId);
             if (node == null) return 0;
             node.Id = newId;
+
             int count = 0;
             foreach (var n in package.Nodes)
             {
-                foreach (var c in n.Choices)
+                count += RenameTargetIdInNode(n, oldId, newId);
+            }
+            return count;
+        }
+
+        // ===================================================================================
+        // Event-Aware Reference Logic (Cleaned)
+        // ===================================================================================
+
+        /// <summary>
+        /// 獲取節點中所有對外的跳轉引用 (包含 AutoJump, ShowChoices, Games 等)
+        /// </summary>
+        public static IEnumerable<string> GetTargetNodeIds(StoryNode node)
+        {
+            if (!string.IsNullOrEmpty(node.AutoJumpNodeId)) yield return node.AutoJumpNodeId;
+
+            foreach (var evt in node.OnEnterEvents.Concat(node.OnExitEvents))
+            {
+                foreach (var id in GetTargetIdsFromEvent(evt)) yield return id;
+            }
+        }
+
+        private static IEnumerable<string> GetTargetIdsFromEvent(StoryEvent evt)
+        {
+            switch (evt.ActionCase)
+            {
+                case StoryEvent.ActionOneofCase.ShowChoices:
+                    foreach (var c in evt.ShowChoices.Choices)
+                        if (!string.IsNullOrEmpty(c.TargetNodeId)) yield return c.TargetNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GameDice:
+                    if (!string.IsNullOrEmpty(evt.GameDice.SuccessNodeId)) yield return evt.GameDice.SuccessNodeId;
+                    if (!string.IsNullOrEmpty(evt.GameDice.FailNodeId)) yield return evt.GameDice.FailNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GameRussianRoulette:
+                    if (!string.IsNullOrEmpty(evt.GameRussianRoulette.WinNodeId)) yield return evt.GameRussianRoulette.WinNodeId;
+                    if (!string.IsNullOrEmpty(evt.GameRussianRoulette.LoseNodeId)) yield return evt.GameRussianRoulette.LoseNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GameQte:
+                    if (!string.IsNullOrEmpty(evt.GameQte.SuccessNodeId)) yield return evt.GameQte.SuccessNodeId;
+                    if (!string.IsNullOrEmpty(evt.GameQte.FailNodeId)) yield return evt.GameQte.FailNodeId;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 將節點內所有指向 oldId 的引用改為 newId
+        /// </summary>
+        public static int RenameTargetIdInNode(StoryNode node, string oldId, string newId)
+        {
+            int count = 0;
+            if (node.AutoJumpNodeId == oldId) { node.AutoJumpNodeId = newId; count++; }
+
+            foreach (var evt in node.OnEnterEvents.Concat(node.OnExitEvents))
+            {
+                switch (evt.ActionCase)
                 {
-                    if (c.TargetNodeId == oldId)
+                    case StoryEvent.ActionOneofCase.ShowChoices:
+                        foreach (var c in evt.ShowChoices.Choices)
+                            if (c.TargetNodeId == oldId) { c.TargetNodeId = newId; count++; }
+                        break;
+                    case StoryEvent.ActionOneofCase.GameDice:
+                        if (evt.GameDice.SuccessNodeId == oldId) { evt.GameDice.SuccessNodeId = newId; count++; }
+                        if (evt.GameDice.FailNodeId == oldId) { evt.GameDice.FailNodeId = newId; count++; }
+                        break;
+                    case StoryEvent.ActionOneofCase.GameRussianRoulette:
+                        if (evt.GameRussianRoulette.WinNodeId == oldId) { evt.GameRussianRoulette.WinNodeId = newId; count++; }
+                        if (evt.GameRussianRoulette.LoseNodeId == oldId) { evt.GameRussianRoulette.LoseNodeId = newId; count++; }
+                        break;
+                    case StoryEvent.ActionOneofCase.GameQte:
+                        if (evt.GameQte.SuccessNodeId == oldId) { evt.GameQte.SuccessNodeId = newId; count++; }
+                        if (evt.GameQte.FailNodeId == oldId) { evt.GameQte.FailNodeId = newId; count++; }
+                        break;
+                }
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// 移除節點內指向 targetId 的所有引用 (清空 ID 或刪除選項)
+        /// </summary>
+        public static int RemoveReferencesTo(StoryNode node, string targetId)
+        {
+            int count = 0;
+            if (node.AutoJumpNodeId == targetId) { node.AutoJumpNodeId = ""; count++; }
+
+            foreach (var evt in node.OnEnterEvents.Concat(node.OnExitEvents))
+            {
+                if (evt.ActionCase == StoryEvent.ActionOneofCase.ShowChoices)
+                {
+                    // 對於選項，若目標刪除，則移除該選項
+                    var toRemove = evt.ShowChoices.Choices.Where(c => c.TargetNodeId == targetId).ToList();
+                    foreach (var c in toRemove) { evt.ShowChoices.Choices.Remove(c); count++; }
+                }
+                else
+                {
+                    // 對於遊戲結果，僅清空 ID
+                    switch (evt.ActionCase)
                     {
-                        c.TargetNodeId = newId;
-                        count++;
+                        case StoryEvent.ActionOneofCase.GameDice:
+                            if (evt.GameDice.SuccessNodeId == targetId) evt.GameDice.SuccessNodeId = "";
+                            if (evt.GameDice.FailNodeId == targetId) evt.GameDice.FailNodeId = "";
+                            break;
+                        case StoryEvent.ActionOneofCase.GameRussianRoulette:
+                            if (evt.GameRussianRoulette.WinNodeId == targetId) evt.GameRussianRoulette.WinNodeId = "";
+                            if (evt.GameRussianRoulette.LoseNodeId == targetId) evt.GameRussianRoulette.LoseNodeId = "";
+                            break;
+                        case StoryEvent.ActionOneofCase.GameQte:
+                            if (evt.GameQte.SuccessNodeId == targetId) evt.GameQte.SuccessNodeId = "";
+                            if (evt.GameQte.FailNodeId == targetId) evt.GameQte.FailNodeId = "";
+                            break;
                     }
                 }
             }
@@ -298,7 +367,7 @@ namespace BMC.Story.Editor
         public static bool IsNodeReferenced(StoryPackage package, string targetId)
         {
             if (string.IsNullOrEmpty(targetId)) return false;
-            return package.Nodes.Any(n => n.Choices.Any(c => c.TargetNodeId == targetId));
+            return package.Nodes.Any(n => GetTargetNodeIds(n).Contains(targetId));
         }
 
         public static List<string> GetOrphanedNodes(StoryPackage package)
@@ -306,9 +375,9 @@ namespace BMC.Story.Editor
             var referencedIds = new HashSet<string>();
             foreach (var node in package.Nodes)
             {
-                foreach (var choice in node.Choices)
+                foreach (var id in GetTargetNodeIds(node))
                 {
-                    if (!string.IsNullOrEmpty(choice.TargetNodeId)) referencedIds.Add(choice.TargetNodeId);
+                    referencedIds.Add(id);
                 }
             }
             var orphans = new List<string>();
@@ -326,41 +395,31 @@ namespace BMC.Story.Editor
             var queue = new Queue<string>();
 
             nodesToDelete.Add(rootNodeId);
-
             var rootNode = package.Nodes.FirstOrDefault(n => n.Id == rootNodeId);
+
             if (rootNode != null)
             {
-                foreach (var choice in rootNode.Choices)
-                {
-                    if (!string.IsNullOrEmpty(choice.TargetNodeId)) queue.Enqueue(choice.TargetNodeId);
-                }
+                foreach (var id in GetTargetNodeIds(rootNode)) queue.Enqueue(id);
             }
 
             while (queue.Count > 0)
             {
                 string currentId = queue.Dequeue();
-
                 if (nodesToDelete.Contains(currentId)) continue;
 
                 var currentNode = package.Nodes.FirstOrDefault(n => n.Id == currentId);
                 if (currentNode == null) continue;
 
+                // 檢查是否有「外部」引用 (非待刪除集合內的節點指向此節點)
                 bool isReferencedExternally = package.Nodes.Any(n =>
                     !nodesToDelete.Contains(n.Id) &&
-                    n.Choices.Any(c => c.TargetNodeId == currentId)
+                    GetTargetNodeIds(n).Contains(currentId)
                 );
 
-                if (isReferencedExternally)
-                {
-                    continue;
-                }
-                else
+                if (!isReferencedExternally)
                 {
                     nodesToDelete.Add(currentId);
-                    foreach (var choice in currentNode.Choices)
-                    {
-                        if (!string.IsNullOrEmpty(choice.TargetNodeId)) queue.Enqueue(choice.TargetNodeId);
-                    }
+                    foreach (var id in GetTargetNodeIds(currentNode)) queue.Enqueue(id);
                 }
             }
             return nodesToDelete;
@@ -371,7 +430,11 @@ namespace BMC.Story.Editor
             string baseId = $"{sourceNode.Id}_Next";
             string finalId = baseId;
             int suffix = 1;
-            while (package.Nodes.Any(n => n.Id == finalId) || sourceNode.Choices.Any(c => c.TargetNodeId == finalId))
+
+            var existingIds = new HashSet<string>(package.Nodes.Select(n => n.Id));
+
+            // Check direct match
+            while (existingIds.Contains(finalId))
             {
                 finalId = $"{baseId}_{suffix}";
                 suffix++;

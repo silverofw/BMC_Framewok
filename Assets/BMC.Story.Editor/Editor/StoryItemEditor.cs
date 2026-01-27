@@ -20,7 +20,6 @@ namespace BMC.Story.Editor
         {
             StoryLineItem item = (StoryLineItem)target;
 
-            // Header Status
             GUIStyle headerStyle = new GUIStyle(EditorStyles.helpBox) { fontSize = 12, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
             if (string.IsNullOrEmpty(item.NodeID))
             {
@@ -52,18 +51,28 @@ namespace BMC.Story.Editor
             {
                 GUI.enabled = false;
                 EditorGUILayout.TextField("File Node ID", _cachedNode.Id);
-                EditorGUILayout.TextField("Video Path", _cachedNode.VideoPath);
                 EditorGUILayout.Space();
-                EditorGUILayout.LabelField($"Choices Count: {_cachedNode.Choices.Count}", EditorStyles.miniBoldLabel);
+                EditorGUILayout.LabelField($"OnEnter Events: {_cachedNode.OnEnterEvents.Count}", EditorStyles.miniBoldLabel);
 
-                for (int i = 0; i < _cachedNode.Choices.Count; i++)
+                for (int i = 0; i < _cachedNode.OnEnterEvents.Count; i++)
                 {
-                    var choice = _cachedNode.Choices[i];
+                    var evt = _cachedNode.OnEnterEvents[i];
                     EditorGUILayout.BeginVertical("box");
-                    EditorGUILayout.LabelField($"Option {i + 1}", EditorStyles.miniLabel);
-                    EditorGUILayout.TextField("Text", choice.Text);
-                    EditorGUILayout.TextField("Target ID", choice.TargetNodeId);
+                    EditorGUILayout.LabelField($"Event {i + 1}: {evt.ActionCase}", EditorStyles.miniLabel);
+
+                    if (evt.ActionCase == StoryEvent.ActionOneofCase.ShowChoices)
+                    {
+                        foreach (var c in evt.ShowChoices.Choices)
+                        {
+                            EditorGUILayout.LabelField($" -> {c.Text} (To: {c.TargetNodeId})");
+                        }
+                    }
                     EditorGUILayout.EndVertical();
+                }
+
+                if (!string.IsNullOrEmpty(_cachedNode.AutoJumpNodeId))
+                {
+                    EditorGUILayout.LabelField($"Auto Jump -> {_cachedNode.AutoJumpNodeId}");
                 }
                 GUI.enabled = true;
             }

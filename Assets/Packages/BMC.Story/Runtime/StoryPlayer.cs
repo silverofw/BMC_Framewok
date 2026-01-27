@@ -42,7 +42,7 @@ namespace BMC.Story
             _preNode = (CrtNode != null) ? CrtNode : null;
             CrtNode = _nodeMap[nodeId];
 
-            Log.Info($"[StoryPlayer] PlayNode: {CrtNode.Id}, VideoPath: {CrtNode.VideoPath}");
+            Log.Info($"[StoryPlayer][{CrtNode.Id}] AutoJumpNodeId: {CrtNode.AutoJumpNodeId}, AutoJumpDelay: {CrtNode.AutoJumpDelay}");
             handler.Send((int)StoryEventID.PlayNode, CrtNode, _preNode);
         }
 

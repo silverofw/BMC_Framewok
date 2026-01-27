@@ -13,9 +13,9 @@ namespace BMC.Story.Editor
             package.ChapterId = $"{id}";
 
             // 模擬一些測試資料
-            package.Nodes.Add(new StoryNode { Id = "Start", VideoPath = "v1.mp4" });
-            package.Nodes.Add(new StoryNode { Id = "Start2", VideoPath = "v2.mp4" });
-            package.Nodes.Add(new StoryNode { Id = "Start3", VideoPath = "v3.mp4" });
+            package.Nodes.Add(new StoryNode { Id = "Start" });
+            package.Nodes.Add(new StoryNode { Id = "Start2" });
+            package.Nodes.Add(new StoryNode { Id = "Start3" });
             return package;
         }
 
@@ -95,7 +95,7 @@ namespace BMC.Story.Editor
             {
                 // 從 byte[] 還原
                 StoryPackage package = StoryPackage.Parser.ParseFrom(asset.bytes);
-                Debug.Log($"讀取成功，章節：{package.Nodes[0].VideoPath}");
+                Debug.Log($"讀取成功，章節：{package.Nodes[0].Id}");
             }
         }
     }
