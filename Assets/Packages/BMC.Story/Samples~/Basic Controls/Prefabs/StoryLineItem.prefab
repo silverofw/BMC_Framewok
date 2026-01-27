@@ -130,9 +130,9 @@ MonoBehaviour:
   mask: {fileID: 0}
   closeBtn: {fileID: 0}
   uiUtility: {fileID: 0}
-  info: {fileID: 0}
-  btn: {fileID: 0}
-  select: {fileID: 0}
+  info: {fileID: 2888096475080136010}
+  btn: {fileID: 2477187862542686807}
+  select: {fileID: 9055001992080153348}
   NodeID: 
   VideoPath: 
 --- !u!114 &8810889324410637587
@@ -308,6 +308,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
+--- !u!114 &2477187862542686807 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7178217457748754440, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
+  m_PrefabInstance: {fileID: 4755409241435232863}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6ab5b166285c043abb284459cfb851, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2888096475080136010 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7631930058095906581, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
+  m_PrefabInstance: {fileID: 4755409241435232863}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b57cd1a1520762641954c79bd4dec0a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: bmc.ui::bmc.ui.UIText
 --- !u!224 &7776953671722516857 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3031997508817230630, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
