@@ -6,8 +6,7 @@
   "unity": "6000.0",
   "dependencies": {
     "com.bmc.core": "1.0.0",
-    "com.bmc.ui": "1.0.0",
-    "com.cysharp.unitask": "2.3.1"
+    "com.bmc.ui": "1.0.0"
   },
   "repository": {
     "type": "git",

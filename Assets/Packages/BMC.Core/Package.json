@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "BMC Core",
   "description": "BMC 核心基礎模組 (Singleton, Data Types, Extensions)。",
   "unity": "6000.0",
@@ -11,12 +11,6 @@
   "author": {
     "name": "silverofw",
     "url": "https://github.com/silverofw"
-  },
-  "dependencies": {
-    "com.cysharp.unitask": "2.5.0",
-    "com.tuyoogame.yooasset": "1.5.0",
-    "com.gilzoide.sqlite-net": "1.0.0",
-    "com.focus-creative-games.hybridclr_unity": "4.0.0"
   },
   "keywords": [
     "bmc",
