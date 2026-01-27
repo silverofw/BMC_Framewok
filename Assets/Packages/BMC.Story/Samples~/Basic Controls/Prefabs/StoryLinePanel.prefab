@@ -808,7 +808,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1577429154972401996}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.46414635
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1048,7 +1048,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: BMC.Story::BMC.Story.StoryPanel
   rootPanel: {fileID: 0}
   mask: {fileID: 0}
-  closeBtn: {fileID: 0}
+  closeBtn: {fileID: 993871360601624329}
   uiUtility: {fileID: 0}
   contentRoot: {fileID: 2754214213923372080}
   connectionDrawer: {fileID: 5666234878754538082}
@@ -1309,6 +1309,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
+--- !u!114 &993871360601624329 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7178217457748754440, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
+  m_PrefabInstance: {fileID: 7950214547913527041}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6ab5b166285c043abb284459cfb851, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &4919909544255869991 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3031997508817230630, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
