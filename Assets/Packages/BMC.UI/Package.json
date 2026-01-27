@@ -1,12 +1,19 @@
 {
   "name": "com.bmc.ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "BMC UI System",
   "description": "BMC 通用介面系統。",
   "unity": "6000.0",
   "dependencies": {
     "com.bmc.core": "1.0.0"
   },
+  "samples": [
+    {
+      "displayName": "Basic Controls",
+      "description": "基礎 UI 元件 (Button, Text) 的預製物件範本。",
+      "path": "Samples~/Basic Controls"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/silverofw/BMC_Framewok.git"
