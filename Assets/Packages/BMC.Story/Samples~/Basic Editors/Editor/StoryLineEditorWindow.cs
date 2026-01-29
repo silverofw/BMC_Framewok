@@ -8,28 +8,37 @@ namespace BMC.Story.Editor
 {
     public class StoryLineEditorWindow : EditorWindow
     {
+        // 核心狀態
         private int _chapterId = 1;
         private StoryLinePanel _targetPanel;
         private StoryPackage _currentPackage;
         private string _selectedNodeId;
+
+        // UI 狀態
         private Vector2 _nodeListScrollPos;
         private Vector2 _nodeDetailScrollPos;
         private string _searchFilter = "";
 
+        // 樣式定義
         private static class Styles
         {
-            public static GUIStyle SceneLabel;
+            public static GUIStyle SceneLabel = new GUIStyle(GUI.skin.label)
+            {
+                normal = { textColor = Color.yellow },
+                fontSize = 14,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                richText = true
+            };
+
+            public static GUIStyle HeaderLabel = new GUIStyle(EditorStyles.boldLabel) { fontSize = 12 };
+
             public static Color SelectionColor = Color.cyan;
             public static Color WarningColor = new Color(1f, 0.8f, 0.6f);
             public static Color ErrorColor = new Color(1f, 0.4f, 0.4f);
-            public static Color SuccessColor = Color.green;
+            public static Color SuccessColor = new Color(0.6f, 1f, 0.6f);
             public static Color BackupColor = new Color(0.6f, 0.8f, 1f);
             public static Color EventHeaderColor = new Color(0.25f, 0.25f, 0.25f);
-
-            static Styles()
-            {
-                SceneLabel = new GUIStyle(GUI.skin.label) { normal = { textColor = Color.yellow }, fontSize = 14, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, richText = true };
-            }
         }
 
         public static void ShowWindow(StoryLinePanel target)
@@ -49,6 +58,7 @@ namespace BMC.Story.Editor
 
         private void OnDestroy()
         {
+            // 關閉視窗時清理備份與場景殘留
             StoryEditorContext.ClearAllBackups(StoryEditorContext.CurrentFilePath);
             if (_targetPanel != null)
             {
@@ -57,11 +67,18 @@ namespace BMC.Story.Editor
             }
         }
 
+        // ===================================================================================
+        // Scene View Drawing (視覺化連線)
+        // ===================================================================================
         private void OnSceneGUI(SceneView sceneView)
         {
             if (_currentPackage == null || _targetPanel == null) return;
 
+            // 建立節點 ID 對應 Transform 的快取
+            // 注意：這裡每次重繪都抓取可能會有效能開銷，但在編輯器模式下通常可接受
             var items = _targetPanel.GetComponentsInChildren<StoryLineItem>();
+            if (items == null || items.Length == 0) return;
+
             var nodeMap = new Dictionary<string, Transform>();
             foreach (var item in items)
             {
@@ -71,32 +88,39 @@ namespace BMC.Story.Editor
                 }
             }
 
+            // 繪製連線
             foreach (var node in _currentPackage.Nodes)
             {
                 if (!nodeMap.ContainsKey(node.Id)) continue;
+
                 Vector3 startPos = nodeMap[node.Id].position;
-
-                // 根據是否有跳轉邏輯來決定顏色
                 var targets = StoryEditorContext.GetTargetNodeIds(node).ToList();
-                Handles.color = (node.Id == "Start") ? Color.green : (targets.Count == 0 ? Color.red : Color.white);
-                if (node.Id == _selectedNodeId) Handles.color = Color.cyan;
+                bool isSelected = (node.Id == _selectedNodeId);
 
+                // 節點圓盤顏色邏輯
+                if (node.Id == "Start") Handles.color = Color.green;
+                else if (targets.Count == 0) Handles.color = Color.red; // 終結點
+                else Handles.color = Color.white;
+
+                if (isSelected) Handles.color = Styles.SelectionColor;
+
+                // 繪製節點位置
                 Handles.DrawWireDisc(startPos, Vector3.up, 0.5f);
-
-                if (node.Id == _selectedNodeId)
+                if (isSelected)
                 {
                     Handles.Label(startPos + Vector3.up * 1.0f, $"<color=cyan>Editing:</color> {node.Id}", Styles.SceneLabel);
                 }
 
+                // 繪製貝茲曲線
                 foreach (var targetId in targets)
                 {
                     if (!string.IsNullOrEmpty(targetId) && nodeMap.ContainsKey(targetId))
                     {
                         Vector3 endPos = nodeMap[targetId].position;
-                        if (node.Id == _selectedNodeId)
+                        if (isSelected)
                         {
-                            Handles.color = Color.cyan;
-                            Handles.DrawBezier(startPos, endPos, startPos + Vector3.up * 2, endPos + Vector3.up * 2, Color.cyan, null, 3f);
+                            Handles.color = Styles.SelectionColor;
+                            Handles.DrawBezier(startPos, endPos, startPos + Vector3.up * 2, endPos + Vector3.up * 2, Styles.SelectionColor, null, 3f);
                         }
                         else
                         {
@@ -108,12 +132,17 @@ namespace BMC.Story.Editor
             }
         }
 
+        // ===================================================================================
+        // Main GUI (編輯器介面)
+        // ===================================================================================
         private void OnGUI()
         {
-            EditorGUILayout.LabelField("Story System Manager", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("Story System Editor", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
 
             DrawTargetPanelBinding();
+
             if (_targetPanel == null) return;
 
             DrawHorizontalLine();
@@ -129,86 +158,107 @@ namespace BMC.Story.Editor
             }
             else
             {
-                string path = StoryEditorContext.CurrentFilePath;
-                if (File.Exists(path)) EditorGUILayout.HelpBox("File exists. Click 'Load & Edit' to start.", MessageType.Info);
-                else EditorGUILayout.LabelField("Waiting for file creation...", EditorStyles.centeredGreyMiniLabel);
+                ShowWaitingInterface();
             }
         }
 
         private void DrawTargetPanelBinding()
         {
             EditorGUI.BeginChangeCheck();
-            _targetPanel = (StoryLinePanel)EditorGUILayout.ObjectField("Target Panel", _targetPanel, typeof(StoryLinePanel), true);
+            _targetPanel = (StoryLinePanel)EditorGUILayout.ObjectField("UI Panel (Scene)", _targetPanel, typeof(StoryLinePanel), true);
             if (EditorGUI.EndChangeCheck()) { }
-            if (_targetPanel == null) EditorGUILayout.HelpBox("Please assign StoryLinePanel first.", MessageType.Info);
+
+            if (_targetPanel == null)
+                EditorGUILayout.HelpBox("請先將場景中的 StoryLinePanel 拖曳至此。", MessageType.Warning);
         }
 
         private void DrawChapterSettings()
         {
-            EditorGUILayout.LabelField("Chapter Settings", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("Chapter Config", Styles.HeaderLabel);
+
+            EditorGUILayout.BeginHorizontal();
             EditorGUI.BeginChangeCheck();
             _chapterId = EditorGUILayout.IntField("Chapter ID", _chapterId);
             if (_chapterId < 1) _chapterId = 1;
+
             if (EditorGUI.EndChangeCheck())
             {
+                // 當切換章節 ID 時，重置當前編輯狀態
                 StoryEditorContext.CurrentChapterId = _chapterId;
                 _currentPackage = null;
                 _selectedNodeId = null;
                 SceneView.RepaintAll();
             }
-            EditorGUILayout.SelectableLabel(StoryEditorContext.CurrentFilePath, EditorStyles.textField, GUILayout.Height(18));
+
+            // 顯示當前檔案路徑 (唯讀)
+            GUI.enabled = false;
+            EditorGUILayout.TextField(StoryEditorContext.CurrentFilePath);
+            GUI.enabled = true;
+
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
         }
 
         private void DrawFileOperations()
         {
             bool fileExists = File.Exists(StoryEditorContext.CurrentFilePath);
+
             EditorGUILayout.BeginHorizontal();
+
             if (fileExists)
             {
+                // 載入按鈕
                 GUI.backgroundColor = Styles.SuccessColor;
-                if (GUILayout.Button("Load & Edit", GUILayout.Height(30))) LoadAndGenerate();
+                if (GUILayout.Button(new GUIContent(" Load & Edit", "載入並生成場景"), GUILayout.Height(30)))
+                    LoadAndGenerate();
 
+                // 歷史紀錄按鈕
                 GUI.backgroundColor = Styles.BackupColor;
-                if (GUILayout.Button("History", GUILayout.Height(30), GUILayout.Width(70))) ShowBackupMenu();
-                GUI.backgroundColor = Color.white;
+                if (GUILayout.Button(new GUIContent(" History", "查看自動備份"), GUILayout.Height(30), GUILayout.Width(70)))
+                    ShowBackupMenu();
             }
             else
             {
+                // 創建按鈕
                 GUI.backgroundColor = Styles.WarningColor;
-                if (GUILayout.Button("Create & Load", GUILayout.Height(30))) CreateAndLoad();
-                GUI.backgroundColor = Color.white;
+                if (GUILayout.Button("Create New Package", GUILayout.Height(30)))
+                    CreateAndLoad();
             }
 
-            if (GUILayout.Button("Clear Scene", GUILayout.Height(30))) _targetPanel.ClearOldLayout();
+            GUI.backgroundColor = Color.white;
+
+            // 清除場景按鈕 (不影響存檔)
+            if (GUILayout.Button("Clear Scene View", GUILayout.Height(30), GUILayout.Width(120)))
+                _targetPanel.ClearOldLayout();
+
             EditorGUILayout.EndHorizontal();
         }
 
-        private void ShowBackupMenu()
+        private void ShowWaitingInterface()
         {
-            string path = StoryEditorContext.CurrentFilePath;
-            var backups = StoryEditorContext.GetAvailableBackups(path);
-            GenericMenu menu = new GenericMenu();
-
-            if (backups.Count == 0) menu.AddDisabledItem(new GUIContent("No backups found"));
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("Status: Idle", EditorStyles.centeredGreyMiniLabel);
+            if (File.Exists(StoryEditorContext.CurrentFilePath))
+                EditorGUILayout.HelpBox($"File found: Chapter {_chapterId}\nClick 'Load & Edit' to begin.", MessageType.Info);
             else
-            {
-                foreach (var backup in backups)
-                {
-                    string fileName = Path.GetFileName(backup);
-                    menu.AddItem(new GUIContent($"Restore: {fileName}"), false, () => {
-                        if (StoryEditorContext.RestoreBackup(backup, path)) LoadAndGenerate();
-                    });
-                }
-            }
-            menu.ShowAsContext();
+                EditorGUILayout.LabelField("File not found. Create a new one to start.", EditorStyles.centeredGreyMiniLabel);
+            EditorGUILayout.EndVertical();
         }
 
+        // ===================================================================================
+        // Editor Core Interface (左右分割視窗)
+        // ===================================================================================
         private void DrawEditorInterface()
         {
-            EditorGUILayout.LabelField($"Node Editor (Nodes: {_currentPackage.Nodes.Count})", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"Package Content (Nodes: {_currentPackage.Nodes.Count})", EditorStyles.boldLabel);
+
             EditorGUILayout.BeginHorizontal(GUILayout.ExpandHeight(true));
 
+            // Left: Node List
             DrawNodeListSidebar();
+
+            // Right: Node Details
             DrawNodeDetailArea();
 
             EditorGUILayout.EndHorizontal();
@@ -216,20 +266,20 @@ namespace BMC.Story.Editor
 
         private void DrawNodeListSidebar()
         {
-            EditorGUILayout.BeginVertical(GUILayout.Width(220));
+            EditorGUILayout.BeginVertical(GUILayout.Width(240)); // 稍微加寬
 
-            // Search Bar
+            // 搜尋欄
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             _searchFilter = EditorGUILayout.TextField(_searchFilter, EditorStyles.toolbarSearchField);
-            if (GUILayout.Button("X", EditorStyles.toolbarButton, GUILayout.Width(20)))
+            if (GUILayout.Button("Clear", EditorStyles.toolbarButton, GUILayout.Width(40)))
             {
                 _searchFilter = "";
                 GUI.FocusControl(null);
             }
             EditorGUILayout.EndHorizontal();
 
-            // Create Button
-            if (GUILayout.Button("+ Create Node", GUILayout.Height(25)))
+            // 新增節點按鈕
+            if (GUILayout.Button("+ Create New Node", GUILayout.Height(25)))
             {
                 var newNode = StoryEditorContext.CreateNewNode(_currentPackage);
                 _selectedNodeId = newNode.Id;
@@ -238,29 +288,36 @@ namespace BMC.Story.Editor
             }
 
             EditorGUILayout.Space(5);
-            _nodeListScrollPos = EditorGUILayout.BeginScrollView(_nodeListScrollPos, "box");
+
+            // 節點列表 Scroll View
+            _nodeListScrollPos = EditorGUILayout.BeginScrollView(_nodeListScrollPos, "box", GUILayout.ExpandHeight(true));
 
             foreach (var node in _currentPackage.Nodes)
             {
+                // 搜尋過濾
                 if (!string.IsNullOrEmpty(_searchFilter))
                 {
                     if (node.Id.IndexOf(_searchFilter, System.StringComparison.OrdinalIgnoreCase) < 0) continue;
                 }
 
+                // 繪製列表項目
                 if (_selectedNodeId == node.Id) GUI.backgroundColor = Styles.SelectionColor;
-                if (GUILayout.Button(node.Id, EditorStyles.miniButton, GUILayout.Height(20)))
+
+                string displayName = string.IsNullOrEmpty(node.Id) ? "[Empty ID]" : node.Id;
+                if (GUILayout.Button(displayName, EditorStyles.miniButton, GUILayout.Height(24)))
                 {
                     _selectedNodeId = node.Id;
-                    GUI.FocusControl(null);
+                    GUI.FocusControl(null); // 取消輸入框焦點，避免誤觸
                     SceneView.RepaintAll();
                 }
                 GUI.backgroundColor = Color.white;
             }
             EditorGUILayout.EndScrollView();
 
+            // 孤兒節點檢查
             EditorGUILayout.Space();
             GUI.backgroundColor = Styles.WarningColor;
-            if (GUILayout.Button("Check Orphans", GUILayout.Height(25))) CheckAndCleanOrphans();
+            if (GUILayout.Button("Cleanup Orphans", GUILayout.Height(25))) CheckAndCleanOrphans();
             GUI.backgroundColor = Color.white;
 
             EditorGUILayout.EndVertical();
@@ -280,135 +337,139 @@ namespace BMC.Story.Editor
                 }
                 else
                 {
-                    EditorGUILayout.LabelField("Selected node not found.");
+                    EditorGUILayout.HelpBox("Error: Selected node does not exist.", MessageType.Error);
                 }
             }
             else
             {
-                EditorGUILayout.LabelField("Select a node to edit.", EditorStyles.centeredGreyMiniLabel);
+                EditorGUILayout.LabelField("Select a node from the left list to edit properties.", EditorStyles.centeredGreyMiniLabel);
             }
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
 
+        // ===================================================================================
+        // Node Property Drawing (屬性編輯邏輯)
+        // ===================================================================================
         private void DrawNodeDetails(StoryNode node)
         {
             bool isDirty = false;
 
-            // 1. Header
+            // 1. ID 與 基本操作
             DrawNodeHeader(node, ref isDirty);
-            if (_selectedNodeId == null) return; // Node deleted
+            if (_selectedNodeId == null) return; // 節點被刪除後直接返回
 
-            // 2. Auto Jump
-            EditorGUILayout.BeginVertical("box");
-            EditorGUILayout.LabelField("Auto Jump", EditorStyles.boldLabel);
-            node.AutoJumpDelay = EditorGUILayout.FloatField("Delay (sec)", node.AutoJumpDelay);
-            string oldAuto = node.AutoJumpNodeId;
-            string newAuto = EditorGUILayout.TextField("Target Node ID", node.AutoJumpNodeId);
-            if (oldAuto != newAuto)
-            {
-                node.AutoJumpNodeId = newAuto;
-                isDirty = true;
-            }
+            EditorGUILayout.Space();
+
+            // 2. Auto Jump 設定
+            EditorGUILayout.BeginVertical("helpbox");
+            EditorGUILayout.LabelField("Auto Jump Logic", EditorStyles.boldLabel);
+
+            EditorGUI.BeginChangeCheck();
+            node.AutoJumpDelay = EditorGUILayout.FloatField("Delay (Seconds)", node.AutoJumpDelay);
+            if (EditorGUI.EndChangeCheck()) isDirty = true;
+
+            DrawTargetIdSelector("Jump Target", () => node.AutoJumpNodeId, (val) => node.AutoJumpNodeId = val, node);
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("On Enter Events", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Events Pipeline (Execute sequentially)", EditorStyles.boldLabel);
 
-            // 3. Events List
+            // 3. 事件列表
             for (int i = 0; i < node.OnEnterEvents.Count; i++)
             {
                 var evt = node.OnEnterEvents[i];
-                EditorGUILayout.BeginVertical("helpbox");
+                EditorGUILayout.BeginVertical("box");
 
-                // Event Header
-                GUI.backgroundColor = Styles.EventHeaderColor;
+                // Event Toolbar (Title + Move + Delete)
                 EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-                GUILayout.Label($"#{i + 1} {evt.ActionCase}", EditorStyles.whiteLabel);
+                GUILayout.Label($"#{i + 1}  {evt.ActionCase}", EditorStyles.miniLabel);
 
-                // Move Up/Down
-                if (i > 0 && GUILayout.Button("▲", EditorStyles.toolbarButton, GUILayout.Width(20)))
+                // 上移
+                if (i > 0 && GUILayout.Button("▲", EditorStyles.toolbarButton, GUILayout.Width(25)))
                 {
-                    var temp = node.OnEnterEvents[i];
-                    node.OnEnterEvents[i] = node.OnEnterEvents[i - 1];
-                    node.OnEnterEvents[i - 1] = temp;
+                    (node.OnEnterEvents[i], node.OnEnterEvents[i - 1]) = (node.OnEnterEvents[i - 1], node.OnEnterEvents[i]);
                     isDirty = true;
                 }
-                if (i < node.OnEnterEvents.Count - 1 && GUILayout.Button("▼", EditorStyles.toolbarButton, GUILayout.Width(20)))
+                // 下移
+                if (i < node.OnEnterEvents.Count - 1 && GUILayout.Button("▼", EditorStyles.toolbarButton, GUILayout.Width(25)))
                 {
-                    var temp = node.OnEnterEvents[i];
-                    node.OnEnterEvents[i] = node.OnEnterEvents[i + 1];
-                    node.OnEnterEvents[i + 1] = temp;
+                    (node.OnEnterEvents[i], node.OnEnterEvents[i + 1]) = (node.OnEnterEvents[i + 1], node.OnEnterEvents[i]);
                     isDirty = true;
                 }
-
+                // 刪除
                 GUI.backgroundColor = Styles.ErrorColor;
-                if (GUILayout.Button("X", EditorStyles.toolbarButton, GUILayout.Width(20)))
+                if (GUILayout.Button("✕", EditorStyles.toolbarButton, GUILayout.Width(25)))
                 {
                     node.OnEnterEvents.RemoveAt(i);
                     isDirty = true;
-                    // Break to avoid index error, will repaint next frame
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
-                    break;
+                    break; // 中斷迴圈避免 Index Error
                 }
                 GUI.backgroundColor = Color.white;
                 EditorGUILayout.EndHorizontal();
 
-                // Common Properties
+                // Event Content
                 EditorGUI.BeginChangeCheck();
-                evt.DelaySeconds = EditorGUILayout.FloatField("Delay", evt.DelaySeconds);
+                evt.DelaySeconds = EditorGUILayout.FloatField("Pre-Delay", evt.DelaySeconds);
                 if (EditorGUI.EndChangeCheck()) isDirty = true;
 
-                // Specific Logic
-                bool eventContentChanged = DrawEventContent(node, evt);
-                if (eventContentChanged) isDirty = true;
+                if (DrawEventContent(node, evt)) isDirty = true;
 
                 EditorGUILayout.EndVertical();
-                EditorGUILayout.Space(5);
+                EditorGUILayout.Space(2);
             }
 
-            // 4. Add Event Buttons
+            // 4. 新增事件按鈕區
+            EditorGUILayout.Space();
+            DrawAddEventButtons(node, ref isDirty);
+
+            // 統一存檔
+            if (isDirty) SaveToDiskAndRefresh();
+        }
+
+        private void DrawAddEventButtons(StoryNode node, ref bool isDirty)
+        {
+            EditorGUILayout.LabelField("Add Event:", EditorStyles.miniLabel);
+
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+ Video")) { node.OnEnterEvents.Add(new StoryEvent { PlayVideo = new PlayVideoAction() }); isDirty = true; }
-            if (GUILayout.Button("+ BGM")) { node.OnEnterEvents.Add(new StoryEvent { PlayBgm = new PlayBackgroundMusicAction() }); isDirty = true; }
-            if (GUILayout.Button("+ SFX")) { node.OnEnterEvents.Add(new StoryEvent { PlaySfx = new PlaySoundEffectAction() }); isDirty = true; }
-            if (GUILayout.Button("+ Voice")) { node.OnEnterEvents.Add(new StoryEvent { PlayVoice = new PlayVoiceAction() }); isDirty = true; }
+            if (GUILayout.Button("Media (Video)", EditorStyles.miniButtonLeft)) { node.OnEnterEvents.Add(new StoryEvent { PlayVideo = new PlayVideoAction() }); isDirty = true; }
+            if (GUILayout.Button("Media (BGM)", EditorStyles.miniButtonMid)) { node.OnEnterEvents.Add(new StoryEvent { PlayBgm = new PlayBackgroundMusicAction() }); isDirty = true; }
+            if (GUILayout.Button("Media (SFX)", EditorStyles.miniButtonMid)) { node.OnEnterEvents.Add(new StoryEvent { PlaySfx = new PlaySoundEffectAction() }); isDirty = true; }
+            if (GUILayout.Button("Media (Voice)", EditorStyles.miniButtonRight)) { node.OnEnterEvents.Add(new StoryEvent { PlayVoice = new PlayVoiceAction() }); isDirty = true; }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+ Stat")) { node.OnEnterEvents.Add(new StoryEvent { UpdateStat = new UpdateCharacterStatAction() }); isDirty = true; }
-            if (GUILayout.Button("+ Var")) { node.OnEnterEvents.Add(new StoryEvent { SetVariable = new SetVariableAction() }); isDirty = true; }
-            if (GUILayout.Button("+ Choices"))
+            if (GUILayout.Button("Logic (Stat)", EditorStyles.miniButtonLeft)) { node.OnEnterEvents.Add(new StoryEvent { UpdateStat = new UpdateCharacterStatAction() }); isDirty = true; }
+            if (GUILayout.Button("Logic (Var)", EditorStyles.miniButtonMid)) { node.OnEnterEvents.Add(new StoryEvent { SetVariable = new SetVariableAction() }); isDirty = true; }
+            GUI.backgroundColor = new Color(0.8f, 1f, 0.8f);
+            if (GUILayout.Button("UI (Choices)", EditorStyles.miniButtonRight))
             {
                 var act = new ShowChoicesAction();
                 act.Choices.Add(new Choice { Text = "Option 1" });
                 node.OnEnterEvents.Add(new StoryEvent { ShowChoices = act });
                 isDirty = true;
             }
+            GUI.backgroundColor = Color.white;
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+ Dice")) { node.OnEnterEvents.Add(new StoryEvent { GameDice = new GameDiceRollAction() }); isDirty = true; }
-            if (GUILayout.Button("+ Roulette")) { node.OnEnterEvents.Add(new StoryEvent { GameRussianRoulette = new GameRussianRouletteAction() }); isDirty = true; }
-            if (GUILayout.Button("+ QTE")) { node.OnEnterEvents.Add(new StoryEvent { GameQte = new GameQTEAction() }); isDirty = true; }
+            if (GUILayout.Button("Game (Dice)", EditorStyles.miniButtonLeft)) { node.OnEnterEvents.Add(new StoryEvent { GameDice = new GameDiceRollAction() }); isDirty = true; }
+            if (GUILayout.Button("Game (Roulette)", EditorStyles.miniButtonMid)) { node.OnEnterEvents.Add(new StoryEvent { GameRussianRoulette = new GameRussianRouletteAction() }); isDirty = true; }
+            if (GUILayout.Button("Game (QTE)", EditorStyles.miniButtonRight)) { node.OnEnterEvents.Add(new StoryEvent { GameQte = new GameQTEAction() }); isDirty = true; }
             EditorGUILayout.EndHorizontal();
-
-            if (isDirty) SaveToDiskAndRefresh();
         }
 
         private bool DrawEventContent(StoryNode parentNode, StoryEvent evt)
         {
-            // 特殊處理 ShowChoices，因為其內部邏輯較複雜，且已有自己的修改偵測
             if (evt.ActionCase == StoryEvent.ActionOneofCase.ShowChoices)
             {
                 return DrawChoicesEditor(parentNode, evt.ShowChoices);
             }
 
             bool changed = false;
-
-            // 包裹 ChangeCheck 以偵測數值欄位的變更
             EditorGUI.BeginChangeCheck();
 
             switch (evt.ActionCase)
@@ -450,40 +511,40 @@ namespace BMC.Story.Editor
                     break;
 
                 case StoryEvent.ActionOneofCase.GameDice:
-                    evt.GameDice.DiceCount = EditorGUILayout.IntField("Dice Count", evt.GameDice.DiceCount);
+                    EditorGUILayout.BeginHorizontal();
+                    evt.GameDice.DiceCount = EditorGUILayout.IntField("Count", evt.GameDice.DiceCount);
                     evt.GameDice.DiceFaces = EditorGUILayout.IntField("Faces", evt.GameDice.DiceFaces);
-                    evt.GameDice.TargetValue = EditorGUILayout.IntField("Target Value", evt.GameDice.TargetValue);
-                    DrawTargetIdSelector("Success Node", () => evt.GameDice.SuccessNodeId, (val) => evt.GameDice.SuccessNodeId = val);
-                    DrawTargetIdSelector("Fail Node", () => evt.GameDice.FailNodeId, (val) => evt.GameDice.FailNodeId = val);
+                    EditorGUILayout.EndHorizontal();
+                    evt.GameDice.TargetValue = EditorGUILayout.IntField("Target >=", evt.GameDice.TargetValue);
+                    DrawTargetIdSelector("Success ->", () => evt.GameDice.SuccessNodeId, (val) => evt.GameDice.SuccessNodeId = val);
+                    DrawTargetIdSelector("Fail ->", () => evt.GameDice.FailNodeId, (val) => evt.GameDice.FailNodeId = val);
                     break;
 
                 case StoryEvent.ActionOneofCase.GameRussianRoulette:
+                    EditorGUILayout.BeginHorizontal();
                     evt.GameRussianRoulette.PlayerHp = EditorGUILayout.IntField("Player HP", evt.GameRussianRoulette.PlayerHp);
-                    evt.GameRussianRoulette.OpponentHp = EditorGUILayout.IntField("Opponent HP", evt.GameRussianRoulette.OpponentHp);
-                    DrawTargetIdSelector("Win Node", () => evt.GameRussianRoulette.WinNodeId, (val) => evt.GameRussianRoulette.WinNodeId = val);
-                    DrawTargetIdSelector("Lose Node", () => evt.GameRussianRoulette.LoseNodeId, (val) => evt.GameRussianRoulette.LoseNodeId = val);
+                    evt.GameRussianRoulette.OpponentHp = EditorGUILayout.IntField("Enemy HP", evt.GameRussianRoulette.OpponentHp);
+                    EditorGUILayout.EndHorizontal();
+                    DrawTargetIdSelector("Win ->", () => evt.GameRussianRoulette.WinNodeId, (val) => evt.GameRussianRoulette.WinNodeId = val);
+                    DrawTargetIdSelector("Lose ->", () => evt.GameRussianRoulette.LoseNodeId, (val) => evt.GameRussianRoulette.LoseNodeId = val);
                     break;
 
                 case StoryEvent.ActionOneofCase.GameQte:
                     evt.GameQte.Type = (GameQTEAction.Types.QTEType)EditorGUILayout.EnumPopup("Type", evt.GameQte.Type);
-                    evt.GameQte.DurationSeconds = EditorGUILayout.FloatField("Duration", evt.GameQte.DurationSeconds);
-                    DrawTargetIdSelector("Success Node", () => evt.GameQte.SuccessNodeId, (val) => evt.GameQte.SuccessNodeId = val);
-                    DrawTargetIdSelector("Fail Node", () => evt.GameQte.FailNodeId, (val) => evt.GameQte.FailNodeId = val);
+                    evt.GameQte.DurationSeconds = EditorGUILayout.FloatField("Time Limit", evt.GameQte.DurationSeconds);
+                    DrawTargetIdSelector("Success ->", () => evt.GameQte.SuccessNodeId, (val) => evt.GameQte.SuccessNodeId = val);
+                    DrawTargetIdSelector("Fail ->", () => evt.GameQte.FailNodeId, (val) => evt.GameQte.FailNodeId = val);
                     break;
             }
 
-            if (EditorGUI.EndChangeCheck())
-            {
-                changed = true;
-            }
-
+            if (EditorGUI.EndChangeCheck()) changed = true;
             return changed;
         }
 
         private bool DrawChoicesEditor(StoryNode parentNode, ShowChoicesAction action)
         {
             bool changed = false;
-            EditorGUILayout.LabelField($"Options Count: {action.Choices.Count}", EditorStyles.miniBoldLabel);
+            EditorGUILayout.LabelField($"Options ({action.Choices.Count})", EditorStyles.miniBoldLabel);
 
             for (int i = 0; i < action.Choices.Count; i++)
             {
@@ -491,7 +552,7 @@ namespace BMC.Story.Editor
                 EditorGUILayout.BeginVertical("box");
 
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField($"Opt {i + 1}", GUILayout.Width(40));
+                EditorGUILayout.LabelField($"#{i + 1}", GUILayout.Width(25));
 
                 EditorGUI.BeginChangeCheck();
                 choice.Text = EditorGUILayout.TextField(choice.Text);
@@ -508,11 +569,10 @@ namespace BMC.Story.Editor
                 EditorGUILayout.EndHorizontal();
 
                 DrawTargetIdSelector("Target", () => choice.TargetNodeId, (val) => choice.TargetNodeId = val, parentNode);
-
                 EditorGUILayout.EndVertical();
             }
 
-            if (GUILayout.Button("Add Choice"))
+            if (GUILayout.Button("+ Add Choice"))
             {
                 string nextId = StoryEditorContext.GenerateUniqueNextID(_currentPackage, parentNode);
                 action.Choices.Add(new Choice { Text = "New Option", TargetNodeId = nextId });
@@ -522,29 +582,34 @@ namespace BMC.Story.Editor
             return changed;
         }
 
+        // ===================================================================================
+        // Helper Components (選擇器與對話框)
+        // ===================================================================================
+
         private void DrawTargetIdSelector(string label, System.Func<string> getter, System.Action<string> setter, StoryNode parentForGen = null)
         {
             EditorGUILayout.BeginHorizontal();
             string current = getter();
             string newVal = EditorGUILayout.DelayedTextField(label, current);
 
-            if (newVal != current)
-            {
-                setter(newVal);
-            }
+            if (newVal != current) setter(newVal);
 
-            // Check if valid
-            if (!string.IsNullOrEmpty(newVal) && _currentPackage.Nodes.Any(n => n.Id == newVal))
+            // 狀態檢查
+            bool exists = !string.IsNullOrEmpty(newVal) && _currentPackage.Nodes.Any(n => n.Id == newVal);
+            bool isEmpty = string.IsNullOrEmpty(newVal);
+
+            if (exists)
             {
                 if (GUILayout.Button("Go", GUILayout.Width(30)))
                 {
                     _selectedNodeId = newVal;
                     GUI.FocusControl(null);
+                    SceneView.RepaintAll();
                 }
             }
-            else if (!string.IsNullOrEmpty(newVal))
+            else if (!isEmpty)
             {
-                GUI.backgroundColor = Styles.SelectionColor;
+                GUI.backgroundColor = Styles.SuccessColor;
                 if (GUILayout.Button("New", GUILayout.Width(40)))
                 {
                     StoryEditorContext.CreateSpecificNode(_currentPackage, newVal);
@@ -552,8 +617,9 @@ namespace BMC.Story.Editor
                 }
                 GUI.backgroundColor = Color.white;
             }
-            else if (parentForGen != null && string.IsNullOrEmpty(newVal))
+            else if (parentForGen != null && isEmpty)
             {
+                // 自動生成建議 ID
                 if (GUILayout.Button("Gen", GUILayout.Width(40)))
                 {
                     string nextId = StoryEditorContext.GenerateUniqueNextID(_currentPackage, parentForGen);
@@ -569,11 +635,13 @@ namespace BMC.Story.Editor
         private void DrawNodeHeader(StoryNode node, ref bool isDirty)
         {
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField($"Node: {node.Id}", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"Node ID: {node.Id}", EditorStyles.boldLabel);
+
+            // 刪除按鈕
             GUI.backgroundColor = Styles.ErrorColor;
-            if (GUILayout.Button("Delete", GUILayout.Width(60)))
+            if (GUILayout.Button("Delete Node", GUILayout.Width(90)))
             {
-                if (EditorUtility.DisplayDialog("Delete", $"Delete {node.Id}?", "Yes", "No"))
+                if (EditorUtility.DisplayDialog("Confirm Delete", $"Are you sure you want to delete node '{node.Id}'?\nThis will clear references in other nodes.", "Delete", "Cancel"))
                 {
                     StoryEditorContext.DeleteNodeAndCleanReferences(_currentPackage, node.Id);
                     _selectedNodeId = null;
@@ -584,10 +652,12 @@ namespace BMC.Story.Editor
             GUI.backgroundColor = Color.white;
             EditorGUILayout.EndHorizontal();
 
+            // 重新命名
             string newId = EditorGUILayout.DelayedTextField("Rename ID", node.Id);
             if (newId != node.Id && !string.IsNullOrEmpty(newId))
             {
-                if (_currentPackage.Nodes.Any(n => n.Id == newId)) EditorUtility.DisplayDialog("Error", "ID Exists", "OK");
+                if (_currentPackage.Nodes.Any(n => n.Id == newId))
+                    EditorUtility.DisplayDialog("Rename Failed", $"ID '{newId}' already exists.", "OK");
                 else
                 {
                     StoryEditorContext.RenameNode(_currentPackage, node.Id, newId);
@@ -602,8 +672,13 @@ namespace BMC.Story.Editor
         private void CheckAndCleanOrphans()
         {
             var orphans = StoryEditorContext.GetOrphanedNodes(_currentPackage);
-            if (orphans.Count == 0) { EditorUtility.DisplayDialog("Check", "No orphans.", "OK"); return; }
-            if (EditorUtility.DisplayDialog("Orphans", $"Found {orphans.Count} orphans. Delete?", "Yes", "No"))
+            if (orphans.Count == 0)
+            {
+                EditorUtility.DisplayDialog("Check Complete", "No orphan nodes found (All nodes are reachable from Start).", "OK");
+                return;
+            }
+
+            if (EditorUtility.DisplayDialog("Orphans Found", $"Found {orphans.Count} unreachable nodes.\nDo you want to delete them?", "Delete All", "Cancel"))
             {
                 StoryEditorContext.DeleteNodes(_currentPackage, orphans);
                 if (orphans.Contains(_selectedNodeId)) _selectedNodeId = null;
@@ -611,13 +686,24 @@ namespace BMC.Story.Editor
             }
         }
 
+        // ===================================================================================
+        // I/O & Refresh
+        // ===================================================================================
+
         private void SaveToDiskAndRefresh()
         {
             if (_currentPackage == null) return;
             StoryEditorContext.SavePackage(_currentPackage, StoryEditorContext.CurrentFilePath);
-            if (_currentPackage.Nodes.Count > 0) _targetPanel.RefreshStoryLayout(_currentPackage.Nodes[0], _currentPackage);
-            else _targetPanel.ClearOldLayout();
-            EditorUtility.SetDirty(_targetPanel.gameObject);
+
+            if (_targetPanel != null)
+            {
+                if (_currentPackage.Nodes.Count > 0)
+                    _targetPanel.RefreshStoryLayout(_currentPackage.Nodes[0], _currentPackage);
+                else
+                    _targetPanel.ClearOldLayout();
+
+                EditorUtility.SetDirty(_targetPanel.gameObject);
+            }
             SceneView.RepaintAll();
         }
 
@@ -632,12 +718,34 @@ namespace BMC.Story.Editor
         private void LoadAndGenerate()
         {
             if (_targetPanel == null) return;
+
             _currentPackage = StoryEditorContext.LoadPackage(StoryEditorContext.CurrentFilePath);
             if (_currentPackage != null && _currentPackage.Nodes.Count > 0)
             {
                 _targetPanel.RefreshStoryLayout(_currentPackage.Nodes[0], _currentPackage);
                 EditorUtility.SetDirty(_targetPanel.gameObject);
+                Repaint(); // 刷新編輯器視窗
             }
+        }
+
+        private void ShowBackupMenu()
+        {
+            string path = StoryEditorContext.CurrentFilePath;
+            var backups = StoryEditorContext.GetAvailableBackups(path);
+            GenericMenu menu = new GenericMenu();
+
+            if (backups.Count == 0) menu.AddDisabledItem(new GUIContent("No backups found"));
+            else
+            {
+                foreach (var backup in backups)
+                {
+                    string fileName = Path.GetFileName(backup);
+                    menu.AddItem(new GUIContent($"Restore: {fileName}"), false, () => {
+                        if (StoryEditorContext.RestoreBackup(backup, path)) LoadAndGenerate();
+                    });
+                }
+            }
+            menu.ShowAsContext();
         }
 
         private void DrawHorizontalLine()

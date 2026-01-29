@@ -4,6 +4,10 @@
   "displayName": "BMC UI System",
   "description": "BMC 通用介面系統。",
   "unity": "6000.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/silverofw/BMC_Framewok.git"
+  },
   "dependencies": {
     "com.bmc.core": "1.0.0"
   },
@@ -14,10 +18,6 @@
       "path": "Samples~/Basic Controls"
     }
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/silverofw/BMC_Framewok.git"
-  },
   "author": {
     "name": "BMC Studio",
     "url": "https://github.com/silverofw"

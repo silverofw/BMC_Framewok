@@ -1,13 +1,13 @@
 {
-    "name": "BMC.Build",
+    "name": "BMC.Story.Editor",
     "rootNamespace": "",
     "references": [
-        "YooAsset",
-        "YooAsset.Editor",
-        "HybridCLR.Runtime",
-        "HybridCLR.Editor"
+        "BMC.Story",
+        "BMC.UI"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

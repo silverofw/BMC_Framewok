@@ -1,0 +1,981 @@
+{
+  "chapterId": "1",
+  "nodes": [
+    {
+      "id": "Start",
+      "title": "1",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "選擇你的寶可夢吧",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "想看青眼白龍?",
+                "targetNodeId": "青眼白龍影片",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "選擇你的寶可夢吧",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "小火龍",
+                "targetNodeId": "獲得小火龍了",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "節尼規",
+                "targetNodeId": "獲得節尼規了",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "廟挖種子",
+                "targetNodeId": "獲得廟挖種子了",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "皮卡丘",
+                "targetNodeId": "獲得皮卡丘了",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "獲得小火龍了",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "幫我跑個腿",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "獲得節尼規了",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "幫我跑個腿",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "獲得廟挖種子了",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "幫我跑個腿",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "獲得皮卡丘了",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "幫我跑個腿",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "幫我跑個腿",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "誰理你",
+                "targetNodeId": "不要這麼兇",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "為什麼",
+                "targetNodeId": "等下我要去找你媽",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "好",
+                "targetNodeId": "走到商店",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "走到商店",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "拿到包裹",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "不要這麼兇",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "幫我跑個腿",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "等下我要去找你媽",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "上次你來我有聽到奇怪的聲音",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "上次你來我有聽到奇怪的聲音",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "小孩子不要亂說",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "拿到包裹",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "回研究所",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "回研究所",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "給大木博士包裹",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "給大木博士包裹",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "博士謝謝你",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "博士謝謝你",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "好，我準備好去冒險了",
+                "targetNodeId": "遇見小茂",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "我還是比較擔心我媽",
+                "targetNodeId": "等下我要去找你媽",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "遇見小茂",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "接受挑戰",
+                "targetNodeId": "小茂戰鬥",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "繞路烙跑",
+                "targetNodeId": "小茂嘲諷",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "小茂戰鬥",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "使用撞擊",
+                "targetNodeId": "戰勝小茂",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "使用瞪眼",
+                "targetNodeId": "戰勝小茂",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "小茂嘲諷",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "可惡，回來戰鬥",
+                "targetNodeId": "小茂戰鬥",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "戰勝小茂",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "前往常磐森林",
+                "targetNodeId": "常磐森林",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "常磐森林",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "尋找野生寶可夢",
+                "targetNodeId": "遇到鐵甲蛹",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "直衝尼比市",
+                "targetNodeId": "尼比市",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "遇到鐵甲蛹",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "我也變硬",
+                "targetNodeId": "變硬大對決",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "使用火花",
+                "targetNodeId": "燒焦的鐵甲蛹",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "變硬大對決",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "僵持不下，只好走了",
+                "targetNodeId": "尼比市",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "燒焦的鐵甲蛹",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "真是殘忍...前往尼比市",
+                "targetNodeId": "尼比市",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "尼比市",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "挑戰道館",
+                "targetNodeId": "尼比道館",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "參觀博物館",
+                "targetNodeId": "博物館",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "博物館",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "看化石好無聊",
+                "targetNodeId": "尼比市",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "尼比道館",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "上吧皮卡丘，十萬伏特！",
+                "targetNodeId": "屬性無效",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              },
+              {
+                "text": "開啟消防灑水器",
+                "targetNodeId": "小剛破防",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "屬性無效",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "可惡，只好作弊了",
+                "targetNodeId": "小剛破防",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "小剛破防",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "拿取灰色徽章",
+                "targetNodeId": "獲得灰色徽章",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "獲得灰色徽章",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "存檔 (未完待續)",
+                "targetNodeId": "結束",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "小孩子不要亂說",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "showChoices": {
+            "choices": [
+              {
+                "text": "繼續",
+                "targetNodeId": "結束",
+                "onSelectEvents": [],
+                "visibleConditions": [],
+                "lockConditions": [],
+                "lockMessage": ""
+              }
+            ],
+            "appendMode": false
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "結束",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    },
+    {
+      "id": "青眼白龍影片",
+      "title": "",
+      "choices": [],
+      "onEnterEvents": [
+        {
+          "delaySeconds": 0,
+          "playVideo": {
+            "videoPath": "1",
+            "isLoop": false,
+            "volume": 1
+          }
+        }
+      ],
+      "onExitEvents": [],
+      "autoJumpNodeId": "",
+      "autoJumpDelay": 0,
+      "previewImagePath": "",
+      "ps": ""
+    }
+  ],
+  "initialVariables": {}
+}
