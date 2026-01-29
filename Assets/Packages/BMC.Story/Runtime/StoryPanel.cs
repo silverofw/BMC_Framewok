@@ -28,34 +28,28 @@ namespace BMC.Story
             };
 
 
-            StoryPlayer.Instance.Register(StoryEventID.PlayNode, onNodePlay);
+            StoryPlayer.Instance.Register(onNodeEvent);
             if (playOnStart) StoryPlayer.Instance.StartStory();
         }
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            StoryPlayer.Instance.UnRegister(StoryEventID.PlayNode, onNodePlay);
+            StoryPlayer.Instance.UnRegister(onNodeEvent);
         }
 
-        void onNodePlay(StoryNode crt, StoryNode pre)
+        void onNodeEvent(StoryEvent evt, StoryNode crt, StoryNode pre)
         {
+            if (evt == null || crt == null 
+                || evt.ActionCase != StoryEvent.ActionOneofCase.ShowChoices) 
+                return;
+
             info.Set($"{crt.Id}");
             // 清除舊選項
             foreach (Transform child in choiceContainer) Destroy(child.gameObject);
 
-            // 新邏輯：遍歷 OnEnterEvents 尋找 ShowChoices 事件
-            if (crt.OnEnterEvents != null)
+            foreach (var choice in evt.ShowChoices.Choices)
             {
-                foreach (var evt in crt.OnEnterEvents)
-                {
-                    if (evt.ActionCase == StoryEvent.ActionOneofCase.ShowChoices)
-                    {
-                        foreach (var choice in evt.ShowChoices.Choices)
-                        {
-                            CreateChoiceButton(choice);
-                        }
-                    }
-                }
+                CreateChoiceButton(choice);
             }
         }
 

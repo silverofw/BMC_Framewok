@@ -6,6 +6,7 @@ namespace BMC.Story
     public enum StoryEventID
     {
         PlayNode = 1000,
+        NodeEventTrigger = 1001,
     }
     public class StoryPlayer : Singleton<StoryPlayer>
     {
@@ -44,15 +45,31 @@ namespace BMC.Story
 
             Log.Info($"[StoryPlayer][{CrtNode.Id}] AutoJumpNodeId: {CrtNode.AutoJumpNodeId}, AutoJumpDelay: {CrtNode.AutoJumpDelay}");
             handler.Send((int)StoryEventID.PlayNode, CrtNode, _preNode);
+            if (CrtNode.OnEnterEvents != null)
+            {
+                foreach (var item in CrtNode.OnEnterEvents)
+                {
+                    handler.Send((int)StoryEventID.NodeEventTrigger, item, CrtNode, _preNode);
+                }
+            }
         }
 
-        public void Register(StoryEventID eventId, System.Action<StoryNode, StoryNode> callback)
+        public void Register(System.Action<StoryNode, StoryNode> callback)
         {
-            handler.Register((int)eventId, callback);
+            handler.Register((int)StoryEventID.PlayNode, callback);
         }
-        public void UnRegister(StoryEventID eventId, System.Action<StoryNode, StoryNode> callback)
+        public void UnRegister(System.Action<StoryNode, StoryNode> callback)
         {
-            handler.UnRegister((int)eventId, callback);
+            handler.UnRegister((int)StoryEventID.PlayNode, callback);
+        }
+
+        public void Register(System.Action<StoryEvent, StoryNode, StoryNode> callback)
+        {
+            handler.Register((int)StoryEventID.NodeEventTrigger, callback);
+        }
+        public void UnRegister(System.Action<StoryEvent, StoryNode, StoryNode> callback)
+        {
+            handler.UnRegister((int)StoryEventID.NodeEventTrigger, callback);
         }
 
         public bool IsCrtNode(StoryNode node)
