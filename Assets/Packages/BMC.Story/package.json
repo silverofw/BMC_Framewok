@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.story",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "displayName": "BMC Story System",
   "description": "BMC 劇情與對話節點系統。",
   "unity": "6000.0",
@@ -17,11 +17,6 @@
       "displayName": "Basic Controls",
       "description": "基礎元件 的預製物件範本。",
       "path": "Samples~/Basic Controls"
-    },
-    {
-      "displayName": "Basic Editors",
-      "description": "基礎元件 編輯器。",
-      "path": "Samples~/Basic Editors"
     }
   ],
   "author": {

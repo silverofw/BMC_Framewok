@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "displayName": "BMC Core",
   "description": "BMC 核心基礎模組 (Singleton, Data Types, Extensions)。",
   "unity": "6000.0",
@@ -8,13 +8,6 @@
     "type": "git",
     "url": "https://github.com/silverofw/BMC_Framewok.git"
   },
-  "samples": [
-    {
-      "displayName": "Basic Editors",
-      "description": "基礎元件 編輯器。",
-      "path": "Samples~/Basic Editors"
-    }
-  ],
   "author": {
     "name": "BMC Studio",
     "url": "https://github.com/silverofw"
