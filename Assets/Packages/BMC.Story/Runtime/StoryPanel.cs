@@ -27,25 +27,29 @@ namespace BMC.Story
                 p.RefreshStoryLayout(StoryPlayer.Instance.StartNode, StoryPlayer.Instance._currentPackage);
             };
 
-
+            StoryPlayer.Instance.Register(onNodePlay);
             StoryPlayer.Instance.Register(onNodeEvent);
             if (playOnStart) StoryPlayer.Instance.StartStory();
         }
         protected override void OnDestroy()
         {
             base.OnDestroy();
+            StoryPlayer.Instance.UnRegister(onNodePlay);
             StoryPlayer.Instance.UnRegister(onNodeEvent);
         }
-
-        void onNodeEvent(StoryEvent evt, StoryNode crt, StoryNode pre)
+        void onNodePlay(StoryNode crt, StoryNode pre)
         {
-            if (evt == null || crt == null 
-                || evt.ActionCase != StoryEvent.ActionOneofCase.ShowChoices) 
+            if (crt == null)
                 return;
 
             info.Set($"{crt.Id}");
             // 清除舊選項
             foreach (Transform child in choiceContainer) Destroy(child.gameObject);
+        }
+        void onNodeEvent(StoryEvent evt, StoryNode crt, StoryNode pre)
+        {
+            if (evt == null || evt.ActionCase != StoryEvent.ActionOneofCase.ShowChoices) 
+                return;
 
             foreach (var choice in evt.ShowChoices.Choices)
             {
