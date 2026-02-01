@@ -17,12 +17,10 @@ namespace BMC.Core
         public int CurrentSlot { get; private set; } = 0;
 
         // --- 混亂命名設定 ---
-        // 主資料檔案偽裝
         private const string DATA_PREFIX = "pkg_";
         private const string DATA_EXT = ".dat";
         private const string DATA_SALT = "Bmc_Data_Unique_Salt_#99";
 
-        // 校驗簽名檔 (vinfo) 偽裝 - 讓它看起來像系統索引或清單
         private const string SIG_PREFIX = "manifest_";
         private const string SIG_EXT = ".idx";
         private const string SIG_SALT = "Bmc_Sig_Chaos_Salt_@77_X";
@@ -44,10 +42,13 @@ namespace BMC.Core
 
         #region 混沌路徑邏輯
 
+        /// <summary>
+        /// 流程：根據當前設定（雲端或本地）回傳相對應的 AES 金鑰字串
+        /// </summary>
         private string GetActiveKey() => UseCloudKey ? _dynamicCloudKey : _localFallbackKey;
 
         /// <summary>
-        /// 計算主資料檔名：使用 Data Salt 產生 10 位哈希
+        /// 流程：將 Slot 索引結合資料鹽值進行 SHA256 雜湊，取前 10 位作為混淆檔名，組合成主存檔路徑
         /// </summary>
         public string GetPath(int slot)
         {
@@ -56,17 +57,18 @@ namespace BMC.Core
         }
 
         /// <summary>
-        /// 計算校驗檔 (vinfo) 檔名：使用 Sig Salt 產生 16 位哈希，
-        /// 並且在雜湊中混入位移運算，使其與主檔案完全不對稱。
+        /// 流程：使用非線性運算混淆 Slot 索引，結合簽名鹽值進行雜湊，產生與主存檔完全無關聯的校驗檔路徑
         /// </summary>
         public string GetSigPath(int slot)
         {
-            // 使用非線性運算進一步打亂索引關係
             string chaoticInput = ((slot * 31) ^ 0x5F3759DF).ToString() + SIG_SALT;
             string hash = GetHash(chaoticInput).Substring(5, 16).ToLower();
             return Path.Combine(Application.persistentDataPath, $"{SIG_PREFIX}{hash}{SIG_EXT}");
         }
 
+        /// <summary>
+        /// 流程：標準 SHA256 雜湊計算，回傳大寫十六進位字串
+        /// </summary>
         private string GetHash(string input)
         {
             using (SHA256 sha256 = SHA256.Create())
@@ -89,6 +91,9 @@ namespace BMC.Core
         public void SetCore(string key, object value) =>
             _currentSaveData.CoreData[key] = value.ToString();
 
+        /// <summary>
+        /// 流程：直接回傳記憶體中記錄的竄改標記，此標記在載入時由校驗邏輯決定
+        /// </summary>
         public bool IsSaveTampered() => _isTampered;
 
         public string GetItem(string key, string defaultValue = "") => _currentSaveData.Items.TryGetValue(key, out var v) ? v : defaultValue;
@@ -101,6 +106,15 @@ namespace BMC.Core
 
         #region 混淆讀取與寫入
 
+        /// <summary>
+        /// 讀取流程：
+        /// 1. 計算混淆後的資料路徑與簽名路徑
+        /// 2. 檢查檔案是否存在，缺失簽名檔則判定為竄改
+        /// 3. 解密簽名檔（Metadata），取得原始資料大小與 Junk Data（噪音）長度
+        /// 4. 讀取主檔案，跳過 Junk Data 位移，提取真正的 Protobuf 資料
+        /// 5. 比對資料雜湊值與簽名檔內的雜湊是否一致
+        /// 6. 更新記憶體中的 _isTampered 狀態供遊戲後續判定
+        /// </summary>
         public void SwitchAndLoadSlot(int slot)
         {
             CurrentSlot = slot;
@@ -131,11 +145,9 @@ namespace BMC.Core
 
                     _currentSaveData = PlayerSave.Parser.ParseFrom(rawData);
 
-                    // 校驗雜湊與隱藏的竄改旗標
                     _isTampered = !CompareHashes(storedHash, SHA256.Create().ComputeHash(rawData)) || decryptedMeta[44] == 1;
 
                     if (_isTampered) Debug.LogWarning("<color=red>[SaveMgr] 校驗失敗：發現不一致的環境參數。</color>");
-                    else Debug.Log($"<color=cyan>[SaveMgr] 插槽 {slot} 成功載入。</color>");
                 }
                 catch (Exception e)
                 {
@@ -149,6 +161,15 @@ namespace BMC.Core
             }
         }
 
+        /// <summary>
+        /// 儲存流程：
+        /// 1. 更新內部核心數據（儲存次數、時間戳）
+        /// 2. 將資料序列化為 Byte 陣列
+        /// 3. 生成隨機長度（10-50 bytes）的 Junk Data 噪音
+        /// 4. 計算資料雜湊，打包 Metadata（雜湊、大小、次數、竄改旗標、Junk長度）
+        /// 5. 使用 AES 加密 Metadata 並獨立寫入簽名檔
+        /// 6. 將 [Junk Data + 原始資料] 合併寫入主檔案，完成物理層的混淆
+        /// </summary>
         public void SaveCurrentSlot()
         {
             string key = GetActiveKey();
@@ -161,12 +182,10 @@ namespace BMC.Core
                 SetCore(KEY_LAST_SAVE_AT, DateTime.Now.Ticks.ToString());
                 byte[] rawData = _currentSaveData.ToByteArray();
 
-                // 生成 10-50 bytes 的隨機噪音
                 int junkSize = UnityEngine.Random.Range(10, 50);
                 byte[] junkData = new byte[junkSize];
                 new System.Random().NextBytes(junkData);
 
-                // 加密 Meta: [Hash(32)][Size(8)][Count(4)][Tamper(1)][JunkSize(1)]
                 byte[] hash = SHA256.Create().ComputeHash(rawData);
                 byte[] meta = new byte[46];
                 Buffer.BlockCopy(hash, 0, meta, 0, 32);
@@ -177,7 +196,6 @@ namespace BMC.Core
 
                 byte[] encryptedSig = EncryptSignature(meta, key);
 
-                // 寫入主檔案 (噪音 + 資料)
                 string path = GetPath(CurrentSlot);
                 using (var fs = File.Create(path + ".tmp"))
                 {
@@ -187,13 +205,10 @@ namespace BMC.Core
                 if (File.Exists(path)) File.Delete(path);
                 File.Move(path + ".tmp", path);
 
-                // 寫入校驗檔 (Sig Path)
                 string sigPath = GetSigPath(CurrentSlot);
                 File.WriteAllBytes(sigPath + ".tmp", encryptedSig);
                 if (File.Exists(sigPath)) File.Delete(sigPath);
                 File.Move(sigPath + ".tmp", sigPath);
-
-                Debug.Log($"<color=green>[SaveMgr] 插槽 {CurrentSlot} 存檔成功 (已更新混亂校驗)。</color>");
             }
             catch (Exception e)
             {
@@ -201,6 +216,9 @@ namespace BMC.Core
             }
         }
 
+        /// <summary>
+        /// 流程：清空當前記憶體數據，重置竄改標記，並設定初始時間戳
+        /// </summary>
         private void InitializeNewSave(int slot)
         {
             _currentSaveData = new PlayerSave();
@@ -211,6 +229,9 @@ namespace BMC.Core
             SetCore(KEY_SAVE_COUNT, 0);
         }
 
+        /// <summary>
+        /// 流程：逐位元組比對雜湊值，用於判定資料完整性
+        /// </summary>
         private bool CompareHashes(byte[] a, byte[] b)
         {
             if (a.Length != b.Length) return false;
@@ -222,6 +243,9 @@ namespace BMC.Core
 
         #region AES 實作
 
+        /// <summary>
+        /// 流程：建立 AES 加密器，生成隨機 IV，將 IV 附加在密文前方並回傳完整 Byte 陣列
+        /// </summary>
         private byte[] EncryptSignature(byte[] data, string key)
         {
             using (Aes aes = Aes.Create())
@@ -241,6 +265,9 @@ namespace BMC.Core
             }
         }
 
+        /// <summary>
+        /// 流程：提取資料前 16 位作為 IV，剩餘作為密文，進行 AES 解密後回傳原始數據
+        /// </summary>
         private byte[] DecryptSignature(byte[] data, string key)
         {
             using (Aes aes = Aes.Create())
@@ -261,6 +288,9 @@ namespace BMC.Core
 
         #region 工具類
 
+        /// <summary>
+        /// 流程：巡訪所有可能的插槽路徑，讀取檔案的基本資訊（如最後修改時間）供 UI 顯示
+        /// </summary>
         public List<SlotMetadata> GetAllSlotsInfo(int maxSlots = 5)
         {
             var list = new List<SlotMetadata>();
@@ -279,6 +309,9 @@ namespace BMC.Core
             return list;
         }
 
+        /// <summary>
+        /// 流程：根據插槽索引同時移除主存檔檔案與對應的加密簽名檔
+        /// </summary>
         public void DeleteSlot(int slot)
         {
             string p = GetPath(slot); string s = GetSigPath(slot);
