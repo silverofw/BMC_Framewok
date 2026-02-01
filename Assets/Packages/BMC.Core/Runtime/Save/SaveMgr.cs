@@ -3,18 +3,24 @@ using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using System.Diagnostics;
 using Google.Protobuf;
 using UnityEngine;
+using Debug = UnityEngine.Debug; // 確保使用 Unity 的 Debug
 
 namespace BMC.Core
 {
     /// <summary>
     /// SaveMgr: 高階混淆存檔管理系統
-    /// 採用「混沌命名規則」與「噪音注入」，使存檔與校驗檔在系統中看起來完全不相關。
+    /// 採用「混沌命名」、「動態噪音注入」以及「XOR 全檔案混淆」，確保檔案在任何文字編輯器中均為不可讀亂碼。
     /// </summary>
     public class SaveMgr : Singleton<SaveMgr>
     {
         public int CurrentSlot { get; private set; } = 0;
+
+        [Header("偵錯設定")]
+        [Tooltip("是否顯示存檔/讀檔耗時等偵錯日誌")]
+        public bool EnableDebugLogs = false;
 
         // --- 混亂命名設定 ---
         private const string DATA_PREFIX = "pkg_";
@@ -40,7 +46,7 @@ namespace BMC.Core
         private PlayerSave _currentSaveData = new PlayerSave();
         private bool _isTampered = false;
 
-        #region 混沌路徑邏輯
+        #region 混沌路徑與 XOR 邏輯
 
         /// <summary>
         /// 流程：根據當前設定（雲端或本地）回傳相對應的 AES 金鑰字串
@@ -78,6 +84,19 @@ namespace BMC.Core
             }
         }
 
+        /// <summary>
+        /// 流程：使用 XOR 演算法對資料進行混淆/還原。
+        /// 這是輕量級的處理，目的是讓檔案在記事本中顯示為不可讀的亂碼。
+        /// </summary>
+        private void ApplyXorInPlace(byte[] data)
+        {
+            byte[] keyBytes = Encoding.UTF8.GetBytes(GetActiveKey());
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] ^= keyBytes[i % keyBytes.Length];
+            }
+        }
+
         #endregion
 
         #region 核心存取接口
@@ -108,12 +127,13 @@ namespace BMC.Core
 
         /// <summary>
         /// 讀取流程：
-        /// 1. 計算混淆後的資料路徑與簽名路徑
-        /// 2. 檢查檔案是否存在，缺失簽名檔則判定為竄改
-        /// 3. 解密簽名檔（Metadata），取得原始資料大小與 Junk Data（噪音）長度
-        /// 4. 讀取主檔案，跳過 Junk Data 位移，提取真正的 Protobuf 資料
-        /// 5. 比對資料雜湊值與簽名檔內的雜湊是否一致
+        /// 1. 啟動計時器 (若開啟 EnableDebugLogs)
+        /// 2. 取得檔案路徑並讀取校驗檔（Metadata）
+        /// 3. 解密校驗檔取得 JunkSize 與原始雜湊
+        /// 4. 讀取主存檔並進行 XOR 反混淆，使其恢復為 [Junk + Proto] 格式
+        /// 5. 跳過 Junk 位移提取 Protobuf，進行雜湊校驗
         /// 6. 更新記憶體中的 _isTampered 狀態供遊戲後續判定
+        /// 7. 停止計時並打印耗時
         /// </summary>
         public void SwitchAndLoadSlot(int slot)
         {
@@ -121,12 +141,20 @@ namespace BMC.Core
             string path = GetPath(slot);
             string sigPath = GetSigPath(slot);
 
+            Stopwatch sw = null;
+            if (EnableDebugLogs)
+            {
+                sw = new Stopwatch();
+                sw.Start();
+            }
+
             if (File.Exists(path))
             {
                 try
                 {
                     if (!File.Exists(sigPath)) throw new Exception("Signature Block Missing");
 
+                    // 1. 讀取並解密校驗檔
                     byte[] sigBytes = File.ReadAllBytes(sigPath);
                     byte[] decryptedMeta = DecryptSignature(sigBytes, GetActiveKey());
 
@@ -137,17 +165,28 @@ namespace BMC.Core
                     long dataSize = BitConverter.ToInt64(decryptedMeta, 32);
                     int junkSize = decryptedMeta[45];
 
-                    byte[] allFileData = File.ReadAllBytes(path);
-                    if (allFileData.Length < junkSize + dataSize) throw new Exception("Data Size Error");
+                    // 2. 讀取主檔案並執行 XOR 還原
+                    byte[] obfuscatedData = File.ReadAllBytes(path);
+                    ApplyXorInPlace(obfuscatedData);
 
+                    if (obfuscatedData.Length < junkSize + dataSize) throw new Exception("Data Size Error");
+
+                    // 3. 提取真正的 Protobuf 資料
                     byte[] rawData = new byte[dataSize];
-                    Buffer.BlockCopy(allFileData, junkSize, rawData, 0, (int)dataSize);
+                    Buffer.BlockCopy(obfuscatedData, junkSize, rawData, 0, (int)dataSize);
 
                     _currentSaveData = PlayerSave.Parser.ParseFrom(rawData);
 
+                    // 4. 校驗完整性
                     _isTampered = !CompareHashes(storedHash, SHA256.Create().ComputeHash(rawData)) || decryptedMeta[44] == 1;
 
                     if (_isTampered) Debug.LogWarning("<color=red>[SaveMgr] 校驗失敗：發現不一致的環境參數。</color>");
+
+                    if (EnableDebugLogs && sw != null)
+                    {
+                        sw.Stop();
+                        Debug.Log($"<color=cyan>[SaveMgr] Slot {slot} 讀檔成功。總耗時: {sw.Elapsed.TotalMilliseconds:F2} ms</color>");
+                    }
                 }
                 catch (Exception e)
                 {
@@ -163,17 +202,24 @@ namespace BMC.Core
 
         /// <summary>
         /// 儲存流程：
-        /// 1. 更新內部核心數據（儲存次數、時間戳）
-        /// 2. 將資料序列化為 Byte 陣列
-        /// 3. 生成隨機長度（10-50 bytes）的 Junk Data 噪音
-        /// 4. 計算資料雜湊，打包 Metadata（雜湊、大小、次數、竄改旗標、Junk長度）
-        /// 5. 使用 AES 加密 Metadata 並獨立寫入簽名檔
-        /// 6. 將 [Junk Data + 原始資料] 合併寫入主檔案，完成物理層的混淆
+        /// 1. 啟動計時器 (若開啟 EnableDebugLogs)
+        /// 2. 序列化資料並生成隨機 Junk 噪音
+        /// 3. 計算雜湊並加密儲存在獨立的校驗檔中
+        /// 4. 合併 [Junk + Data] 並執行 XOR 混淆處理
+        /// 5. 寫入主檔案，使其內容在記事本中完全無法辨識
+        /// 6. 停止計時並打印耗時
         /// </summary>
         public void SaveCurrentSlot()
         {
             string key = GetActiveKey();
             if (string.IsNullOrEmpty(key)) return;
+
+            Stopwatch sw = null;
+            if (EnableDebugLogs)
+            {
+                sw = new Stopwatch();
+                sw.Start();
+            }
 
             try
             {
@@ -196,12 +242,14 @@ namespace BMC.Core
 
                 byte[] encryptedSig = EncryptSignature(meta, key);
 
+                byte[] finalPayload = new byte[junkData.Length + rawData.Length];
+                Buffer.BlockCopy(junkData, 0, finalPayload, 0, junkData.Length);
+                Buffer.BlockCopy(rawData, 0, finalPayload, junkData.Length, rawData.Length);
+
+                ApplyXorInPlace(finalPayload);
+
                 string path = GetPath(CurrentSlot);
-                using (var fs = File.Create(path + ".tmp"))
-                {
-                    fs.Write(junkData, 0, junkData.Length);
-                    fs.Write(rawData, 0, rawData.Length);
-                }
+                File.WriteAllBytes(path + ".tmp", finalPayload);
                 if (File.Exists(path)) File.Delete(path);
                 File.Move(path + ".tmp", path);
 
@@ -209,6 +257,12 @@ namespace BMC.Core
                 File.WriteAllBytes(sigPath + ".tmp", encryptedSig);
                 if (File.Exists(sigPath)) File.Delete(sigPath);
                 File.Move(sigPath + ".tmp", sigPath);
+
+                if (EnableDebugLogs && sw != null)
+                {
+                    sw.Stop();
+                    Debug.Log($"<color=green>[SaveMgr] Slot {CurrentSlot} 存檔成功。總耗時: {sw.Elapsed.TotalMilliseconds:F2} ms</color>");
+                }
             }
             catch (Exception e)
             {
