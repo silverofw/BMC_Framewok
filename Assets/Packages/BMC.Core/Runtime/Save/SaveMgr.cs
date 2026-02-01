@@ -119,17 +119,17 @@ namespace BMC.Core
         }
 
         /// <summary>
-        /// 取得存檔最初建立的時間
+        /// 流程：取得存檔最初建立的時間
         /// </summary>
         public DateTime GetCreatedAt() => GetCoreDatetime(KEY_CREATED_AT);
 
         /// <summary>
-        /// 取得最後一次紀錄的時間
+        /// 流程：取得最後一次紀錄的時間
         /// </summary>
         public DateTime GetLastSaveAt() => GetCoreDatetime(KEY_LAST_SAVE_AT);
 
         /// <summary>
-        /// 取得此存檔累計的儲存次數
+        /// 流程：取得此存檔累計的儲存次數
         /// </summary>
         public int GetSaveCount() => GetCoreInt(KEY_SAVE_COUNT, 0);
 
@@ -138,11 +138,37 @@ namespace BMC.Core
         /// </summary>
         public bool IsSaveTampered() => _isTampered;
 
-        public string GetItem(string key, string defaultValue = "") => _currentSaveData.Items.TryGetValue(key, out var v) ? v : defaultValue;
-        public void SetItem(string key, object value) => _currentSaveData.Items[key] = value.ToString();
-        public int GetItemInt(string key, int defaultValue = 0) => int.TryParse(GetItem(key), out int result) ? result : defaultValue;
+        // --- Items 存取接口 (根據 map<int, int> 更新) ---
+
+        /// <summary>
+        /// 流程：一次性取得所有道具數據（ID 與 數量）供 UI 或系統邏輯遍歷
+        /// </summary>
+        public IDictionary<int, int> GetAllItems() => _currentSaveData.Items;
+
+        /// <summary>
+        /// 流程：根據 ID 取得特定道具數量
+        /// </summary>
+        /// <param name="itemId">道具 ID</param>
+        public int GetItem(int itemId, int defaultAmount = 0) =>
+            _currentSaveData.Items.TryGetValue(itemId, out var amount) ? amount : defaultAmount;
+
+        /// <summary>
+        /// 流程：設定特定道具數量
+        /// </summary>
+        public void SetItem(int itemId, int amount) =>
+            _currentSaveData.Items[itemId] = amount;
+
+        /// <summary>
+        /// 流程：檢查是否擁有該道具 ID 的記錄
+        /// </summary>
+        public bool HasItem(int itemId) =>
+            _currentSaveData.Items.ContainsKey(itemId);
+
+        // --- Progress 存取接口 ---
+
         public string GetProgress(string key, string defaultValue = "") => _currentSaveData.Progress.TryGetValue(key, out var v) ? v : defaultValue;
         public void SetProgress(string key, object value) => _currentSaveData.Progress[key] = value.ToString();
+        public bool GetProgressBool(string key, bool defaultValue = false) => bool.TryParse(GetProgress(key), out bool result) ? result : defaultValue;
 
         #endregion
 

@@ -30,7 +30,7 @@ namespace BMC.Core {
             "Lkl0ZW1zRW50cnkSNAoIcHJvZ3Jlc3MYAyADKAsyIi5CTUMuQ29yZS5QbGF5",
             "ZXJTYXZlLlByb2dyZXNzRW50cnkaLwoNQ29yZURhdGFFbnRyeRILCgNrZXkY",
             "ASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGiwKCkl0ZW1zRW50cnkSCwoDa2V5",
-            "GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARovCg1Qcm9ncmVzc0VudHJ5EgsK",
+            "GAEgASgFEg0KBXZhbHVlGAIgASgFOgI4ARovCg1Qcm9ncmVzc0VudHJ5EgsK",
             "A2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
@@ -105,15 +105,15 @@ namespace BMC.Core {
 
     /// <summary>Field number for the "items" field.</summary>
     public const int ItemsFieldNumber = 2;
-    private static readonly pbc::MapField<string, string>.Codec _map_items_codec
-        = new pbc::MapField<string, string>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForString(18, ""), 18);
-    private readonly pbc::MapField<string, string> items_ = new pbc::MapField<string, string>();
+    private static readonly pbc::MapField<int, int>.Codec _map_items_codec
+        = new pbc::MapField<int, int>.Codec(pb::FieldCodec.ForInt32(8, 0), pb::FieldCodec.ForInt32(16, 0), 18);
+    private readonly pbc::MapField<int, int> items_ = new pbc::MapField<int, int>();
     /// <summary>
     /// 2. 道具清單 (ItemID, Amount/GUID/Metadata...)
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::MapField<string, string> Items {
+    public pbc::MapField<int, int> Items {
       get { return items_; }
     }
 
