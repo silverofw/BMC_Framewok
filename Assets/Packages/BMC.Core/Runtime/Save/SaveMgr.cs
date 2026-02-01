@@ -9,24 +9,30 @@ using UnityEngine;
 namespace BMC.Core
 {
     /// <summary>
-    /// SaveMgr: 處理基於 Protobuf 的多存檔插槽管理系統
-    /// 採用「明文資料」與「獨立加密簽名檔 (Signature File)」分離機制。
-    /// 竄改標記鎖在加密的簽名檔內，主存檔保持純淨的明碼格式。
+    /// SaveMgr: 高階混淆存檔管理系統
+    /// 採用「混沌命名規則」與「噪音注入」，使存檔與校驗檔在系統中看起來完全不相關。
     /// </summary>
     public class SaveMgr : Singleton<SaveMgr>
     {
         public int CurrentSlot { get; private set; } = 0;
 
-        public const string SaveFilePrefix = "ps_";
-        public const string SaveFileExtension = ".dat";
-        public const string SigFileSuffix = "_s"; // 簽名檔後綴
+        // --- 混亂命名設定 ---
+        // 主資料檔案偽裝
+        private const string DATA_PREFIX = "pkg_";
+        private const string DATA_EXT = ".dat";
+        private const string DATA_SALT = "Bmc_Data_Unique_Salt_#99";
 
-        [Tooltip("是否啟用雲端動態金鑰？關閉則使用本地預設金鑰")]
+        // 校驗簽名檔 (vinfo) 偽裝 - 讓它看起來像系統索引或清單
+        private const string SIG_PREFIX = "manifest_";
+        private const string SIG_EXT = ".idx";
+        private const string SIG_SALT = "Bmc_Sig_Chaos_Salt_@77_X";
+
+        [Tooltip("是否啟用雲端動態金鑰？")]
         public bool UseCloudKey = false;
 
         private const string _localFallbackKey = "Bmc_Local_Fallback_Key_2026_!#99";
 
-        // 存檔字典內部的常數 Key
+        // 核心字典 Key
         private const string KEY_CREATED_AT = "created_at";
         private const string KEY_LAST_SAVE_AT = "last_save_at";
         private const string KEY_SAVE_COUNT = "save_count";
@@ -34,26 +40,41 @@ namespace BMC.Core
 
         private string _dynamicCloudKey = string.Empty;
         private PlayerSave _currentSaveData = new PlayerSave();
-
-        // 僅存於記憶體的狀態，讀取時會從獨立的簽名檔中還原
         private bool _isTampered = false;
 
-        #region 金鑰管理
+        #region 混沌路徑邏輯
 
-        private string GetActiveKey()
+        private string GetActiveKey() => UseCloudKey ? _dynamicCloudKey : _localFallbackKey;
+
+        /// <summary>
+        /// 計算主資料檔名：使用 Data Salt 產生 10 位哈希
+        /// </summary>
+        public string GetPath(int slot)
         {
-            return UseCloudKey ? _dynamicCloudKey : _localFallbackKey;
+            string hash = GetHash(slot.ToString() + DATA_SALT).Substring(0, 10);
+            return Path.Combine(Application.persistentDataPath, $"{DATA_PREFIX}{hash}{DATA_EXT}");
         }
 
-        public void SetDynamicKey(string key, string keyVersion)
+        /// <summary>
+        /// 計算校驗檔 (vinfo) 檔名：使用 Sig Salt 產生 16 位哈希，
+        /// 並且在雜湊中混入位移運算，使其與主檔案完全不對稱。
+        /// </summary>
+        public string GetSigPath(int slot)
         {
-            if (!UseCloudKey) return;
-            _dynamicCloudKey = key;
-            SetCore(KEY_ENCRYPTION_ID, keyVersion);
-            Debug.Log($"<color=orange>[SaveMgr] 雲端金鑰已注入。版本: {keyVersion}</color>");
+            // 使用非線性運算進一步打亂索引關係
+            string chaoticInput = ((slot * 31) ^ 0x5F3759DF).ToString() + SIG_SALT;
+            string hash = GetHash(chaoticInput).Substring(5, 16).ToLower();
+            return Path.Combine(Application.persistentDataPath, $"{SIG_PREFIX}{hash}{SIG_EXT}");
         }
 
-        public void ClearDynamicKey() => _dynamicCloudKey = string.Empty;
+        private string GetHash(string input)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+                return BitConverter.ToString(bytes).Replace("-", "");
+            }
+        }
 
         #endregion
 
@@ -65,64 +86,20 @@ namespace BMC.Core
         public int GetCoreInt(string key, int defaultValue = 0) =>
             int.TryParse(GetCore(key), out int result) ? result : defaultValue;
 
-        public bool GetCoreBool(string key, bool defaultValue = false) =>
-            bool.TryParse(GetCore(key), out bool result) ? result : defaultValue;
-
         public void SetCore(string key, object value) =>
             _currentSaveData.CoreData[key] = value.ToString();
 
-        public DateTime GetCreatedAtDateTime()
-        {
-            string ticksStr = GetCore(KEY_CREATED_AT);
-            return long.TryParse(ticksStr, out long ticks) ? new DateTime(ticks) : DateTime.MinValue;
-        }
-
-        public DateTime GetLastSaveAtDateTime()
-        {
-            string ticksStr = GetCore(KEY_LAST_SAVE_AT);
-            return long.TryParse(ticksStr, out long ticks) ? new DateTime(ticks) : DateTime.MinValue;
-        }
-
-        public int GetSaveCount() => GetCoreInt(KEY_SAVE_COUNT, 0);
-
-        /// <summary>
-        /// 檢查此存檔是否曾被外部竄改 (此狀態加密存儲於獨立的簽名檔中)
-        /// </summary>
         public bool IsSaveTampered() => _isTampered;
 
-        public string GetItem(string key, string defaultValue = "") =>
-            _currentSaveData.Items.TryGetValue(key, out var v) ? v : defaultValue;
-
-        public int GetItemInt(string key, int defaultValue = 0) =>
-            int.TryParse(GetItem(key), out int result) ? result : defaultValue;
-
-        public void SetItem(string key, object value) =>
-            _currentSaveData.Items[key] = value.ToString();
-
-        public bool HasItem(string key) => _currentSaveData.Items.ContainsKey(key);
-
-        public string GetProgress(string key, string defaultValue = "") =>
-            _currentSaveData.Progress.TryGetValue(key, out var v) ? v : defaultValue;
-
-        public bool GetProgressBool(string key, bool defaultValue = false) =>
-            bool.TryParse(GetProgress(key), out bool result) ? result : defaultValue;
-
-        public void SetProgress(string key, object value) =>
-            _currentSaveData.Progress[key] = value.ToString();
+        public string GetItem(string key, string defaultValue = "") => _currentSaveData.Items.TryGetValue(key, out var v) ? v : defaultValue;
+        public void SetItem(string key, object value) => _currentSaveData.Items[key] = value.ToString();
+        public int GetItemInt(string key, int defaultValue = 0) => int.TryParse(GetItem(key), out int result) ? result : defaultValue;
+        public string GetProgress(string key, string defaultValue = "") => _currentSaveData.Progress.TryGetValue(key, out var v) ? v : defaultValue;
+        public void SetProgress(string key, object value) => _currentSaveData.Progress[key] = value.ToString();
 
         #endregion
 
-        #region 檔案操作與校驗
-
-        /// <summary>
-        /// 取得主資料檔路徑
-        /// </summary>
-        public string GetPath(int slot) => Path.Combine(Application.persistentDataPath, $"{SaveFilePrefix}{slot}{SaveFileExtension}");
-
-        /// <summary>
-        /// 取得簽名校驗檔路徑
-        /// </summary>
-        public string GetSigPath(int slot) => Path.Combine(Application.persistentDataPath, $"{SaveFilePrefix}{slot}{SigFileSuffix}{SaveFileExtension}");
+        #region 混淆讀取與寫入
 
         public void SwitchAndLoadSlot(int slot)
         {
@@ -134,43 +111,35 @@ namespace BMC.Core
             {
                 try
                 {
-                    // 1. 讀取主資料檔案 (明文 Protobuf)
-                    byte[] rawData = File.ReadAllBytes(path);
+                    if (!File.Exists(sigPath)) throw new Exception("Signature Block Missing");
+
+                    byte[] sigBytes = File.ReadAllBytes(sigPath);
+                    byte[] decryptedMeta = DecryptSignature(sigBytes, GetActiveKey());
+
+                    if (decryptedMeta.Length < 46) throw new Exception("Meta Corrupted");
+
+                    byte[] storedHash = new byte[32];
+                    Buffer.BlockCopy(decryptedMeta, 0, storedHash, 0, 32);
+                    long dataSize = BitConverter.ToInt64(decryptedMeta, 32);
+                    int junkSize = decryptedMeta[45];
+
+                    byte[] allFileData = File.ReadAllBytes(path);
+                    if (allFileData.Length < junkSize + dataSize) throw new Exception("Data Size Error");
+
+                    byte[] rawData = new byte[dataSize];
+                    Buffer.BlockCopy(allFileData, junkSize, rawData, 0, (int)dataSize);
+
                     _currentSaveData = PlayerSave.Parser.ParseFrom(rawData);
 
-                    // 2. 嘗試讀取並驗證簽名檔
-                    if (File.Exists(sigPath))
-                    {
-                        byte[] signatureBlock = File.ReadAllBytes(sigPath);
-                        string key = GetActiveKey();
-                        byte[] decryptedCheckpoint = DecryptSignature(signatureBlock, key);
+                    // 校驗雜湊與隱藏的竄改旗標
+                    _isTampered = !CompareHashes(storedHash, SHA256.Create().ComputeHash(rawData)) || decryptedMeta[44] == 1;
 
-                        _isTampered = !ValidateIntegrity(rawData, decryptedCheckpoint);
-
-                        // 檢查歷史竄改記錄 (存於加密塊第 45 字節)
-                        if (!_isTampered && decryptedCheckpoint.Length >= 45)
-                        {
-                            _isTampered = decryptedCheckpoint[44] == 1;
-                        }
-                    }
-                    else
-                    {
-                        // 缺少簽名檔直接判定為異常
-                        _isTampered = true;
-                    }
-
-                    if (_isTampered)
-                    {
-                        Debug.LogWarning($"<color=red>[SaveMgr] 插槽 {slot} 校驗異常，已標記內部狀態。</color>");
-                    }
-                    else
-                    {
-                        Debug.Log($"<color=cyan>[SaveMgr] 插槽 {slot} 驗證成功並載入。</color>");
-                    }
+                    if (_isTampered) Debug.LogWarning("<color=red>[SaveMgr] 校驗失敗：發現不一致的環境參數。</color>");
+                    else Debug.Log($"<color=cyan>[SaveMgr] 插槽 {slot} 成功載入。</color>");
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"[SaveMgr] 載入插槽 {slot} 失敗: {e.Message}");
+                    Debug.LogError($"[SaveMgr] 載入異常: {e.Message}");
                     InitializeNewSave(slot);
                 }
             }
@@ -185,47 +154,46 @@ namespace BMC.Core
             string key = GetActiveKey();
             if (string.IsNullOrEmpty(key)) return;
 
-            string path = GetPath(CurrentSlot);
-            string sigPath = GetSigPath(slot: CurrentSlot);
-
-            string tempPath = path + ".tmp";
-            string tempSigPath = sigPath + ".tmp";
-
             try
             {
-                // 更新統計
-                int newCount = GetSaveCount() + 1;
+                int newCount = GetCoreInt(KEY_SAVE_COUNT, 0) + 1;
                 SetCore(KEY_SAVE_COUNT, newCount);
                 SetCore(KEY_LAST_SAVE_AT, DateTime.Now.Ticks.ToString());
-                if (!UseCloudKey) SetCore(KEY_ENCRYPTION_ID, "local_default");
-
-                // 1. 序列化主資料
                 byte[] rawData = _currentSaveData.ToByteArray();
 
-                // 2. 建立檢查點內容
+                // 生成 10-50 bytes 的隨機噪音
+                int junkSize = UnityEngine.Random.Range(10, 50);
+                byte[] junkData = new byte[junkSize];
+                new System.Random().NextBytes(junkData);
+
+                // 加密 Meta: [Hash(32)][Size(8)][Count(4)][Tamper(1)][JunkSize(1)]
                 byte[] hash = SHA256.Create().ComputeHash(rawData);
-                byte[] checkpoint = new byte[45];
-                Buffer.BlockCopy(hash, 0, checkpoint, 0, 32);
-                Buffer.BlockCopy(BitConverter.GetBytes((long)rawData.Length), 0, checkpoint, 32, 8);
-                Buffer.BlockCopy(BitConverter.GetBytes(newCount), 0, checkpoint, 40, 4);
-                checkpoint[44] = (byte)(_isTampered ? 1 : 0);
+                byte[] meta = new byte[46];
+                Buffer.BlockCopy(hash, 0, meta, 0, 32);
+                Buffer.BlockCopy(BitConverter.GetBytes((long)rawData.Length), 0, meta, 32, 8);
+                Buffer.BlockCopy(BitConverter.GetBytes(newCount), 0, meta, 40, 4);
+                meta[44] = (byte)(_isTampered ? 1 : 0);
+                meta[45] = (byte)junkSize;
 
-                // 3. 加密檢查點生成簽名塊
-                byte[] encryptedSignature = EncryptSignature(checkpoint, key);
+                byte[] encryptedSig = EncryptSignature(meta, key);
 
-                // 4. 分別寫入兩個檔案
-                File.WriteAllBytes(tempPath, rawData);
-                File.WriteAllBytes(tempSigPath, encryptedSignature);
-
-                // 原子覆蓋主檔案
+                // 寫入主檔案 (噪音 + 資料)
+                string path = GetPath(CurrentSlot);
+                using (var fs = File.Create(path + ".tmp"))
+                {
+                    fs.Write(junkData, 0, junkData.Length);
+                    fs.Write(rawData, 0, rawData.Length);
+                }
                 if (File.Exists(path)) File.Delete(path);
-                File.Move(tempPath, path);
+                File.Move(path + ".tmp", path);
 
-                // 原子覆蓋簽名檔
+                // 寫入校驗檔 (Sig Path)
+                string sigPath = GetSigPath(CurrentSlot);
+                File.WriteAllBytes(sigPath + ".tmp", encryptedSig);
                 if (File.Exists(sigPath)) File.Delete(sigPath);
-                File.Move(tempSigPath, sigPath);
+                File.Move(sigPath + ".tmp", sigPath);
 
-                Debug.Log($"<color=green>[SaveMgr] 存檔成功 (Slot {CurrentSlot})，資料與簽名已分離儲存。</color>");
+                Debug.Log($"<color=green>[SaveMgr] 插槽 {CurrentSlot} 存檔成功 (已更新混亂校驗)。</color>");
             }
             catch (Exception e)
             {
@@ -237,47 +205,34 @@ namespace BMC.Core
         {
             _currentSaveData = new PlayerSave();
             _isTampered = false;
-            string nowTicks = DateTime.Now.Ticks.ToString();
-            SetCore(KEY_CREATED_AT, nowTicks);
-            SetCore(KEY_LAST_SAVE_AT, nowTicks);
+            string now = DateTime.Now.Ticks.ToString();
+            SetCore(KEY_CREATED_AT, now);
+            SetCore(KEY_LAST_SAVE_AT, now);
             SetCore(KEY_SAVE_COUNT, 0);
-            Debug.Log($"<color=yellow>[SaveMgr] 插槽 {slot} 初始化。</color>");
         }
 
-        private bool ValidateIntegrity(byte[] rawData, byte[] checkpoint)
+        private bool CompareHashes(byte[] a, byte[] b)
         {
-            if (checkpoint.Length < 44) return false;
-
-            byte[] storedHash = new byte[32];
-            Buffer.BlockCopy(checkpoint, 0, storedHash, 0, 32);
-            long storedLength = BitConverter.ToInt64(checkpoint, 32);
-
-            if (rawData.Length != storedLength) return false;
-
-            byte[] currentHash = SHA256.Create().ComputeHash(rawData);
-            for (int i = 0; i < 32; i++)
-            {
-                if (currentHash[i] != storedHash[i]) return false;
-            }
+            if (a.Length != b.Length) return false;
+            for (int i = 0; i < a.Length; i++) if (a[i] != b[i]) return false;
             return true;
         }
 
         #endregion
 
-        #region AES 簽名加密實作
+        #region AES 實作
 
-        private byte[] EncryptSignature(byte[] checkpoint, string key)
+        private byte[] EncryptSignature(byte[] data, string key)
         {
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
             using (Aes aes = Aes.Create())
             {
-                aes.Key = keyBytes;
+                aes.Key = Encoding.UTF8.GetBytes(key);
                 aes.GenerateIV();
                 aes.Mode = CipherMode.CBC;
                 aes.Padding = PaddingMode.PKCS7;
-                using (var encryptor = aes.CreateEncryptor())
+                using (var enc = aes.CreateEncryptor())
                 {
-                    byte[] encrypted = encryptor.TransformFinalBlock(checkpoint, 0, checkpoint.Length);
+                    byte[] encrypted = enc.TransformFinalBlock(data, 0, data.Length);
                     byte[] combined = new byte[aes.IV.Length + encrypted.Length];
                     Buffer.BlockCopy(aes.IV, 0, combined, 0, 16);
                     Buffer.BlockCopy(encrypted, 0, combined, 16, encrypted.Length);
@@ -286,23 +241,19 @@ namespace BMC.Core
             }
         }
 
-        private byte[] DecryptSignature(byte[] signature, string key)
+        private byte[] DecryptSignature(byte[] data, string key)
         {
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
             using (Aes aes = Aes.Create())
             {
-                aes.Key = keyBytes;
+                aes.Key = Encoding.UTF8.GetBytes(key);
                 aes.Mode = CipherMode.CBC;
                 aes.Padding = PaddingMode.PKCS7;
                 byte[] iv = new byte[16];
-                byte[] ciphertext = new byte[signature.Length - 16];
-                Buffer.BlockCopy(signature, 0, iv, 0, 16);
-                Buffer.BlockCopy(signature, 16, ciphertext, 0, ciphertext.Length);
+                byte[] cipher = new byte[data.Length - 16];
+                Buffer.BlockCopy(data, 0, iv, 0, 16);
+                Buffer.BlockCopy(data, 16, cipher, 0, cipher.Length);
                 aes.IV = iv;
-                using (var decryptor = aes.CreateDecryptor())
-                {
-                    return decryptor.TransformFinalBlock(ciphertext, 0, ciphertext.Length);
-                }
+                using (var dec = aes.CreateDecryptor()) return dec.TransformFinalBlock(cipher, 0, cipher.Length);
             }
         }
 
@@ -330,10 +281,9 @@ namespace BMC.Core
 
         public void DeleteSlot(int slot)
         {
-            string path = GetPath(slot);
-            string sigPath = GetSigPath(slot);
-            if (File.Exists(path)) File.Delete(path);
-            if (File.Exists(sigPath)) File.Delete(sigPath);
+            string p = GetPath(slot); string s = GetSigPath(slot);
+            if (File.Exists(p)) File.Delete(p);
+            if (File.Exists(s)) File.Delete(s);
         }
 
         #endregion
