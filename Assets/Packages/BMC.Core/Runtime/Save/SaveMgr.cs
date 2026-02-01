@@ -40,7 +40,6 @@ namespace BMC.Core
         private const string KEY_CREATED_AT = "created_at";
         private const string KEY_LAST_SAVE_AT = "last_save_at";
         private const string KEY_SAVE_COUNT = "save_count";
-        private const string KEY_ENCRYPTION_ID = "encryption_id";
 
         private string _dynamicCloudKey = string.Empty;
         private PlayerSave _currentSaveData = new PlayerSave();
@@ -109,6 +108,30 @@ namespace BMC.Core
 
         public void SetCore(string key, object value) =>
             _currentSaveData.CoreData[key] = value.ToString();
+
+        /// <summary>
+        /// 流程：從 CoreData 中取得時間 Ticks 字串並轉換為 DateTime 格式
+        /// </summary>
+        public DateTime GetCoreDatetime(string key)
+        {
+            string ticksStr = GetCore(key);
+            return long.TryParse(ticksStr, out long ticks) ? new DateTime(ticks) : DateTime.MinValue;
+        }
+
+        /// <summary>
+        /// 取得存檔最初建立的時間
+        /// </summary>
+        public DateTime GetCreatedAt() => GetCoreDatetime(KEY_CREATED_AT);
+
+        /// <summary>
+        /// 取得最後一次紀錄的時間
+        /// </summary>
+        public DateTime GetLastSaveAt() => GetCoreDatetime(KEY_LAST_SAVE_AT);
+
+        /// <summary>
+        /// 取得此存檔累計的儲存次數
+        /// </summary>
+        public int GetSaveCount() => GetCoreInt(KEY_SAVE_COUNT, 0);
 
         /// <summary>
         /// 流程：直接回傳記憶體中記錄的竄改標記，此標記在載入時由校驗邏輯決定
@@ -223,7 +246,7 @@ namespace BMC.Core
 
             try
             {
-                int newCount = GetCoreInt(KEY_SAVE_COUNT, 0) + 1;
+                int newCount = GetSaveCount() + 1;
                 SetCore(KEY_SAVE_COUNT, newCount);
                 SetCore(KEY_LAST_SAVE_AT, DateTime.Now.Ticks.ToString());
                 byte[] rawData = _currentSaveData.ToByteArray();
