@@ -23,9 +23,10 @@ namespace BMC.Core
         [Tooltip("是否啟用雲端動態金鑰？關閉則使用本地預設金鑰")]
         public bool UseCloudKey = false;
 
-        // 本地備援金鑰 (當 UseCloudKey 為 false 時使用)
-        // 建議正式發布前修改此字串
-        private const string _localFallbackKey = "Bmc_Local_Fallback_Key_2026_!#";
+        // 【修正點】AES 金鑰長度必須為 16, 24 或 32 位元組。
+        // 原本的字串長度不足或不對會導致 "Specified key is not a valid size" 錯誤。
+        // 以下字串剛好 32 字元 (256-bit)。
+        private const string _localFallbackKey = "Bmc_Local_Fallback_Key_2026_!#99";
 
         // 存檔字典內部的常數 Key
         private const string KEY_CREATED_AT = "created_ticks";
@@ -40,9 +41,6 @@ namespace BMC.Core
 
         #region 金鑰管理
 
-        /// <summary>
-        /// 取得目前應該使用的加解密金鑰
-        /// </summary>
         private string GetActiveKey()
         {
             if (UseCloudKey)
@@ -52,9 +50,6 @@ namespace BMC.Core
             return _localFallbackKey;
         }
 
-        /// <summary>
-        /// 從雲端取得金鑰後注入此處
-        /// </summary>
         public void SetDynamicKey(string key, string keyVersion)
         {
             if (!UseCloudKey)
@@ -67,9 +62,6 @@ namespace BMC.Core
             Debug.Log($"<color=orange>[SaveMgr] 雲端金鑰已注入。版本: {keyVersion}</color>");
         }
 
-        /// <summary>
-        /// 抹除記憶體中的動態金鑰
-        /// </summary>
         public void ClearDynamicKey()
         {
             _dynamicCloudKey = string.Empty;
@@ -202,7 +194,6 @@ namespace BMC.Core
                 SetCore(KEY_SAVE_COUNT, newCount);
                 SetCore(KEY_LAST_SAVE_AT, DateTime.Now.Ticks.ToString());
 
-                // 如果是本地模式，確保版本欄位正確
                 if (!UseCloudKey) SetCore(KEY_ENCRYPTION_ID, "local_default");
 
                 byte[] rawData = _currentSaveData.ToByteArray();
@@ -237,9 +228,14 @@ namespace BMC.Core
 
         private byte[] Encrypt(byte[] data, string key)
         {
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            // 檢查長度
+            if (keyBytes.Length != 16 && keyBytes.Length != 24 && keyBytes.Length != 32)
+                throw new Exception($"AES 金鑰長度不正確 ({keyBytes.Length} bytes)，必須為 16, 24 或 32。");
+
             using (Aes aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.Key = keyBytes;
                 aes.GenerateIV();
                 aes.Mode = CipherMode.CBC;
                 aes.Padding = PaddingMode.PKCS7;
@@ -259,9 +255,13 @@ namespace BMC.Core
         {
             if (data.Length < 16) throw new Exception("無效的加密資料");
 
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            if (keyBytes.Length != 16 && keyBytes.Length != 24 && keyBytes.Length != 32)
+                throw new Exception($"AES 金鑰長度不正確 ({keyBytes.Length} bytes)。");
+
             using (Aes aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.Key = keyBytes;
                 aes.Mode = CipherMode.CBC;
                 aes.Padding = PaddingMode.PKCS7;
 
