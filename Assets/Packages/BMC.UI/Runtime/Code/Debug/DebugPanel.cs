@@ -21,10 +21,6 @@ namespace BMC.UI
 
         protected override void Show()
         {
-            // 每次開啟前先清空舊資料 (假設父類別沒有自動清空，若有則可省略)
-            // actionDic.Clear(); 
-
-            // 2. 觸發事件：讓所有訂閱者 (內部與外部) 執行註冊
             OnRegisterGroups?.Invoke(this);
 
             // 3. 排序：依據標題名稱 A-Z 進行排序
@@ -32,9 +28,6 @@ namespace BMC.UI
             // 若 actionDic 是 List<T>，這裡使用 Comparison 進行原地排序
             if (actionDic != null && actionDic.Count > 0)
             {
-                // 注意：這裡假設 actionDic 的元素型別有一個名為 Title 或 Name 的屬性
-                // 由於父類別 JoypadLRPanel 不可見，這裡示意使用 Linq OrderBy 重新指派
-                // 請根據實際父類別結構調整，例如: x.Title 或 x.Item1
                 actionDic = actionDic.OrderBy(x => x.Item1).ToList();
             }
 
@@ -63,10 +56,6 @@ namespace BMC.UI
 
     public static class GameDebugRegistrar
     {
-        /// <summary>
-        /// [RuntimeInitializeOnLoadMethod] 
-        /// 遊戲啟動時自動執行，無需掛載 MonoBehaviour，也無需反射掃描
-        /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         private static void Init()
         {
@@ -76,10 +65,7 @@ namespace BMC.UI
 
         private static void RegisterGameGroups(DebugPanel panel)
         {
-            // 這些群組加入後，會被 DebugPanel 自動依標題排序
-
-            // 例如 "A_Tools" 會排在 "B_Teleport" 前面
-            panel.AddDebugGroup("MY FEATURE TITLE",
+            panel.AddDebugGroup("UI COMMON",
                 ("Log", () => Log.Info("Hello")),
                 ("Error", () => Log.Error("Error")),
                 ("Toast", () => Toast.Show("Hello")),

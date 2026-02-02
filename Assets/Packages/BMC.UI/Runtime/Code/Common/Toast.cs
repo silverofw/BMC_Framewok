@@ -7,7 +7,7 @@ namespace BMC.UI
 {
     public class Toast : UIPanel
     {
-        public static void Show(string info, int delayFrame = 0)
+        public static void Show(string info, float delayFrame = 3f)
         {
             Log.Info($"[Toast] {info}");
             UIMgr.Instance.ShowPanel<Toast>(UICanvasType.UI_2, false).ContinueWith((p) => {

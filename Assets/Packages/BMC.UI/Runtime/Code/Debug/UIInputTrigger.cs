@@ -47,16 +47,19 @@ namespace BMC.UI
 
         private void Update()
         {
-            if (Keyboard.current.escapeKey.isPressed)
+            var keyboard = Keyboard.current;
+            if (keyboard == null) return; // 如果沒有偵測到鍵盤則跳出
+
+            if (keyboard.escapeKey.wasPressedThisFrame)
             {
-                if (Application.platform == RuntimePlatform.Android)
+                //if (Application.platform == RuntimePlatform.Android)
                 {
                     UIMgr.Instance.closeJoypadPanel();
                 }
                 return;
             }
 
-            if (Keyboard.current.f2Key.isPressed)
+            if (keyboard.f2Key.wasPressedThisFrame)
             {
                 UIMgr.Instance.ShowPanel<DebugPanel>(UICanvasType.UI_Debug).Forget();
             }
