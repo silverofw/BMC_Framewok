@@ -106,6 +106,7 @@ namespace BMC.UI
 
         private List<UIPanel> panels;
         private bool isInit = false;
+        private bool isSceneInit = false;
 
         private int sortingOrderDelta = 10;
 
@@ -121,6 +122,7 @@ namespace BMC.UI
                 return;
             isInit = true;
 
+            isSceneInit = false;
             globalCanvas = new();
             panels = new List<UIPanel>();
 
@@ -178,6 +180,7 @@ namespace BMC.UI
                 GameObject.Destroy(sceneUIRoot.gameObject);
                 sceneUIRoot = null;
             }
+            isSceneInit = false;
         }
 
         private Transform getCanvas(UICanvasType uICanvasType)
@@ -191,6 +194,8 @@ namespace BMC.UI
                 case UICanvasType.UI_4:
                 case UICanvasType.UI_Top:
                 case UICanvasType.UI_Debug:
+                    if (!isSceneInit)
+                        return null;
                     return globalCanvas[uICanvasType];
                 case UICanvasType.SCENE_UI_0:
                 case UICanvasType.SCENE_UI_1:
@@ -221,6 +226,11 @@ namespace BMC.UI
                     return p;
             }
             var go = await ResMgr.Instance.LoadAssetAsync<GameObject>(typeof(T).Name, true, getCanvas(uICanvasType));
+            if (go == null)
+            {
+                Log.Error($"[{typeof(T)}] load error");
+                return null;
+            }
             var panel = go.GetComponent<UIPanel>();
             uiMaskControlCount += panel.maskControl ? 1 : 0;
             if (uiMaskControlCount == 1)
@@ -299,6 +309,7 @@ namespace BMC.UI
                 { UICanvasType.SCENE_UI_4, await LoadCanvas(UICanvasType.SCENE_UI_4, sceneUIRoot) },
                 { UICanvasType.SCENE_UI_TOP, await LoadCanvas(UICanvasType.SCENE_UI_TOP, sceneUIRoot) }
             };
+            isSceneInit = true;
         }
 
         public void StretchToSafeArea(RectTransform rectTransform, bool forceUpdate = false)
