@@ -1,86 +1,50 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
-using System.Linq; // 必須引用 System.Linq 才能使用 OrderBy
-using System.Reflection;
+using System.Linq;
 using UnityEngine;
 
 namespace BMC.UI
 {
     /// <summary>
-    /// 全域除錯面板 (Debug Panel)
-    /// <para>
-    /// 核心架構：採用 Partial Class (分部類別) + Reflection (反射) 自動註冊機制。
-    /// 開發者無需修改此主檔案即可新增除錯分頁。
-    /// </para>
-    /// 
-    /// <para>【如何新增除錯分頁】：</para>
-    /// <list type="number">
-    ///     <item>建立一個新的腳本檔案，例如 <c>DebugPanel.Map.cs</c>。</item>
-    ///     <item>類別宣告必須為 <c>public partial class DebugPanel</c>。</item>
-    ///     <item>定義一個 <c>private void</c> 方法，名稱必須以 <c>"Group_"</c> 開頭。</item>
-    ///     <item>命名規則建議使用編號排序：<c>Group_{00-99}_{模組名稱}</c> (系統會依名稱自動排序)。</item>
-    ///     <item>在方法內呼叫 <c>AddDebugGroup()</c> 加入按鈕。</item>
-    /// </list>
+    /// 全域除錯面板 (核心邏輯 - 純註冊版)
     /// </summary>
     public partial class DebugPanel : JoypadLRPanel
     {
+        // -----------------------------------------------------------------------
+        // 1. 統一註冊入口 (Static Event)
+        // 無論是內部還是外部功能，都透過訂閱此事件來加入按鈕
+        // -----------------------------------------------------------------------
+        public static event Action<DebugPanel> OnRegisterGroups;
+
         public override bool maskControl => true;
 
         protected override void Show()
         {
-            // 執行自動註冊與排序
-            RegisterAllPartialGroups();
+            // 每次開啟前先清空舊資料 (假設父類別沒有自動清空，若有則可省略)
+            // actionDic.Clear(); 
+
+            // 2. 觸發事件：讓所有訂閱者 (內部與外部) 執行註冊
+            OnRegisterGroups?.Invoke(this);
+
+            // 3. 排序：依據標題名稱 A-Z 進行排序
+            // 假設 actionDic 內的元素有 Title 欄位，或為 Tuple/Record 的第一個成員
+            // 若 actionDic 是 List<T>，這裡使用 Comparison 進行原地排序
+            if (actionDic != null && actionDic.Count > 0)
+            {
+                // 注意：這裡假設 actionDic 的元素型別有一個名為 Title 或 Name 的屬性
+                // 由於父類別 JoypadLRPanel 不可見，這裡示意使用 Linq OrderBy 重新指派
+                // 請根據實際父類別結構調整，例如: x.Title 或 x.Item1
+                actionDic = actionDic.OrderBy(x => x.Item1).ToList();
+            }
 
             base.Show();
         }
 
-        /// <summary>
-        /// 使用反射 (Reflection) 掃描並執行所有分部類別中的註冊方法。
-        /// <para>篩選條件：方法名稱以 "Group_" 開頭且無參數。</para>
-        /// <para>排序邏輯：依方法名稱 (Name) 進行字串排序 (A-Z)。</para>
-        /// </summary>
-        private void RegisterAllPartialGroups()
-        {
-            var methods = this.GetType()
-                .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-                .Where(m => m.Name.StartsWith("Group_") && m.GetParameters().Length == 0) // 篩選條件
-                .OrderBy(m => m.Name); // 【關鍵修改】依名稱 A-Z 排序
-
-            foreach (var method in methods)
-            {
-                try
-                {
-                    // 執行該分組方法
-                    method.Invoke(this, null);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"[DebugPanel] Error invoking {method.Name}: {e}");
-                }
-            }
-        }
-
-        // 建議命名規則：Group_{排序}_{名稱}
-        // 00~10: 核心系統 / 11~50: 遊戲玩法 / 90+: 雜項
-        private void Group_99_UI_Feature()
-        {
-            AddDebugGroup("MY FEATURE TITLE",
-                ("Log", () => Log.Info("Hello")),
-                ("Error", () => Log.Error("Error")),
-                ("Toast", () => Toast.Show("Hello")),
-                ("showMsg", () => {
-                    UIMgr.Instance.ShowPanel<MsgPanel>(UICanvasType.UI_Debug).ContinueWith((p) =>
-                    {
-                        p.Initial("Hello", "MSG");
-                    }).Forget();
-                }
-            )
-            );
-        }
-
-        // 封裝後的 helper (設為 protected 供 partial 使用)
-        protected void AddDebugGroup(string categoryTitle, params (string btnName, Action onClick)[] actions)
+        // -----------------------------------------------------------------------
+        // 4. 開放 Public API 供註冊
+        // -----------------------------------------------------------------------
+        public void AddDebugGroup(string categoryTitle, params (string btnName, Action onClick)[] actions)
         {
             var delegateList = new List<Action<GameObject, int>>();
             foreach (var act in actions)
@@ -91,7 +55,41 @@ namespace BMC.UI
                     if (item != null) item.Init(act.btnName, act.onClick);
                 });
             }
+
+            // 加入至父類別的列表
             actionDic.Add(new(categoryTitle, delegateList));
+        }
+    }
+
+    public static class GameDebugRegistrar
+    {
+        /// <summary>
+        /// [RuntimeInitializeOnLoadMethod] 
+        /// 遊戲啟動時自動執行，無需掛載 MonoBehaviour，也無需反射掃描
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+        private static void Init()
+        {
+            // 訂閱註冊事件
+            DebugPanel.OnRegisterGroups += RegisterGameGroups;
+        }
+
+        private static void RegisterGameGroups(DebugPanel panel)
+        {
+            // 這些群組加入後，會被 DebugPanel 自動依標題排序
+
+            // 例如 "A_Tools" 會排在 "B_Teleport" 前面
+            panel.AddDebugGroup("MY FEATURE TITLE",
+                ("Log", () => Log.Info("Hello")),
+                ("Error", () => Log.Error("Error")),
+                ("Toast", () => Toast.Show("Hello")),
+                ("showMsg", () => {
+                    UIMgr.Instance.ShowPanel<MsgPanel>(UICanvasType.UI_Debug).ContinueWith((p) =>
+                    {
+                        p.Initial("Hello", "MSG");
+                    }).Forget();
+                })
+            );
         }
     }
 }
