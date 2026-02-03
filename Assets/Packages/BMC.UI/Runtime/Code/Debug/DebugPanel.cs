@@ -60,22 +60,19 @@ namespace BMC.UI
         private static void Init()
         {
             // 訂閱註冊事件
-            DebugPanel.OnRegisterGroups += RegisterGameGroups;
-        }
-
-        private static void RegisterGameGroups(DebugPanel panel)
-        {
-            panel.AddDebugGroup("UI COMMON",
-                ("Log", () => Log.Info("Hello")),
-                ("Error", () => Log.Error("Error")),
-                ("Toast", () => Toast.Show("Hello")),
-                ("showMsg", () => {
-                    UIMgr.Instance.ShowPanel<MsgPanel>(UICanvasType.UI_Debug).ContinueWith((p) =>
-                    {
-                        p.Initial("Hello", "MSG");
-                    }).Forget();
-                })
-            );
+            DebugPanel.OnRegisterGroups += panel => {
+                panel.AddDebugGroup("UI COMMON",
+                    ("Log", () => Log.Info("Hello")),
+                    ("Error", () => Log.Error("Error")),
+                    ("Toast", () => Toast.Show("Hello")),
+                    ("showMsg", () => {
+                        UIMgr.Instance.ShowPanel<MsgPanel>(UICanvasType.UI_Debug).ContinueWith((p) =>
+                        {
+                            p.Initial("Hello", "MSG");
+                        }).Forget();
+                    })
+                );
+            };
         }
     }
 }
