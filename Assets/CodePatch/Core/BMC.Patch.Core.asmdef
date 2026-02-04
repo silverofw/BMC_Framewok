@@ -1,0 +1,19 @@
+{
+    "name": "BMC.Patch.Core",
+    "rootNamespace": "",
+    "references": [
+        "BMC.Core",
+        "BMC.UI",
+        "Luban.Runtime",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

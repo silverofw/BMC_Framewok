@@ -21,7 +21,8 @@ namespace BMC.Story
 
         private void Start()
         {
-            StoryPlayer.Instance.LoadStory(textAsset.bytes);
+            // todo 呼叫UI前要先初始化故事播放器
+            //StoryPlayer.Instance.LoadStory(textAsset.bytes);
             linePanelBtn.OnClick = async () => {
                 var p = await UIMgr.Instance.ShowPanel<StoryLinePanel>();
                 p.RefreshStoryLayout(StoryPlayer.Instance.StartNode, StoryPlayer.Instance._currentPackage);

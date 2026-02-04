@@ -1,0 +1,16 @@
+{
+    "name": "CodePatch",
+    "rootNamespace": "",
+    "references": [
+        "GUID:336aade05fcbb9547afcebcff717654a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
