@@ -5,7 +5,8 @@
         "BMC.Core",
         "BMC.UI",
         "Luban.Runtime",
-        "UniTask"
+        "UniTask",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

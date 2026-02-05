@@ -34,10 +34,12 @@ public class Patch : MonoBehaviour
         patchWindow.UpdatePatchInfo();
         await LoadMetadataForAOTAssemblies();
         await LoadDLL(new string[] { "CodePatch.dll" });
-        await UniTask.DelayFrame(100);
-        //await ResMgr.Instance.LoadSceneAsync("Lobby");
+
         await UIMgr.Instance.LoadGlobalCanvas();
-        await UIMgr.Instance.GotoScene("Entry");
+        LoadPanel.Show(async() => { 
+            await UIMgr.Instance.GotoScene("Entry");
+            LoadPanel.Instance.SetMaxProgress("");
+        });
     }
 
     public async UniTask LoadDLL(string[] patchDlls)

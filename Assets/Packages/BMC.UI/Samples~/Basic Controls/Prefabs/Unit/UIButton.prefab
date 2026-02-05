@@ -191,15 +191,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.33333334, g: 0.73333335, b: 1, a: 1}
+  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: be1fa55f69843fb4aaf4d0ff56004fba, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -226,15 +226,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1321739597920024835, guid: 22e3fcc8f010f6e45a8c746304208a17, type: 3}
       propertyPath: m_fontColor.b
-      value: 0.1254902
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1321739597920024835, guid: 22e3fcc8f010f6e45a8c746304208a17, type: 3}
       propertyPath: m_fontColor.g
-      value: 0.1254902
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1321739597920024835, guid: 22e3fcc8f010f6e45a8c746304208a17, type: 3}
       propertyPath: m_fontColor.r
-      value: 0.1254902
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1321739597920024835, guid: 22e3fcc8f010f6e45a8c746304208a17, type: 3}
       propertyPath: m_fontSizeMax
@@ -262,7 +262,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1321739597920024835, guid: 22e3fcc8f010f6e45a8c746304208a17, type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 4280295456
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 1321739597920024835, guid: 22e3fcc8f010f6e45a8c746304208a17, type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'

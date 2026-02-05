@@ -123,23 +123,25 @@ namespace BMC.UI
             isInit = true;
 
             isSceneInit = false;
-            globalCanvas = new();
             panels = new List<UIPanel>();
 
-            globalUIRoot = new GameObject("Global_UIRoot").transform;
-            GameObject.DontDestroyOnLoad(globalUIRoot);
             eventHandler.Register((int)UIEvent.INPUT_B, closeJoypadPanel);
         }
 
         public async UniTask LoadGlobalCanvas()
         {
-            globalCanvas.Add(UICanvasType.UI_0, await LoadCanvas(UICanvasType.UI_0, globalUIRoot));
-            globalCanvas.Add(UICanvasType.UI_1, await LoadCanvas(UICanvasType.UI_1, globalUIRoot));
-            globalCanvas.Add(UICanvasType.UI_2, await LoadCanvas(UICanvasType.UI_2, globalUIRoot));
-            globalCanvas.Add(UICanvasType.UI_3, await LoadCanvas(UICanvasType.UI_3, globalUIRoot));
-            globalCanvas.Add(UICanvasType.UI_4, await LoadCanvas(UICanvasType.UI_4, globalUIRoot));
-            globalCanvas.Add(UICanvasType.UI_Top, await LoadCanvas(UICanvasType.UI_Top, globalUIRoot));
-            globalCanvas.Add(UICanvasType.UI_Debug, await LoadCanvas(UICanvasType.UI_Debug, globalUIRoot));
+            globalUIRoot = new GameObject("Global_UIRoot").transform;
+            GameObject.DontDestroyOnLoad(globalUIRoot);
+            globalCanvas = new()
+            {
+                { UICanvasType.UI_0, await LoadCanvas(UICanvasType.UI_0, globalUIRoot) },
+                { UICanvasType.UI_1, await LoadCanvas(UICanvasType.UI_1, globalUIRoot) },
+                { UICanvasType.UI_2, await LoadCanvas(UICanvasType.UI_2, globalUIRoot) },
+                { UICanvasType.UI_3, await LoadCanvas(UICanvasType.UI_3, globalUIRoot) },
+                { UICanvasType.UI_4, await LoadCanvas(UICanvasType.UI_4, globalUIRoot) },
+                { UICanvasType.UI_Top, await LoadCanvas(UICanvasType.UI_Top, globalUIRoot) },
+                { UICanvasType.UI_Debug, await LoadCanvas(UICanvasType.UI_Debug, globalUIRoot) }
+            };
         }
         private async UniTask<Transform> LoadCanvas(UICanvasType uICanvasType, Transform root)
         {
@@ -194,8 +196,6 @@ namespace BMC.UI
                 case UICanvasType.UI_4:
                 case UICanvasType.UI_Top:
                 case UICanvasType.UI_Debug:
-                    if (!isSceneInit)
-                        return null;
                     return globalCanvas[uICanvasType];
                 case UICanvasType.SCENE_UI_0:
                 case UICanvasType.SCENE_UI_1:
@@ -203,6 +203,8 @@ namespace BMC.UI
                 case UICanvasType.SCENE_UI_3:
                 case UICanvasType.SCENE_UI_4:
                 case UICanvasType.SCENE_UI_TOP:
+                    if (!isSceneInit)
+                        return null;
                     return sceneCanvas[uICanvasType];
                 default:
                     Log.Error($"[UICanvasType] not found {uICanvasType}");
