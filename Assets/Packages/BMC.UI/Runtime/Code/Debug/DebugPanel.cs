@@ -70,7 +70,23 @@ namespace BMC.UI
                         {
                             p.Initial("Hello", "MSG");
                         }).Forget();
-                    })
+                    }),
+                    ("Loading", () => {
+                        UIMgr.Instance.closePanel(UIMgr.Instance.GetPanel<DebugPanel>(), true, () => {
+                            LoadPanel.Show(async () => {
+
+                                await UniTask.WaitForSeconds(1f);
+                                LoadPanel.Instance.SetProgress(33, "p20");
+
+                                await UniTask.WaitForSeconds(1f);
+                                LoadPanel.Instance.SetProgress(66, "p20");
+
+                                await UniTask.WaitForSeconds(1f);
+                                LoadPanel.Instance.SetMaxProgress("p20");
+                            });
+                        });
+                    }
+                )
                 );
             };
         }

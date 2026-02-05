@@ -187,6 +187,7 @@ public class PatchWindow : MonoBehaviour
 
     public void UpdatePatchInfo()
     {
+        _slider.value = 1f;
         var versionInfo = $"{Application.version}";
         var package = YooAsset.YooAssets.GetPackage("DefaultPackage");
         versionInfo += $"\nPatch Version : {package.GetPackageVersion()}";

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 namespace BMC.UI
 {
@@ -15,6 +16,15 @@ namespace BMC.UI
         [RuntimeInitializeOnLoadMethod]
         static void OnRuntimeInitialized()
         {
+            // 獲取當前場景名稱
+            string currentSceneName = SceneManager.GetActiveScene().name;
+
+            // 判定場景名稱：如果「不是」Patch，就印出警告並直接返回，不執行後續邏輯
+            if (currentSceneName != "Patch")
+            {
+                Debug.LogWarning($"當前場景為 {currentSceneName}，非 Patch 場景，跳過初始化。");
+                return;
+            }
             // 訂閱Unity的錯誤日誌事件
             Application.logMessageReceived += HandleLog;
             Application.quitting += Close;
