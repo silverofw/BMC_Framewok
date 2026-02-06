@@ -20,6 +20,10 @@ namespace BMC.UI
 
         [Header("Settings")]
         [SerializeField] private float animationTime = 0.5f;
+        /// <summary>
+        /// 50 = 每秒最多跑50%
+        /// </summary>
+        [SerializeField, Range(10f, 500f)] private float progressSpeed = 50f;
 
         private const int ProgressMax = 100;
 
@@ -103,7 +107,11 @@ namespace BMC.UI
 
             _onStartAction?.Invoke();
 
-            _visualProgress = AutoFinish? ProgressMax:_visualProgress;
+            if (AutoFinish)
+            {
+                _isLoading = true;
+                _targetProgress = ProgressMax;
+            }
         }
 
         private void Update()
@@ -113,7 +121,7 @@ namespace BMC.UI
             // 平滑插值進度條
             if (_visualProgress < _targetProgress)
             {
-                _visualProgress = Mathf.MoveTowards(_visualProgress, _targetProgress, Time.deltaTime * 50f); // 每秒最多跑50%
+                _visualProgress = Mathf.MoveTowards(_visualProgress, _targetProgress, Time.deltaTime * progressSpeed);
                 UpdateUI(_visualProgress);
             }
 

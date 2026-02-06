@@ -85,8 +85,14 @@ namespace BMC.UI
                                 LoadPanel.Instance.SetMaxProgress("p20");
                             });
                         });
-                    }
-                )
+                    } ),
+                    ("Loading autoFinish", () => {
+                        UIMgr.Instance.closePanel(UIMgr.Instance.GetPanel<DebugPanel>(), true, () => {
+                            LoadPanel.Show(async () => {
+                                await UniTask.WaitForSeconds(1f);
+                            }, null, true);
+                        });
+                    } )
                 );
             };
         }

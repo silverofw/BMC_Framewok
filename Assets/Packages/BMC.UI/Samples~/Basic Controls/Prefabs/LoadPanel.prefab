@@ -599,6 +599,7 @@ MonoBehaviour:
   progressText: {fileID: 1685869114144725606}
   barRoot: {fileID: 8533444520459269243}
   animationTime: 1
+  progressSpeed: 200
 --- !u!1 &8533444520459269243
 GameObject:
   m_ObjectHideFlags: 0
