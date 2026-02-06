@@ -34,9 +34,18 @@ namespace BMC.UI
         private int _targetProgress;   // 目標進度 (0-100)
         private bool _isLoading;
 
-        public static void Show(Action startAction, Action finishAction = null)
+        private static bool AutoFinish;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="startAction">遮罩全畫面後呼叫</param>
+        /// <param name="finishAction">全部執行完立後開啟呼叫</param>
+        /// <param name="autoFinish">呼叫startAction完畢自動呼叫關閉遮罩動畫</param>
+        public static void Show(Action startAction, Action finishAction = null, bool autoFinish = false)
         {
             Log.Info("[LoadPanel] Request Show");
+            AutoFinish = autoFinish;
             UIMgr.Instance.ShowPanel<LoadPanel>(UICanvasType.UI_4, false).ContinueWith(p =>
             {
                 p.Setup(startAction, finishAction);
@@ -93,6 +102,8 @@ namespace BMC.UI
             SetProgress(0, "Loading START");
 
             _onStartAction?.Invoke();
+
+            _visualProgress = AutoFinish? ProgressMax:_visualProgress;
         }
 
         private void Update()
