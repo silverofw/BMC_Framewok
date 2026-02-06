@@ -163,7 +163,7 @@ namespace BMC.UI
         {
             globalCanvas = null;
             panels = null;
-            resetSceneUIRoot();
+            ResetSceneUIRoot();
             if (globalUIRoot != null)
             {
                 GameObject.Destroy(globalUIRoot.gameObject);
@@ -173,7 +173,7 @@ namespace BMC.UI
             Init();
         }
 
-        private void resetSceneUIRoot()
+        public void ResetSceneUIRoot()
         {
             joypadPanels = new();
             sceneCanvas = new();
@@ -297,10 +297,8 @@ namespace BMC.UI
             }
         }
 
-        public async UniTask GotoScene(string sceneName)
+        public async UniTask CreateSceneUIRoot(string sceneName)
         {
-            resetSceneUIRoot();
-            await ResMgr.Instance.LoadSceneAsync(sceneName);
             sceneUIRoot = new GameObject($"{sceneName}_UIRoot").transform;
             sceneCanvas = new()
             {

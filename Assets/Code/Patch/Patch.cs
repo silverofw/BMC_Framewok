@@ -36,10 +36,7 @@ public class Patch : MonoBehaviour
         await LoadDLL(new string[] { "CodePatch.dll" });
 
         await UIMgr.Instance.LoadGlobalCanvas();
-        LoadPanel.Show(async() => { 
-            await UIMgr.Instance.GotoScene("Entry");
-            LoadPanel.Instance.SetMaxProgress("");
-        });
+        await ResMgr.Instance.LoadSceneAsync("Entry");
     }
 
     public async UniTask LoadDLL(string[] patchDlls)
