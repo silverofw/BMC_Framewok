@@ -15,7 +15,7 @@ namespace BMC.Patch.Core
             };
             if (showLoading)
             {
-                LoadPanel.Show(action);
+                LoadPanel.Show(action, null, true);
             }
             else
             {
