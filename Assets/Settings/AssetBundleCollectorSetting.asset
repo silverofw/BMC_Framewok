@@ -30,8 +30,8 @@ MonoBehaviour:
       AssetTags: 
       ActiveRuleName: EnableGroup
       Collectors:
-      - CollectPath: Assets/yoo/DefaultPackage/UI
-        CollectorGUID: 1350e48212d1161448a1d6ddfb4394fd
+      - CollectPath: Assets/Packages/BMC.UI/Samples/Basic Controls/Prefabs
+        CollectorGUID: 73976e30aca1b0b46b3ad131cafccfdf
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory
