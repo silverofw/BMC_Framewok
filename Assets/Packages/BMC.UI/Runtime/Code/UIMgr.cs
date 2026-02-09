@@ -95,8 +95,9 @@ namespace BMC.UI
 
     public class UIMgr : Singleton<UIMgr>
     {
-        public BMC.Core.EventHandler eventHandler = new();
+        public Core.EventHandler eventHandler = new();
         public Stack<JoypadPanel> joypadPanels = new Stack<JoypadPanel>();
+        public bool IsSceneInit { get; private set; }
 
 
         private Transform globalUIRoot;
@@ -106,7 +107,6 @@ namespace BMC.UI
 
         private List<UIPanel> panels;
         private bool isInit = false;
-        private bool isSceneInit = false;
 
         private int sortingOrderDelta = 10;
 
@@ -122,7 +122,7 @@ namespace BMC.UI
                 return;
             isInit = true;
 
-            isSceneInit = false;
+            IsSceneInit = false;
             panels = new List<UIPanel>();
 
             eventHandler.Register((int)UIEvent.INPUT_B, closeJoypadPanel);
@@ -182,7 +182,7 @@ namespace BMC.UI
                 GameObject.Destroy(sceneUIRoot.gameObject);
                 sceneUIRoot = null;
             }
-            isSceneInit = false;
+            IsSceneInit = false;
         }
 
         private Transform getCanvas(UICanvasType uICanvasType)
@@ -203,7 +203,7 @@ namespace BMC.UI
                 case UICanvasType.SCENE_UI_3:
                 case UICanvasType.SCENE_UI_4:
                 case UICanvasType.SCENE_UI_TOP:
-                    if (!isSceneInit)
+                    if (!IsSceneInit)
                         return null;
                     return sceneCanvas[uICanvasType];
                 default:
@@ -309,7 +309,7 @@ namespace BMC.UI
                 { UICanvasType.SCENE_UI_4, await LoadCanvas(UICanvasType.SCENE_UI_4, sceneUIRoot) },
                 { UICanvasType.SCENE_UI_TOP, await LoadCanvas(UICanvasType.SCENE_UI_TOP, sceneUIRoot) }
             };
-            isSceneInit = true;
+            IsSceneInit = true;
         }
 
         public void StretchToSafeArea(RectTransform rectTransform, bool forceUpdate = false)
