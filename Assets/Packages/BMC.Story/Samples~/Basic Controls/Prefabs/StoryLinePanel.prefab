@@ -1105,6 +1105,14 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 36
       objectReference: {fileID: 0}
+    - target: {fileID: 2477187862542686807, guid: dc1b7c511fc94d746b4de4551595aa50, type: 3}
+      propertyPath: sendHObjs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2477187862542686807, guid: dc1b7c511fc94d746b4de4551595aa50, type: 3}
+      propertyPath: 'sendHObjs.Array.data[0]'
+      value: 
+      objectReference: {fileID: 3812776400847142669}
     - target: {fileID: 5711513288911621813, guid: dc1b7c511fc94d746b4de4551595aa50, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

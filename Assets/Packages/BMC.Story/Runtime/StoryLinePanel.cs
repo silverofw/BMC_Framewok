@@ -37,6 +37,17 @@ namespace BMC.Story
             if (storyItemPrefab) storyItemPrefab.SetActive(false);
         }
 
+        void Start()
+        {
+            StoryPlayer.Instance.Pause();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            StoryPlayer.Instance.Play();
+        }  
+
         // --- 核心入口 ---
         public void RefreshStoryLayout(StoryNode startNode, StoryPackage package)
         {

@@ -28,15 +28,15 @@ namespace BMC.Story
                 p.RefreshStoryLayout(StoryPlayer.Instance.StartNode, StoryPlayer.Instance._currentPackage);
             };
 
-            StoryPlayer.Instance.Register(onNodePlay);
-            StoryPlayer.Instance.Register(onNodeEvent);
+            StoryPlayer.Instance.handler.Register<StoryNode, StoryNode>((int)StoryEventID.PlayNode, onNodePlay);
+            StoryPlayer.Instance.handler.Register<StoryEvent, StoryNode, StoryNode>((int)StoryEventID.NodeEventTrigger, onNodeEvent);
             if (playOnStart) StoryPlayer.Instance.StartStory();
         }
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            StoryPlayer.Instance.UnRegister(onNodePlay);
-            StoryPlayer.Instance.UnRegister(onNodeEvent);
+            StoryPlayer.Instance.handler.UnRegister<StoryNode, StoryNode>((int)StoryEventID.PlayNode, onNodePlay);
+            StoryPlayer.Instance.handler.UnRegister<StoryEvent, StoryNode, StoryNode>((int)StoryEventID.NodeEventTrigger, onNodeEvent);
         }
         void onNodePlay(StoryNode crt, StoryNode pre)
         {

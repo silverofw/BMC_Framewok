@@ -1,10 +1,15 @@
-using BMC.Core;
+ï»¿using BMC.Core;
 using System.Collections.Generic;
 
 namespace BMC.Story
 {
     public enum StoryEventID
     {
+        None = 0,
+        Play,
+        Pause,
+        Restart,
+        FastEnd,
         PlayNode = 1000,
         NodeEventTrigger = 1001,
     }
@@ -14,7 +19,10 @@ namespace BMC.Story
         public StoryNode StartNode => _nodeMap.ContainsKey("Start") ? _nodeMap["Start"] : null;
         public StoryNode CrtNode { get; private set; }
 
-        private EventHandler handler = new EventHandler();
+        /// <summary>
+        /// Only for StoryEventID
+        /// </summary>
+        public EventHandler handler = new EventHandler();
         private Dictionary<string, StoryNode> _nodeMap = new Dictionary<string, StoryNode>();
         private StoryNode _preNode;
 
@@ -35,11 +43,21 @@ namespace BMC.Story
             PlayNode("Start");
         }
 
+        public void Play()
+        {
+            handler.Send((int)StoryEventID.Play, CrtNode, _preNode);
+        }
+
+        public void Pause()
+        {
+            handler.Send((int)StoryEventID.Pause, CrtNode, _preNode);
+        }
+
         public void PlayNode(string nodeId)
         {
             if (!_nodeMap.ContainsKey(nodeId)) return;
 
-            // °O¿ı«e¤@­Ó¸`ÂI ID (¦pªG¦³ªº¸Ü)
+            // è¨˜éŒ„å‰ä¸€å€‹ç¯€é» ID (å¦‚æœæœ‰çš„è©±)
             _preNode = (CrtNode != null) ? CrtNode : null;
             CrtNode = _nodeMap[nodeId];
 
@@ -52,24 +70,6 @@ namespace BMC.Story
                     handler.Send((int)StoryEventID.NodeEventTrigger, item, CrtNode, _preNode);
                 }
             }
-        }
-
-        public void Register(System.Action<StoryNode, StoryNode> callback)
-        {
-            handler.Register((int)StoryEventID.PlayNode, callback);
-        }
-        public void UnRegister(System.Action<StoryNode, StoryNode> callback)
-        {
-            handler.UnRegister((int)StoryEventID.PlayNode, callback);
-        }
-
-        public void Register(System.Action<StoryEvent, StoryNode, StoryNode> callback)
-        {
-            handler.Register((int)StoryEventID.NodeEventTrigger, callback);
-        }
-        public void UnRegister(System.Action<StoryEvent, StoryNode, StoryNode> callback)
-        {
-            handler.UnRegister((int)StoryEventID.NodeEventTrigger, callback);
         }
 
         public bool IsCrtNode(StoryNode node)

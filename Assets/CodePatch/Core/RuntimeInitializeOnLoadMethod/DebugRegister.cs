@@ -13,6 +13,7 @@ namespace BMC.Patch.Core
             DebugPanel.OnRegisterGroups += panel =>
             {
                 panel.AddDebugGroup("COMMON",
+                    ("FPS", () => UIInputTrigger.ShowFPS = !UIInputTrigger.ShowFPS),
                     ("切換語言 英文", () => LocalMgr.Instance.Set(SystemLanguage.English)),
                     ("切換語言 繁中", () => LocalMgr.Instance.Set(SystemLanguage.ChineseTraditional)),
                     ("切換語言 簡中", () => LocalMgr.Instance.Set(SystemLanguage.ChineseSimplified)),
