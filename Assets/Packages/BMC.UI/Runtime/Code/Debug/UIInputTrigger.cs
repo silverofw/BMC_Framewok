@@ -24,7 +24,7 @@ namespace BMC.UI
         {
             string currentSceneName = SceneManager.GetActiveScene().name;
 
-            if (currentSceneName != "Patch")
+            if (currentSceneName != "Patch" && currentSceneName != "Logo")
             {
                 Debug.LogWarning($"當前場景為 {currentSceneName}，非 Patch 場景，跳過初始化。");
                 return;
