@@ -8,8 +8,8 @@ namespace BMC.Core
 {
     public class ResMgr : Singleton<ResMgr>
     {
-        public const string DefaultPackage = "DefaultPackage";
-        public const string RawPackage = "RawPackage";
+        private string DefaultPackage = "DefaultPackage";
+        private string RawPackage = "RawPackage";
 
         private Dictionary<string, ResourcePackage> dic = new();
 

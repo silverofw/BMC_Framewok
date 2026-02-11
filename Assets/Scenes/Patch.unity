@@ -367,6 +367,8 @@ MonoBehaviour:
   playMode: 0
   patchWindow: {fileID: 4607067772088851818}
   cdnUrl: https://cdn.pages.dev/
+  packages:
+  - DefaultPackage
 --- !u!4 &1769982884
 Transform:
   m_ObjectHideFlags: 0

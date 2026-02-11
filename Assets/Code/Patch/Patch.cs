@@ -11,6 +11,7 @@ public class Patch : MonoBehaviour
     [SerializeField] private EPlayMode playMode = EPlayMode.EditorSimulateMode;
     [SerializeField] private PatchWindow patchWindow;
     [SerializeField] private string cdnUrl = "https://cdn.pages.dev/";
+    [SerializeField] private string[] packages = new string[] { "DefaultPackage", "RawPackage" };
 
     void Start()
     {
@@ -24,9 +25,8 @@ public class Patch : MonoBehaviour
         playMode = EPlayMode.OfflinePlayMode;
 #endif
         //var list = new string[] { ResMgr.DefaultPackage, ResMgr.RawPackage };
-        var list = new string[] { ResMgr.DefaultPackage };
         var ops = new List<(string, GameAsyncOperation)>();
-        foreach (var p in list)
+        foreach (var p in packages)
         {
             ops.Add((p, new PatchOperation(p, playMode)));
         }
