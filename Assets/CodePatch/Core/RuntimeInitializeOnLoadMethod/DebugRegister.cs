@@ -13,10 +13,10 @@ namespace BMC.Patch.Core
             DebugPanel.OnRegisterGroups += panel => {
                 panel.AddDebugGroup("COMMON",
                     ("FPS", () => UIInputTrigger.ShowFPS = !UIInputTrigger.ShowFPS),
-                    ("切換語言 英文", () => LocalMgr.Instance.Set(SystemLanguage.English)),
-                    ("切換語言 繁中", () => LocalMgr.Instance.Set(SystemLanguage.ChineseTraditional)),
-                    ("切換語言 簡中", () => LocalMgr.Instance.Set(SystemLanguage.ChineseSimplified)),
-                    ("切換語言 日文", () => LocalMgr.Instance.Set(SystemLanguage.Japanese)),
+                    ("切換語言 英文", () => setLang(SystemLanguage.English)),
+                    ("切換語言 繁中", () => setLang(SystemLanguage.ChineseTraditional)),
+                    ("切換語言 簡中", () => setLang(SystemLanguage.ChineseSimplified)),
+                    ("切換語言 日文", () => setLang(SystemLanguage.Japanese)),
                     ("讀取紀錄 0", () => {
                         SaveMgr.Instance.EnableDebugLogs = true;
                         SaveMgr.Instance.SwitchAndLoadSlot(0);
@@ -26,13 +26,20 @@ namespace BMC.Patch.Core
                         SceneMgr.Instance.GotoScene("Entry");
                     } ),
                     ("測試多語言(Continue)", () => {
-                        LocalMgr.Instance.Load();
-                        LocalMgr.Instance.Data = new ConfigLang();
+                        var index = SaveMgr.Instance.GetCoreInt(LocalMgr.SC_LANGUAGE, (int)SystemLanguage.English);
+                        LocalMgr.Instance.Load(new ConfigLang(), (SystemLanguage)index);
                         Log.Info($"[{LocalMgr.Instance.CrtLang}] {LocalMgr.Instance.Local("Continue")}");
                     } ),             
                     ("重新運行遊戲", () => SceneMgr.Instance.GotoScene("Entry"))
                 );
             };
+            void setLang(SystemLanguage language)
+            {
+                SaveMgr.Instance.SetCore(LocalMgr.SC_LANGUAGE, $"{(int)language}");
+                SaveMgr.Instance.SaveCurrentSlot();
+                LocalMgr.Instance.Set(language);
+            }
         }
+
     }
 }

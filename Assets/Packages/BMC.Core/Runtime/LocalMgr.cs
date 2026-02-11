@@ -3,24 +3,20 @@ namespace BMC.Core
 {
     public class LocalMgr : Singleton<LocalMgr>
     {
-        public LangData Data;
-        public SystemLanguage CrtLang = SystemLanguage.English;
-        private string SC_LANGUAGE = "SC_LANGUAGE";
+        public SystemLanguage CrtLang { get; private set; } = SystemLanguage.English;
+        public const string SC_LANGUAGE = "SC_LANGUAGE";
 
-        /// <summary>
-        /// 讀取記錄檔案的語言資料，遊戲流程需要添加
-        /// </summary>
-        /// <returns></returns>
-        public SystemLanguage Load()
+        private LangData Data;
+
+        public SystemLanguage Load(LangData data, SystemLanguage language)
         {
-            var index = SaveMgr.Instance.GetCoreInt(SC_LANGUAGE, (int)SystemLanguage.English);
-            CrtLang = (SystemLanguage)index;
+            Data = data;
+            CrtLang = language;
             return CrtLang;
         }
+
         public void Set(SystemLanguage language)
         {
-            SaveMgr.Instance.SetCore(SC_LANGUAGE, $"{(int)language}");
-            SaveMgr.Instance.SaveCurrentSlot();
             CrtLang = language;
         }
 

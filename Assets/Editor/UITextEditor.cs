@@ -45,9 +45,8 @@ namespace BMC.EditorExtensions
 
         private void UpdateLocalization(SystemLanguage lang)
         {
-            // 初始化 Editor 環境下的資料
-            LocalMgr.Instance.CrtLang = lang;
-            LocalMgr.Instance.Data = new EditorConfigLang();
+            // 初始化 Editor 環境下的資料            
+            LocalMgr.Instance.Load(new EditorConfigLang(), lang);
 
             foreach (var obj in targets)
             {
