@@ -2,7 +2,8 @@
     "name": "CodePatch",
     "rootNamespace": "",
     "references": [
-        "GUID:336aade05fcbb9547afcebcff717654a"
+        "GUID:1ec077b48f799e649ae87a2b5ad81fff",
+        "GUID:0a8e6c95d4fc8764dba7a7db27942422"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

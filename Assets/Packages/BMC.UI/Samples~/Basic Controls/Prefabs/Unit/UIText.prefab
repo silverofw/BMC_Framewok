@@ -151,3 +151,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: bmc.ui::bmc.ui.UIText
   text: {fileID: 1321739597920024835}
+  key: 

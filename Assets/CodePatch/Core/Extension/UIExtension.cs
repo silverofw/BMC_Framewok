@@ -1,4 +1,5 @@
-﻿using BMC.UI;
+﻿using BMC.Core;
+using BMC.UI;
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
@@ -8,15 +9,6 @@ namespace BMC.Patch.Core
 {
     public static class UIExtensions
     {
-        /// <summary>
-        /// 多語言
-        /// </summary>
-        /// <param name="uIText"></param>
-        /// <param name="key"></param>
-        public static void Local(this UIText uIText, string key)
-        {
-            uIText.Set(LocalMgr.Instance.Local(key));
-        }
         /// <summary>
         /// 道具多語言名稱
         /// </summary>
