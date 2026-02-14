@@ -7,14 +7,14 @@ namespace BMC.Story
     public class StoryLineItem : UI.UIPanel
     {
         [SerializeField] private UIText info;
-        [SerializeField] private UIButton btn;
+        [SerializeField] protected UIButton btn;
         [SerializeField] private GameObject select;
 
         // 這些是 Runtime 必要的識別資料
         [HideInInspector] public string NodeID;
         [HideInInspector] public string VideoPath;
 
-        public void Init(StoryNode node, Action action)
+        public virtual void Init(StoryNode node, Action action)
         {
             NodeID = node.Id;
             btn.OnClick = () => action?.Invoke();
