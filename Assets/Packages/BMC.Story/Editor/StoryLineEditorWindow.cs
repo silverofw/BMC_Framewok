@@ -75,7 +75,6 @@ namespace BMC.Story.Editor
             if (_currentPackage == null || _targetPanel == null) return;
 
             // 建立節點 ID 對應 Transform 的快取
-            // 注意：這裡每次重繪都抓取可能會有效能開銷，但在編輯器模式下通常可接受
             var items = _targetPanel.GetComponentsInChildren<StoryLineItem>();
             if (items == null || items.Length == 0) return;
 
@@ -266,7 +265,7 @@ namespace BMC.Story.Editor
 
         private void DrawNodeListSidebar()
         {
-            EditorGUILayout.BeginVertical(GUILayout.Width(240)); // 稍微加寬
+            EditorGUILayout.BeginVertical(GUILayout.Width(240));
 
             // 搜尋欄
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
@@ -307,7 +306,7 @@ namespace BMC.Story.Editor
                 if (GUILayout.Button(displayName, EditorStyles.miniButton, GUILayout.Height(24)))
                 {
                     _selectedNodeId = node.Id;
-                    GUI.FocusControl(null); // 取消輸入框焦點，避免誤觸
+                    GUI.FocusControl(null);
                     SceneView.RepaintAll();
                 }
                 GUI.backgroundColor = Color.white;
@@ -358,7 +357,7 @@ namespace BMC.Story.Editor
 
             // 1. ID 與 基本操作
             DrawNodeHeader(node, ref isDirty);
-            if (_selectedNodeId == null) return; // 節點被刪除後直接返回
+            if (_selectedNodeId == null) return;
 
             EditorGUILayout.Space();
 
@@ -406,7 +405,7 @@ namespace BMC.Story.Editor
                     isDirty = true;
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
-                    break; // 中斷迴圈避免 Index Error
+                    break;
                 }
                 GUI.backgroundColor = Color.white;
                 EditorGUILayout.EndHorizontal();
@@ -500,7 +499,7 @@ namespace BMC.Story.Editor
 
                 case StoryEvent.ActionOneofCase.UpdateStat:
                     evt.UpdateStat.CharacterId = EditorGUILayout.IntField("Character ID", evt.UpdateStat.CharacterId);
-                    evt.UpdateStat.StatType = (UpdateCharacterStatAction.Types.StatType)EditorGUILayout.EnumPopup("Stat Type", evt.UpdateStat.StatType);
+                    evt.UpdateStat.StatType = (StatType)EditorGUILayout.EnumPopup("Stat Type", evt.UpdateStat.StatType);
                     evt.UpdateStat.Value = EditorGUILayout.IntField("Add Value", evt.UpdateStat.Value);
                     break;
 
@@ -551,6 +550,7 @@ namespace BMC.Story.Editor
                 var choice = action.Choices[i];
                 EditorGUILayout.BeginVertical("box");
 
+                // --- 1. 基本選項設定 ---
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField($"#{i + 1}", GUILayout.Width(25));
 
@@ -569,6 +569,25 @@ namespace BMC.Story.Editor
                 EditorGUILayout.EndHorizontal();
 
                 DrawTargetIdSelector("Target", () => choice.TargetNodeId, (val) => choice.TargetNodeId = val, parentNode);
+
+                EditorGUILayout.Space(3);
+
+                // --- 2. 條件限制設定區塊 ---
+
+                // 繪製顯示條件 (Visible Conditions)
+                if (DrawConditionList("Visible Conditions (顯示條件)", choice.VisibleConditions)) changed = true;
+
+                // 繪製解鎖條件 (Lock Conditions)
+                if (DrawConditionList("Lock Conditions (解鎖條件)", choice.LockConditions)) changed = true;
+
+                // 若有解鎖條件，則顯示「未解鎖提示」欄位
+                if (choice.LockConditions.Count > 0)
+                {
+                    EditorGUI.BeginChangeCheck();
+                    choice.LockMessage = EditorGUILayout.TextField("Lock Message (未解鎖提示)", choice.LockMessage);
+                    if (EditorGUI.EndChangeCheck()) changed = true;
+                }
+
                 EditorGUILayout.EndVertical();
             }
 
@@ -580,6 +599,126 @@ namespace BMC.Story.Editor
             }
 
             return changed;
+        }
+
+        // 繪製 Condition 清單的共用方法
+        private bool DrawConditionList(string label, IList<Condition> conditions)
+        {
+            bool changed = false;
+
+            EditorGUILayout.BeginVertical("helpbox");
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel);
+            if (GUILayout.Button("+", EditorStyles.miniButton, GUILayout.Width(25)))
+            {
+                conditions.Add(new Condition
+                {
+                    TargetType = Condition.Types.TargetType.GlobalVariable,
+                    CompareType = Condition.Types.CompareType.GreaterEqual,
+                    VariableId = ""
+                });
+                changed = true;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            for (int i = 0; i < conditions.Count; i++)
+            {
+                var cond = conditions[i];
+                EditorGUILayout.BeginHorizontal();
+
+                EditorGUI.BeginChangeCheck();
+
+                // 1. 條件類型選擇
+                cond.TargetType = (Condition.Types.TargetType)EditorGUILayout.EnumPopup(cond.TargetType, GUILayout.Width(90));
+
+                // 2. 依據類型顯示不同的輸入介面
+                switch (cond.TargetType)
+                {
+                    case Condition.Types.TargetType.GlobalVariable:
+                        DrawConditionVariableSelector(cond);
+                        break;
+                    case Condition.Types.TargetType.CharacterStat:
+                        cond.CharacterId = EditorGUILayout.IntField(cond.CharacterId, GUILayout.Width(50));
+                        cond.StatType = (StatType)EditorGUILayout.EnumPopup(cond.StatType, GUILayout.Width(65));
+                        break;
+                    case Condition.Types.TargetType.CharacterAffection:
+                        cond.CharacterId = EditorGUILayout.IntField(cond.CharacterId, GUILayout.Width(45));
+                        GUILayout.Label("->", EditorStyles.centeredGreyMiniLabel, GUILayout.Width(15));
+                        cond.TargetCharacterId = EditorGUILayout.IntField(cond.TargetCharacterId, GUILayout.Width(45));
+                        break;
+                }
+
+                // 3. 比較邏輯
+                cond.CompareType = (Condition.Types.CompareType)EditorGUILayout.EnumPopup(cond.CompareType, GUILayout.Width(75));
+
+                // 4. 目標數值
+                cond.TargetValue = EditorGUILayout.IntField(cond.TargetValue, GUILayout.Width(45));
+
+                if (EditorGUI.EndChangeCheck()) changed = true;
+
+                // 刪除此條件
+                GUI.backgroundColor = Styles.ErrorColor;
+                if (GUILayout.Button("X", GUILayout.Width(20)))
+                {
+                    conditions.RemoveAt(i);
+                    changed = true;
+                    GUI.backgroundColor = Color.white;
+                    EditorGUILayout.EndHorizontal();
+                    break;
+                }
+                GUI.backgroundColor = Color.white;
+
+                EditorGUILayout.EndHorizontal();
+            }
+
+            EditorGUILayout.EndVertical();
+            return changed;
+        }
+
+        // 新增：條件 ID 的下拉選單與自定義輸入混合工具
+        private void DrawConditionVariableSelector(Condition cond)
+        {
+            // 建立選項清單
+            List<string> options = new List<string> { "Custom..." };
+
+            // 1. 放入常用的預設 ID (您可以隨時依據遊戲系統企劃在此新增)
+            string[] defaultVars = {
+                "Player_Money",
+                "Global_Morality"
+            };
+            options.AddRange(defaultVars);
+
+            // 2. 自動抓取當前 Package (StoryPackage) 中有定義的初始變數 (InitialVariables)
+            if (_currentPackage != null && _currentPackage.InitialVariables != null)
+            {
+                foreach (var key in _currentPackage.InitialVariables.Keys)
+                {
+                    if (!options.Contains(key)) options.Add(key);
+                }
+            }
+
+            // 確保當前的 VariableId 不為 null
+            if (cond.VariableId == null) cond.VariableId = "";
+
+            // 尋找當前設定的 ID 是否在清單中
+            int currentIndex = options.IndexOf(cond.VariableId);
+            bool isCustom = currentIndex == -1 || currentIndex == 0;
+            if (currentIndex == -1) currentIndex = 0;
+
+            // 繪製下拉選單
+            int newIndex = EditorGUILayout.Popup(currentIndex, options.ToArray(), GUILayout.Width(80));
+            if (newIndex != currentIndex)
+            {
+                cond.VariableId = (newIndex == 0) ? "" : options[newIndex];
+                isCustom = (newIndex == 0);
+            }
+
+            // 如果選了 "Custom..." 或是舊有資料不在清單內，顯示輸入框讓企劃自己填寫
+            if (isCustom)
+            {
+                cond.VariableId = EditorGUILayout.TextField(cond.VariableId, GUILayout.Width(70));
+            }
         }
 
         // ===================================================================================

@@ -24,10 +24,15 @@ namespace BMC.Story {
     static StoryDataReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg9TdG9yeURhdGEucHJvdG8SCUJNQy5TdG9yeSLbAQoJQ29uZGl0aW9uEhMK",
-            "C3ZhcmlhYmxlX2lkGAEgASgJEjYKDGNvbXBhcmVfdHlwZRgCIAEoDjIgLkJN",
-            "Qy5TdG9yeS5Db25kaXRpb24uQ29tcGFyZVR5cGUSFAoMdGFyZ2V0X3ZhbHVl",
-            "GAMgASgFImsKC0NvbXBhcmVUeXBlEgkKBUVRVUFMEAASEAoMR1JFQVRFUl9U",
+            "Cg9TdG9yeURhdGEucHJvdG8SCUJNQy5TdG9yeSK8AwoJQ29uZGl0aW9uEjQK",
+            "C3RhcmdldF90eXBlGAEgASgOMh8uQk1DLlN0b3J5LkNvbmRpdGlvbi5UYXJn",
+            "ZXRUeXBlEhMKC3ZhcmlhYmxlX2lkGAIgASgJEhQKDGNoYXJhY3Rlcl9pZBgD",
+            "IAEoBRImCglzdGF0X3R5cGUYBCABKA4yEy5CTUMuU3RvcnkuU3RhdFR5cGUS",
+            "GwoTdGFyZ2V0X2NoYXJhY3Rlcl9pZBgFIAEoBRI2Cgxjb21wYXJlX3R5cGUY",
+            "BiABKA4yIC5CTUMuU3RvcnkuQ29uZGl0aW9uLkNvbXBhcmVUeXBlEhQKDHRh",
+            "cmdldF92YWx1ZRgHIAEoBSJOCgpUYXJnZXRUeXBlEhMKD0dMT0JBTF9WQVJJ",
+            "QUJMRRAAEhIKDkNIQVJBQ1RFUl9TVEFUEAESFwoTQ0hBUkFDVEVSX0FGRkVD",
+            "VElPThACImsKC0NvbXBhcmVUeXBlEgkKBUVRVUFMEAASEAoMR1JFQVRFUl9U",
             "SEFOEAESDQoJTEVTU19USEFOEAISEQoNR1JFQVRFUl9FUVVBTBADEg4KCkxF",
             "U1NfRVFVQUwQBBINCglOT1RfRVFVQUwQBSJGCg9QbGF5VmlkZW9BY3Rpb24S",
             "EgoKdmlkZW9fcGF0aBgBIAEoCRIPCgdpc19sb29wGAIgASgIEg4KBnZvbHVt",
@@ -36,74 +41,73 @@ namespace BMC.Story {
             "GAoQZmFkZV9pbl9kdXJhdGlvbhgEIAEoAiJMChVQbGF5U291bmRFZmZlY3RB",
             "Y3Rpb24SEgoKYXVkaW9fcGF0aBgBIAEoCRIPCgdpc19sb29wGAIgASgIEg4K",
             "BnZvbHVtZRgDIAEoAiI1Cg9QbGF5Vm9pY2VBY3Rpb24SEgoKYXVkaW9fcGF0",
-            "aBgBIAEoCRIOCgZ2b2x1bWUYAiABKAIixQEKGVVwZGF0ZUNoYXJhY3RlclN0",
-            "YXRBY3Rpb24SFAoMY2hhcmFjdGVyX2lkGAEgASgFEkAKCXN0YXRfdHlwZRgC",
-            "IAEoDjItLkJNQy5TdG9yeS5VcGRhdGVDaGFyYWN0ZXJTdGF0QWN0aW9uLlN0",
-            "YXRUeXBlEg0KBXZhbHVlGAMgASgFIkEKCFN0YXRUeXBlEggKBE5PTkUQABIH",
-            "CgNTVFIQARIHCgNWSVQQAhIHCgNJTlQQAxIHCgNBR0kQBBIHCgNDSEEQBSJM",
-            "ChFTZXRWYXJpYWJsZUFjdGlvbhITCgt2YXJpYWJsZV9pZBgBIAEoCRINCgV2",
-            "YWx1ZRgCIAEoBRITCgtpc19hZGRpdGl2ZRgDIAEoCCKwAgoSR2FtZURpY2VS",
-            "b2xsQWN0aW9uEhoKEnJlc3VsdF92YXJpYWJsZV9pZBgBIAEoCRISCgpkaWNl",
-            "X2NvdW50GAIgASgFEhIKCmRpY2VfZmFjZXMYAyABKAUSOwoKY2hlY2tfbW9k",
-            "ZRgEIAEoDjInLkJNQy5TdG9yeS5HYW1lRGljZVJvbGxBY3Rpb24uQ2hlY2tN",
-            "b2RlEhQKDHRhcmdldF92YWx1ZRgFIAEoBRIaChJ0YXJnZXRfdmFyaWFibGVf",
-            "aWQYBiABKAkSFwoPc3VjY2Vzc19ub2RlX2lkGAcgASgJEhQKDGZhaWxfbm9k",
-            "ZV9pZBgIIAEoCSI4CglDaGVja01vZGUSCAoETk9ORRAAEhEKDUdSRUFURVJf",
-            "RVFVQUwQARIOCgpMRVNTX0VRVUFMEAIi8AEKGUdhbWVSdXNzaWFuUm91bGV0",
-            "dGVBY3Rpb24SEQoJcGxheWVyX2hwGAEgASgFEhMKC29wcG9uZW50X2hwGAIg",
-            "ASgFEhMKC29wcG9uZW50X2lkGAMgASgJEhwKFGZpeGVkX3NoZWxsX3NlcXVl",
-            "bmNlGAQgAygIEhsKE3JhbmRvbV90b3RhbF9zaGVsbHMYBSABKAUSGgoScmFu",
-            "ZG9tX2xpdmVfc2hlbGxzGAYgASgFEhQKDGVuYWJsZV9pdGVtcxgHIAEoCBIT",
-            "Cgt3aW5fbm9kZV9pZBgIIAEoCRIUCgxsb3NlX25vZGVfaWQYCSABKAkigQMK",
-            "DUdhbWVRVEVBY3Rpb24SLgoEdHlwZRgBIAEoDjIgLkJNQy5TdG9yeS5HYW1l",
-            "UVRFQWN0aW9uLlFURVR5cGUSEwoLcHJvbXB0X3RleHQYAiABKAkSEQoJaW5w",
-            "dXRfa2V5GAMgASgJEhgKEGR1cmF0aW9uX3NlY29uZHMYBCABKAISEgoKZ29h",
-            "bF92YWx1ZRgFIAEoAhI7Cg9zd2lwZV9kaXJlY3Rpb24YBiABKA4yIi5CTUMu",
-            "U3RvcnkuR2FtZVFURUFjdGlvbi5EaXJlY3Rpb24SFwoPc3VjY2Vzc19ub2Rl",
-            "X2lkGAcgASgJEhQKDGZhaWxfbm9kZV9pZBgIIAEoCSJACgdRVEVUeXBlEgcK",
-            "A1RBUBAAEggKBE1BU0gQARIICgRIT0xEEAISCQoFU1dJUEUQAxINCglUSU1F",
-            "RF9ISVQQBCI8CglEaXJlY3Rpb24SCAoETk9ORRAAEgYKAlVQEAESCAoERE9X",
-            "ThACEggKBExFRlQQAxIJCgVSSUdIVBAEIkwKEVNob3dDaG9pY2VzQWN0aW9u",
-            "EiIKB2Nob2ljZXMYASADKAsyES5CTUMuU3RvcnkuQ2hvaWNlEhMKC2FwcGVu",
-            "ZF9tb2RlGAIgASgIItMECgpTdG9yeUV2ZW50EhUKDWRlbGF5X3NlY29uZHMY",
-            "ASABKAISMAoKcGxheV92aWRlbxgKIAEoCzIaLkJNQy5TdG9yeS5QbGF5Vmlk",
-            "ZW9BY3Rpb25IABI7Cgt1cGRhdGVfc3RhdBgLIAEoCzIkLkJNQy5TdG9yeS5V",
-            "cGRhdGVDaGFyYWN0ZXJTdGF0QWN0aW9uSAASNAoMc2V0X3ZhcmlhYmxlGAwg",
-            "ASgLMhwuQk1DLlN0b3J5LlNldFZhcmlhYmxlQWN0aW9uSAASOAoIcGxheV9i",
-            "Z20YDSABKAsyJC5CTUMuU3RvcnkuUGxheUJhY2tncm91bmRNdXNpY0FjdGlv",
-            "bkgAEjQKCHBsYXlfc2Z4GA4gASgLMiAuQk1DLlN0b3J5LlBsYXlTb3VuZEVm",
-            "ZmVjdEFjdGlvbkgAEjAKCnBsYXlfdm9pY2UYDyABKAsyGi5CTUMuU3Rvcnku",
-            "UGxheVZvaWNlQWN0aW9uSAASMgoJZ2FtZV9kaWNlGBAgASgLMh0uQk1DLlN0",
-            "b3J5LkdhbWVEaWNlUm9sbEFjdGlvbkgAEkUKFWdhbWVfcnVzc2lhbl9yb3Vs",
-            "ZXR0ZRgRIAEoCzIkLkJNQy5TdG9yeS5HYW1lUnVzc2lhblJvdWxldHRlQWN0",
-            "aW9uSAASLAoIZ2FtZV9xdGUYEiABKAsyGC5CTUMuU3RvcnkuR2FtZVFURUFj",
-            "dGlvbkgAEjQKDHNob3dfY2hvaWNlcxgTIAEoCzIcLkJNQy5TdG9yeS5TaG93",
-            "Q2hvaWNlc0FjdGlvbkgAQggKBmFjdGlvbiLWAQoGQ2hvaWNlEgwKBHRleHQY",
-            "ASABKAkSFgoOdGFyZ2V0X25vZGVfaWQYAiABKAkSLwoQb25fc2VsZWN0X2V2",
-            "ZW50cxgDIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50EjAKEnZpc2libGVf",
-            "Y29uZGl0aW9ucxgFIAMoCzIULkJNQy5TdG9yeS5Db25kaXRpb24SLQoPbG9j",
-            "a19jb25kaXRpb25zGAYgAygLMhQuQk1DLlN0b3J5LkNvbmRpdGlvbhIUCgxs",
-            "b2NrX21lc3NhZ2UYByABKAkiiQIKCVN0b3J5Tm9kZRIKCgJpZBgBIAEoCRIN",
-            "CgV0aXRsZRgCIAEoCRImCgdjaG9pY2VzGAMgAygLMhEuQk1DLlN0b3J5LkNo",
-            "b2ljZUICGAESLgoPb25fZW50ZXJfZXZlbnRzGAQgAygLMhUuQk1DLlN0b3J5",
-            "LlN0b3J5RXZlbnQSLQoOb25fZXhpdF9ldmVudHMYBSADKAsyFS5CTUMuU3Rv",
-            "cnkuU3RvcnlFdmVudBIZChFhdXRvX2p1bXBfbm9kZV9pZBgHIAEoCRIXCg9h",
-            "dXRvX2p1bXBfZGVsYXkYCCABKAISGgoScHJldmlld19pbWFnZV9wYXRoGAkg",
-            "ASgJEgoKAnBzGAogASgJIsoBCgxTdG9yeVBhY2thZ2USEgoKY2hhcHRlcl9p",
-            "ZBgBIAEoCRIjCgVub2RlcxgCIAMoCzIULkJNQy5TdG9yeS5TdG9yeU5vZGUS",
-            "SAoRaW5pdGlhbF92YXJpYWJsZXMYAyADKAsyLS5CTUMuU3RvcnkuU3RvcnlQ",
-            "YWNrYWdlLkluaXRpYWxWYXJpYWJsZXNFbnRyeRo3ChVJbml0aWFsVmFyaWFi",
-            "bGVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgFOgI4AWIGcHJv",
-            "dG8z"));
+            "aBgBIAEoCRIOCgZ2b2x1bWUYAiABKAIiaAoZVXBkYXRlQ2hhcmFjdGVyU3Rh",
+            "dEFjdGlvbhIUCgxjaGFyYWN0ZXJfaWQYASABKAUSJgoJc3RhdF90eXBlGAIg",
+            "ASgOMhMuQk1DLlN0b3J5LlN0YXRUeXBlEg0KBXZhbHVlGAMgASgFIkwKEVNl",
+            "dFZhcmlhYmxlQWN0aW9uEhMKC3ZhcmlhYmxlX2lkGAEgASgJEg0KBXZhbHVl",
+            "GAIgASgFEhMKC2lzX2FkZGl0aXZlGAMgASgIIrACChJHYW1lRGljZVJvbGxB",
+            "Y3Rpb24SGgoScmVzdWx0X3ZhcmlhYmxlX2lkGAEgASgJEhIKCmRpY2VfY291",
+            "bnQYAiABKAUSEgoKZGljZV9mYWNlcxgDIAEoBRI7CgpjaGVja19tb2RlGAQg",
+            "ASgOMicuQk1DLlN0b3J5LkdhbWVEaWNlUm9sbEFjdGlvbi5DaGVja01vZGUS",
+            "FAoMdGFyZ2V0X3ZhbHVlGAUgASgFEhoKEnRhcmdldF92YXJpYWJsZV9pZBgG",
+            "IAEoCRIXCg9zdWNjZXNzX25vZGVfaWQYByABKAkSFAoMZmFpbF9ub2RlX2lk",
+            "GAggASgJIjgKCUNoZWNrTW9kZRIICgROT05FEAASEQoNR1JFQVRFUl9FUVVB",
+            "TBABEg4KCkxFU1NfRVFVQUwQAiLwAQoZR2FtZVJ1c3NpYW5Sb3VsZXR0ZUFj",
+            "dGlvbhIRCglwbGF5ZXJfaHAYASABKAUSEwoLb3Bwb25lbnRfaHAYAiABKAUS",
+            "EwoLb3Bwb25lbnRfaWQYAyABKAkSHAoUZml4ZWRfc2hlbGxfc2VxdWVuY2UY",
+            "BCADKAgSGwoTcmFuZG9tX3RvdGFsX3NoZWxscxgFIAEoBRIaChJyYW5kb21f",
+            "bGl2ZV9zaGVsbHMYBiABKAUSFAoMZW5hYmxlX2l0ZW1zGAcgASgIEhMKC3dp",
+            "bl9ub2RlX2lkGAggASgJEhQKDGxvc2Vfbm9kZV9pZBgJIAEoCSKBAwoNR2Ft",
+            "ZVFURUFjdGlvbhIuCgR0eXBlGAEgASgOMiAuQk1DLlN0b3J5LkdhbWVRVEVB",
+            "Y3Rpb24uUVRFVHlwZRITCgtwcm9tcHRfdGV4dBgCIAEoCRIRCglpbnB1dF9r",
+            "ZXkYAyABKAkSGAoQZHVyYXRpb25fc2Vjb25kcxgEIAEoAhISCgpnb2FsX3Zh",
+            "bHVlGAUgASgCEjsKD3N3aXBlX2RpcmVjdGlvbhgGIAEoDjIiLkJNQy5TdG9y",
+            "eS5HYW1lUVRFQWN0aW9uLkRpcmVjdGlvbhIXCg9zdWNjZXNzX25vZGVfaWQY",
+            "ByABKAkSFAoMZmFpbF9ub2RlX2lkGAggASgJIkAKB1FURVR5cGUSBwoDVEFQ",
+            "EAASCAoETUFTSBABEggKBEhPTEQQAhIJCgVTV0lQRRADEg0KCVRJTUVEX0hJ",
+            "VBAEIjwKCURpcmVjdGlvbhIICgROT05FEAASBgoCVVAQARIICgRET1dOEAIS",
+            "CAoETEVGVBADEgkKBVJJR0hUEAQiTAoRU2hvd0Nob2ljZXNBY3Rpb24SIgoH",
+            "Y2hvaWNlcxgBIAMoCzIRLkJNQy5TdG9yeS5DaG9pY2USEwoLYXBwZW5kX21v",
+            "ZGUYAiABKAgi0wQKClN0b3J5RXZlbnQSFQoNZGVsYXlfc2Vjb25kcxgBIAEo",
+            "AhIwCgpwbGF5X3ZpZGVvGAogASgLMhouQk1DLlN0b3J5LlBsYXlWaWRlb0Fj",
+            "dGlvbkgAEjsKC3VwZGF0ZV9zdGF0GAsgASgLMiQuQk1DLlN0b3J5LlVwZGF0",
+            "ZUNoYXJhY3RlclN0YXRBY3Rpb25IABI0CgxzZXRfdmFyaWFibGUYDCABKAsy",
+            "HC5CTUMuU3RvcnkuU2V0VmFyaWFibGVBY3Rpb25IABI4CghwbGF5X2JnbRgN",
+            "IAEoCzIkLkJNQy5TdG9yeS5QbGF5QmFja2dyb3VuZE11c2ljQWN0aW9uSAAS",
+            "NAoIcGxheV9zZngYDiABKAsyIC5CTUMuU3RvcnkuUGxheVNvdW5kRWZmZWN0",
+            "QWN0aW9uSAASMAoKcGxheV92b2ljZRgPIAEoCzIaLkJNQy5TdG9yeS5QbGF5",
+            "Vm9pY2VBY3Rpb25IABIyCglnYW1lX2RpY2UYECABKAsyHS5CTUMuU3Rvcnku",
+            "R2FtZURpY2VSb2xsQWN0aW9uSAASRQoVZ2FtZV9ydXNzaWFuX3JvdWxldHRl",
+            "GBEgASgLMiQuQk1DLlN0b3J5LkdhbWVSdXNzaWFuUm91bGV0dGVBY3Rpb25I",
+            "ABIsCghnYW1lX3F0ZRgSIAEoCzIYLkJNQy5TdG9yeS5HYW1lUVRFQWN0aW9u",
+            "SAASNAoMc2hvd19jaG9pY2VzGBMgASgLMhwuQk1DLlN0b3J5LlNob3dDaG9p",
+            "Y2VzQWN0aW9uSABCCAoGYWN0aW9uItYBCgZDaG9pY2USDAoEdGV4dBgBIAEo",
+            "CRIWCg50YXJnZXRfbm9kZV9pZBgCIAEoCRIvChBvbl9zZWxlY3RfZXZlbnRz",
+            "GAMgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSMAoSdmlzaWJsZV9jb25k",
+            "aXRpb25zGAUgAygLMhQuQk1DLlN0b3J5LkNvbmRpdGlvbhItCg9sb2NrX2Nv",
+            "bmRpdGlvbnMYBiADKAsyFC5CTUMuU3RvcnkuQ29uZGl0aW9uEhQKDGxvY2tf",
+            "bWVzc2FnZRgHIAEoCSKJAgoJU3RvcnlOb2RlEgoKAmlkGAEgASgJEg0KBXRp",
+            "dGxlGAIgASgJEiYKB2Nob2ljZXMYAyADKAsyES5CTUMuU3RvcnkuQ2hvaWNl",
+            "QgIYARIuCg9vbl9lbnRlcl9ldmVudHMYBCADKAsyFS5CTUMuU3RvcnkuU3Rv",
+            "cnlFdmVudBItCg5vbl9leGl0X2V2ZW50cxgFIAMoCzIVLkJNQy5TdG9yeS5T",
+            "dG9yeUV2ZW50EhkKEWF1dG9fanVtcF9ub2RlX2lkGAcgASgJEhcKD2F1dG9f",
+            "anVtcF9kZWxheRgIIAEoAhIaChJwcmV2aWV3X2ltYWdlX3BhdGgYCSABKAkS",
+            "CgoCcHMYCiABKAkiygEKDFN0b3J5UGFja2FnZRISCgpjaGFwdGVyX2lkGAEg",
+            "ASgJEiMKBW5vZGVzGAIgAygLMhQuQk1DLlN0b3J5LlN0b3J5Tm9kZRJIChFp",
+            "bml0aWFsX3ZhcmlhYmxlcxgDIAMoCzItLkJNQy5TdG9yeS5TdG9yeVBhY2th",
+            "Z2UuSW5pdGlhbFZhcmlhYmxlc0VudHJ5GjcKFUluaXRpYWxWYXJpYWJsZXNF",
+            "bnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAU6AjgBKkEKCFN0YXRU",
+            "eXBlEggKBE5PTkUQABIHCgNTVFIQARIHCgNWSVQQAhIHCgNJTlQQAxIHCgNB",
+            "R0kQBBIHCgNDSEEQBWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.Condition), global::BMC.Story.Condition.Parser, new[]{ "VariableId", "CompareType", "TargetValue" }, null, new[]{ typeof(global::BMC.Story.Condition.Types.CompareType) }, null, null),
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::BMC.Story.StatType), }, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.Condition), global::BMC.Story.Condition.Parser, new[]{ "TargetType", "VariableId", "CharacterId", "StatType", "TargetCharacterId", "CompareType", "TargetValue" }, null, new[]{ typeof(global::BMC.Story.Condition.Types.TargetType), typeof(global::BMC.Story.Condition.Types.CompareType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayVideoAction), global::BMC.Story.PlayVideoAction.Parser, new[]{ "VideoPath", "IsLoop", "Volume" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayBackgroundMusicAction), global::BMC.Story.PlayBackgroundMusicAction.Parser, new[]{ "AudioPath", "IsLoop", "Volume", "FadeInDuration" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlaySoundEffectAction), global::BMC.Story.PlaySoundEffectAction.Parser, new[]{ "AudioPath", "IsLoop", "Volume" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayVoiceAction), global::BMC.Story.PlayVoiceAction.Parser, new[]{ "AudioPath", "Volume" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.UpdateCharacterStatAction), global::BMC.Story.UpdateCharacterStatAction.Parser, new[]{ "CharacterId", "StatType", "Value" }, null, new[]{ typeof(global::BMC.Story.UpdateCharacterStatAction.Types.StatType) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.UpdateCharacterStatAction), global::BMC.Story.UpdateCharacterStatAction.Parser, new[]{ "CharacterId", "StatType", "Value" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.SetVariableAction), global::BMC.Story.SetVariableAction.Parser, new[]{ "VariableId", "Value", "IsAdditive" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GameDiceRollAction), global::BMC.Story.GameDiceRollAction.Parser, new[]{ "ResultVariableId", "DiceCount", "DiceFaces", "CheckMode", "TargetValue", "TargetVariableId", "SuccessNodeId", "FailNodeId" }, null, new[]{ typeof(global::BMC.Story.GameDiceRollAction.Types.CheckMode) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GameRussianRouletteAction), global::BMC.Story.GameRussianRouletteAction.Parser, new[]{ "PlayerHp", "OpponentHp", "OpponentId", "FixedShellSequence", "RandomTotalShells", "RandomLiveShells", "EnableItems", "WinNodeId", "LoseNodeId" }, null, null, null, null),
@@ -118,6 +122,21 @@ namespace BMC.Story {
     #endregion
 
   }
+  #region Enums
+  /// <summary>
+  /// 將 StatType 抽離到最外層，讓 Condition 和 Action 都能共用
+  /// </summary>
+  public enum StatType {
+    [pbr::OriginalName("NONE")] None = 0,
+    [pbr::OriginalName("STR")] Str = 1,
+    [pbr::OriginalName("VIT")] Vit = 2,
+    [pbr::OriginalName("INT")] Int = 3,
+    [pbr::OriginalName("AGI")] Agi = 4,
+    [pbr::OriginalName("CHA")] Cha = 5,
+  }
+
+  #endregion
+
   #region Messages
   /// <summary>
   /// 條件判斷：用於決定選項是否開啟，或是自動跳轉邏輯
@@ -157,7 +176,11 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public Condition(Condition other) : this() {
+      targetType_ = other.targetType_;
       variableId_ = other.variableId_;
+      characterId_ = other.characterId_;
+      statType_ = other.statType_;
+      targetCharacterId_ = other.targetCharacterId_;
       compareType_ = other.compareType_;
       targetValue_ = other.targetValue_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -169,11 +192,23 @@ namespace BMC.Story {
       return new Condition(this);
     }
 
+    /// <summary>Field number for the "target_type" field.</summary>
+    public const int TargetTypeFieldNumber = 1;
+    private global::BMC.Story.Condition.Types.TargetType targetType_ = global::BMC.Story.Condition.Types.TargetType.GlobalVariable;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::BMC.Story.Condition.Types.TargetType TargetType {
+      get { return targetType_; }
+      set {
+        targetType_ = value;
+      }
+    }
+
     /// <summary>Field number for the "variable_id" field.</summary>
-    public const int VariableIdFieldNumber = 1;
+    public const int VariableIdFieldNumber = 2;
     private string variableId_ = "";
     /// <summary>
-    /// 變數名稱或角色ID
+    /// 依據 target_type 決定使用以下哪些欄位
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -184,8 +219,53 @@ namespace BMC.Story {
       }
     }
 
+    /// <summary>Field number for the "character_id" field.</summary>
+    public const int CharacterIdFieldNumber = 3;
+    private int characterId_;
+    /// <summary>
+    /// [STAT / AFFECTION 專用] 主體腳色 ID (對應 Excel 表)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CharacterId {
+      get { return characterId_; }
+      set {
+        characterId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "stat_type" field.</summary>
+    public const int StatTypeFieldNumber = 4;
+    private global::BMC.Story.StatType statType_ = global::BMC.Story.StatType.None;
+    /// <summary>
+    /// [STAT 專用] 屬性類型
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::BMC.Story.StatType StatType {
+      get { return statType_; }
+      set {
+        statType_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "target_character_id" field.</summary>
+    public const int TargetCharacterIdFieldNumber = 5;
+    private int targetCharacterId_;
+    /// <summary>
+    /// [AFFECTION 專用] 客體腳色 ID (對應 Excel 表)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int TargetCharacterId {
+      get { return targetCharacterId_; }
+      set {
+        targetCharacterId_ = value;
+      }
+    }
+
     /// <summary>Field number for the "compare_type" field.</summary>
-    public const int CompareTypeFieldNumber = 2;
+    public const int CompareTypeFieldNumber = 6;
     private global::BMC.Story.Condition.Types.CompareType compareType_ = global::BMC.Story.Condition.Types.CompareType.Equal;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -197,7 +277,7 @@ namespace BMC.Story {
     }
 
     /// <summary>Field number for the "target_value" field.</summary>
-    public const int TargetValueFieldNumber = 3;
+    public const int TargetValueFieldNumber = 7;
     private int targetValue_;
     /// <summary>
     /// 目標數值 (例如: 50)
@@ -226,7 +306,11 @@ namespace BMC.Story {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (TargetType != other.TargetType) return false;
       if (VariableId != other.VariableId) return false;
+      if (CharacterId != other.CharacterId) return false;
+      if (StatType != other.StatType) return false;
+      if (TargetCharacterId != other.TargetCharacterId) return false;
       if (CompareType != other.CompareType) return false;
       if (TargetValue != other.TargetValue) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -236,7 +320,11 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
+      if (TargetType != global::BMC.Story.Condition.Types.TargetType.GlobalVariable) hash ^= TargetType.GetHashCode();
       if (VariableId.Length != 0) hash ^= VariableId.GetHashCode();
+      if (CharacterId != 0) hash ^= CharacterId.GetHashCode();
+      if (StatType != global::BMC.Story.StatType.None) hash ^= StatType.GetHashCode();
+      if (TargetCharacterId != 0) hash ^= TargetCharacterId.GetHashCode();
       if (CompareType != global::BMC.Story.Condition.Types.CompareType.Equal) hash ^= CompareType.GetHashCode();
       if (TargetValue != 0) hash ^= TargetValue.GetHashCode();
       if (_unknownFields != null) {
@@ -257,16 +345,32 @@ namespace BMC.Story {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
+      if (TargetType != global::BMC.Story.Condition.Types.TargetType.GlobalVariable) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) TargetType);
+      }
       if (VariableId.Length != 0) {
-        output.WriteRawTag(10);
+        output.WriteRawTag(18);
         output.WriteString(VariableId);
       }
+      if (CharacterId != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(CharacterId);
+      }
+      if (StatType != global::BMC.Story.StatType.None) {
+        output.WriteRawTag(32);
+        output.WriteEnum((int) StatType);
+      }
+      if (TargetCharacterId != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(TargetCharacterId);
+      }
       if (CompareType != global::BMC.Story.Condition.Types.CompareType.Equal) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(48);
         output.WriteEnum((int) CompareType);
       }
       if (TargetValue != 0) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(56);
         output.WriteInt32(TargetValue);
       }
       if (_unknownFields != null) {
@@ -279,16 +383,32 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (TargetType != global::BMC.Story.Condition.Types.TargetType.GlobalVariable) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) TargetType);
+      }
       if (VariableId.Length != 0) {
-        output.WriteRawTag(10);
+        output.WriteRawTag(18);
         output.WriteString(VariableId);
       }
+      if (CharacterId != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(CharacterId);
+      }
+      if (StatType != global::BMC.Story.StatType.None) {
+        output.WriteRawTag(32);
+        output.WriteEnum((int) StatType);
+      }
+      if (TargetCharacterId != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(TargetCharacterId);
+      }
       if (CompareType != global::BMC.Story.Condition.Types.CompareType.Equal) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(48);
         output.WriteEnum((int) CompareType);
       }
       if (TargetValue != 0) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(56);
         output.WriteInt32(TargetValue);
       }
       if (_unknownFields != null) {
@@ -301,8 +421,20 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
+      if (TargetType != global::BMC.Story.Condition.Types.TargetType.GlobalVariable) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) TargetType);
+      }
       if (VariableId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(VariableId);
+      }
+      if (CharacterId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CharacterId);
+      }
+      if (StatType != global::BMC.Story.StatType.None) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) StatType);
+      }
+      if (TargetCharacterId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(TargetCharacterId);
       }
       if (CompareType != global::BMC.Story.Condition.Types.CompareType.Equal) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) CompareType);
@@ -322,8 +454,20 @@ namespace BMC.Story {
       if (other == null) {
         return;
       }
+      if (other.TargetType != global::BMC.Story.Condition.Types.TargetType.GlobalVariable) {
+        TargetType = other.TargetType;
+      }
       if (other.VariableId.Length != 0) {
         VariableId = other.VariableId;
+      }
+      if (other.CharacterId != 0) {
+        CharacterId = other.CharacterId;
+      }
+      if (other.StatType != global::BMC.Story.StatType.None) {
+        StatType = other.StatType;
+      }
+      if (other.TargetCharacterId != 0) {
+        TargetCharacterId = other.TargetCharacterId;
       }
       if (other.CompareType != global::BMC.Story.Condition.Types.CompareType.Equal) {
         CompareType = other.CompareType;
@@ -350,15 +494,31 @@ namespace BMC.Story {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case 8: {
+            TargetType = (global::BMC.Story.Condition.Types.TargetType) input.ReadEnum();
+            break;
+          }
+          case 18: {
             VariableId = input.ReadString();
             break;
           }
-          case 16: {
+          case 24: {
+            CharacterId = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            StatType = (global::BMC.Story.StatType) input.ReadEnum();
+            break;
+          }
+          case 40: {
+            TargetCharacterId = input.ReadInt32();
+            break;
+          }
+          case 48: {
             CompareType = (global::BMC.Story.Condition.Types.CompareType) input.ReadEnum();
             break;
           }
-          case 24: {
+          case 56: {
             TargetValue = input.ReadInt32();
             break;
           }
@@ -381,15 +541,31 @@ namespace BMC.Story {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case 8: {
+            TargetType = (global::BMC.Story.Condition.Types.TargetType) input.ReadEnum();
+            break;
+          }
+          case 18: {
             VariableId = input.ReadString();
             break;
           }
-          case 16: {
+          case 24: {
+            CharacterId = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            StatType = (global::BMC.Story.StatType) input.ReadEnum();
+            break;
+          }
+          case 40: {
+            TargetCharacterId = input.ReadInt32();
+            break;
+          }
+          case 48: {
             CompareType = (global::BMC.Story.Condition.Types.CompareType) input.ReadEnum();
             break;
           }
-          case 24: {
+          case 56: {
             TargetValue = input.ReadInt32();
             break;
           }
@@ -403,6 +579,21 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static partial class Types {
+      public enum TargetType {
+        /// <summary>
+        /// 全域變數 (如金錢、道德值)
+        /// </summary>
+        [pbr::OriginalName("GLOBAL_VARIABLE")] GlobalVariable = 0,
+        /// <summary>
+        /// 腳色屬性 (如力量、敏捷)
+        /// </summary>
+        [pbr::OriginalName("CHARACTER_STAT")] CharacterStat = 1,
+        /// <summary>
+        /// 腳色好感度 (A 對 B 的好感度)
+        /// </summary>
+        [pbr::OriginalName("CHARACTER_AFFECTION")] CharacterAffection = 2,
+      }
+
       public enum CompareType {
         /// <summary>
         /// 等於
@@ -1582,6 +1773,9 @@ namespace BMC.Story {
     /// <summary>Field number for the "character_id" field.</summary>
     public const int CharacterIdFieldNumber = 1;
     private int characterId_;
+    /// <summary>
+    /// 腳色 ID (對應 Excel 表)
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CharacterId {
@@ -1593,10 +1787,10 @@ namespace BMC.Story {
 
     /// <summary>Field number for the "stat_type" field.</summary>
     public const int StatTypeFieldNumber = 2;
-    private global::BMC.Story.UpdateCharacterStatAction.Types.StatType statType_ = global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None;
+    private global::BMC.Story.StatType statType_ = global::BMC.Story.StatType.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::BMC.Story.UpdateCharacterStatAction.Types.StatType StatType {
+    public global::BMC.Story.StatType StatType {
       get { return statType_; }
       set {
         statType_ = value;
@@ -1641,7 +1835,7 @@ namespace BMC.Story {
     public override int GetHashCode() {
       int hash = 1;
       if (CharacterId != 0) hash ^= CharacterId.GetHashCode();
-      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) hash ^= StatType.GetHashCode();
+      if (StatType != global::BMC.Story.StatType.None) hash ^= StatType.GetHashCode();
       if (Value != 0) hash ^= Value.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -1665,7 +1859,7 @@ namespace BMC.Story {
         output.WriteRawTag(8);
         output.WriteInt32(CharacterId);
       }
-      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) {
+      if (StatType != global::BMC.Story.StatType.None) {
         output.WriteRawTag(16);
         output.WriteEnum((int) StatType);
       }
@@ -1687,7 +1881,7 @@ namespace BMC.Story {
         output.WriteRawTag(8);
         output.WriteInt32(CharacterId);
       }
-      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) {
+      if (StatType != global::BMC.Story.StatType.None) {
         output.WriteRawTag(16);
         output.WriteEnum((int) StatType);
       }
@@ -1708,7 +1902,7 @@ namespace BMC.Story {
       if (CharacterId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(CharacterId);
       }
-      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) {
+      if (StatType != global::BMC.Story.StatType.None) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) StatType);
       }
       if (Value != 0) {
@@ -1729,7 +1923,7 @@ namespace BMC.Story {
       if (other.CharacterId != 0) {
         CharacterId = other.CharacterId;
       }
-      if (other.StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) {
+      if (other.StatType != global::BMC.Story.StatType.None) {
         StatType = other.StatType;
       }
       if (other.Value != 0) {
@@ -1759,7 +1953,7 @@ namespace BMC.Story {
             break;
           }
           case 16: {
-            StatType = (global::BMC.Story.UpdateCharacterStatAction.Types.StatType) input.ReadEnum();
+            StatType = (global::BMC.Story.StatType) input.ReadEnum();
             break;
           }
           case 24: {
@@ -1790,7 +1984,7 @@ namespace BMC.Story {
             break;
           }
           case 16: {
-            StatType = (global::BMC.Story.UpdateCharacterStatAction.Types.StatType) input.ReadEnum();
+            StatType = (global::BMC.Story.StatType) input.ReadEnum();
             break;
           }
           case 24: {
@@ -1801,23 +1995,6 @@ namespace BMC.Story {
       }
     }
     #endif
-
-    #region Nested types
-    /// <summary>Container for nested types declared in the UpdateCharacterStatAction message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static partial class Types {
-      public enum StatType {
-        [pbr::OriginalName("NONE")] None = 0,
-        [pbr::OriginalName("STR")] Str = 1,
-        [pbr::OriginalName("VIT")] Vit = 2,
-        [pbr::OriginalName("INT")] Int = 3,
-        [pbr::OriginalName("AGI")] Agi = 4,
-        [pbr::OriginalName("CHA")] Cha = 5,
-      }
-
-    }
-    #endregion
 
   }
 
@@ -2568,7 +2745,7 @@ namespace BMC.Story {
   }
 
   /// <summary>
-  /// 修改名稱：通用俄羅斯輪盤玩法 (避免使用特定遊戲名稱 Buckshot Roulette)
+  /// 通用俄羅斯輪盤玩法
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GameRussianRouletteAction : pb::IMessage<GameRussianRouletteAction>
@@ -3601,7 +3778,7 @@ namespace BMC.Story {
   }
 
   /// <summary>
-  /// 新增：顯示選項 Action (讓選項也能透過 Event 觸發與延遲)
+  /// 顯示選項 Action (讓選項也能透過 Event 觸發與延遲)
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ShowChoicesAction : pb::IMessage<ShowChoicesAction>
@@ -4034,7 +4211,7 @@ namespace BMC.Story {
     /// <summary>Field number for the "show_choices" field.</summary>
     public const int ShowChoicesFieldNumber = 19;
     /// <summary>
-    /// 新增：選項事件
+    /// 選項事件
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
