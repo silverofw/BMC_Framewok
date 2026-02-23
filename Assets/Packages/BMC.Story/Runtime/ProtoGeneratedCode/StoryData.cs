@@ -36,64 +36,65 @@ namespace BMC.Story {
             "GAoQZmFkZV9pbl9kdXJhdGlvbhgEIAEoAiJMChVQbGF5U291bmRFZmZlY3RB",
             "Y3Rpb24SEgoKYXVkaW9fcGF0aBgBIAEoCRIPCgdpc19sb29wGAIgASgIEg4K",
             "BnZvbHVtZRgDIAEoAiI1Cg9QbGF5Vm9pY2VBY3Rpb24SEgoKYXVkaW9fcGF0",
-            "aBgBIAEoCRIOCgZ2b2x1bWUYAiABKAIitgEKGVVwZGF0ZUNoYXJhY3RlclN0",
-            "YXRBY3Rpb24SFAoMY2hhcmFjdGVyX2lkGAEgASgJEkAKCXN0YXRfdHlwZRgC",
+            "aBgBIAEoCRIOCgZ2b2x1bWUYAiABKAIixQEKGVVwZGF0ZUNoYXJhY3RlclN0",
+            "YXRBY3Rpb24SFAoMY2hhcmFjdGVyX2lkGAEgASgFEkAKCXN0YXRfdHlwZRgC",
             "IAEoDjItLkJNQy5TdG9yeS5VcGRhdGVDaGFyYWN0ZXJTdGF0QWN0aW9uLlN0",
-            "YXRUeXBlEg0KBXZhbHVlGAMgASgFIjIKCFN0YXRUeXBlEgsKB1VOS05PV04Q",
-            "ABINCglBRkZFQ1RJT04QARIKCgZIRUFMVEgQAiJMChFTZXRWYXJpYWJsZUFj",
-            "dGlvbhITCgt2YXJpYWJsZV9pZBgBIAEoCRINCgV2YWx1ZRgCIAEoBRITCgtp",
-            "c19hZGRpdGl2ZRgDIAEoCCKwAgoSR2FtZURpY2VSb2xsQWN0aW9uEhoKEnJl",
-            "c3VsdF92YXJpYWJsZV9pZBgBIAEoCRISCgpkaWNlX2NvdW50GAIgASgFEhIK",
-            "CmRpY2VfZmFjZXMYAyABKAUSOwoKY2hlY2tfbW9kZRgEIAEoDjInLkJNQy5T",
-            "dG9yeS5HYW1lRGljZVJvbGxBY3Rpb24uQ2hlY2tNb2RlEhQKDHRhcmdldF92",
-            "YWx1ZRgFIAEoBRIaChJ0YXJnZXRfdmFyaWFibGVfaWQYBiABKAkSFwoPc3Vj",
-            "Y2Vzc19ub2RlX2lkGAcgASgJEhQKDGZhaWxfbm9kZV9pZBgIIAEoCSI4CglD",
-            "aGVja01vZGUSCAoETk9ORRAAEhEKDUdSRUFURVJfRVFVQUwQARIOCgpMRVNT",
-            "X0VRVUFMEAIi8AEKGUdhbWVSdXNzaWFuUm91bGV0dGVBY3Rpb24SEQoJcGxh",
-            "eWVyX2hwGAEgASgFEhMKC29wcG9uZW50X2hwGAIgASgFEhMKC29wcG9uZW50",
-            "X2lkGAMgASgJEhwKFGZpeGVkX3NoZWxsX3NlcXVlbmNlGAQgAygIEhsKE3Jh",
-            "bmRvbV90b3RhbF9zaGVsbHMYBSABKAUSGgoScmFuZG9tX2xpdmVfc2hlbGxz",
-            "GAYgASgFEhQKDGVuYWJsZV9pdGVtcxgHIAEoCBITCgt3aW5fbm9kZV9pZBgI",
-            "IAEoCRIUCgxsb3NlX25vZGVfaWQYCSABKAkigQMKDUdhbWVRVEVBY3Rpb24S",
-            "LgoEdHlwZRgBIAEoDjIgLkJNQy5TdG9yeS5HYW1lUVRFQWN0aW9uLlFURVR5",
-            "cGUSEwoLcHJvbXB0X3RleHQYAiABKAkSEQoJaW5wdXRfa2V5GAMgASgJEhgK",
-            "EGR1cmF0aW9uX3NlY29uZHMYBCABKAISEgoKZ29hbF92YWx1ZRgFIAEoAhI7",
-            "Cg9zd2lwZV9kaXJlY3Rpb24YBiABKA4yIi5CTUMuU3RvcnkuR2FtZVFURUFj",
-            "dGlvbi5EaXJlY3Rpb24SFwoPc3VjY2Vzc19ub2RlX2lkGAcgASgJEhQKDGZh",
-            "aWxfbm9kZV9pZBgIIAEoCSJACgdRVEVUeXBlEgcKA1RBUBAAEggKBE1BU0gQ",
-            "ARIICgRIT0xEEAISCQoFU1dJUEUQAxINCglUSU1FRF9ISVQQBCI8CglEaXJl",
-            "Y3Rpb24SCAoETk9ORRAAEgYKAlVQEAESCAoERE9XThACEggKBExFRlQQAxIJ",
-            "CgVSSUdIVBAEIkwKEVNob3dDaG9pY2VzQWN0aW9uEiIKB2Nob2ljZXMYASAD",
-            "KAsyES5CTUMuU3RvcnkuQ2hvaWNlEhMKC2FwcGVuZF9tb2RlGAIgASgIItME",
-            "CgpTdG9yeUV2ZW50EhUKDWRlbGF5X3NlY29uZHMYASABKAISMAoKcGxheV92",
-            "aWRlbxgKIAEoCzIaLkJNQy5TdG9yeS5QbGF5VmlkZW9BY3Rpb25IABI7Cgt1",
-            "cGRhdGVfc3RhdBgLIAEoCzIkLkJNQy5TdG9yeS5VcGRhdGVDaGFyYWN0ZXJT",
-            "dGF0QWN0aW9uSAASNAoMc2V0X3ZhcmlhYmxlGAwgASgLMhwuQk1DLlN0b3J5",
-            "LlNldFZhcmlhYmxlQWN0aW9uSAASOAoIcGxheV9iZ20YDSABKAsyJC5CTUMu",
-            "U3RvcnkuUGxheUJhY2tncm91bmRNdXNpY0FjdGlvbkgAEjQKCHBsYXlfc2Z4",
-            "GA4gASgLMiAuQk1DLlN0b3J5LlBsYXlTb3VuZEVmZmVjdEFjdGlvbkgAEjAK",
-            "CnBsYXlfdm9pY2UYDyABKAsyGi5CTUMuU3RvcnkuUGxheVZvaWNlQWN0aW9u",
-            "SAASMgoJZ2FtZV9kaWNlGBAgASgLMh0uQk1DLlN0b3J5LkdhbWVEaWNlUm9s",
-            "bEFjdGlvbkgAEkUKFWdhbWVfcnVzc2lhbl9yb3VsZXR0ZRgRIAEoCzIkLkJN",
-            "Qy5TdG9yeS5HYW1lUnVzc2lhblJvdWxldHRlQWN0aW9uSAASLAoIZ2FtZV9x",
-            "dGUYEiABKAsyGC5CTUMuU3RvcnkuR2FtZVFURUFjdGlvbkgAEjQKDHNob3df",
-            "Y2hvaWNlcxgTIAEoCzIcLkJNQy5TdG9yeS5TaG93Q2hvaWNlc0FjdGlvbkgA",
-            "QggKBmFjdGlvbiLWAQoGQ2hvaWNlEgwKBHRleHQYASABKAkSFgoOdGFyZ2V0",
-            "X25vZGVfaWQYAiABKAkSLwoQb25fc2VsZWN0X2V2ZW50cxgDIAMoCzIVLkJN",
-            "Qy5TdG9yeS5TdG9yeUV2ZW50EjAKEnZpc2libGVfY29uZGl0aW9ucxgFIAMo",
-            "CzIULkJNQy5TdG9yeS5Db25kaXRpb24SLQoPbG9ja19jb25kaXRpb25zGAYg",
-            "AygLMhQuQk1DLlN0b3J5LkNvbmRpdGlvbhIUCgxsb2NrX21lc3NhZ2UYByAB",
-            "KAkiiQIKCVN0b3J5Tm9kZRIKCgJpZBgBIAEoCRINCgV0aXRsZRgCIAEoCRIm",
-            "CgdjaG9pY2VzGAMgAygLMhEuQk1DLlN0b3J5LkNob2ljZUICGAESLgoPb25f",
-            "ZW50ZXJfZXZlbnRzGAQgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSLQoO",
-            "b25fZXhpdF9ldmVudHMYBSADKAsyFS5CTUMuU3RvcnkuU3RvcnlFdmVudBIZ",
-            "ChFhdXRvX2p1bXBfbm9kZV9pZBgHIAEoCRIXCg9hdXRvX2p1bXBfZGVsYXkY",
-            "CCABKAISGgoScHJldmlld19pbWFnZV9wYXRoGAkgASgJEgoKAnBzGAogASgJ",
-            "IsoBCgxTdG9yeVBhY2thZ2USEgoKY2hhcHRlcl9pZBgBIAEoCRIjCgVub2Rl",
-            "cxgCIAMoCzIULkJNQy5TdG9yeS5TdG9yeU5vZGUSSAoRaW5pdGlhbF92YXJp",
-            "YWJsZXMYAyADKAsyLS5CTUMuU3RvcnkuU3RvcnlQYWNrYWdlLkluaXRpYWxW",
-            "YXJpYWJsZXNFbnRyeRo3ChVJbml0aWFsVmFyaWFibGVzRW50cnkSCwoDa2V5",
-            "GAEgASgJEg0KBXZhbHVlGAIgASgFOgI4AWIGcHJvdG8z"));
+            "YXRUeXBlEg0KBXZhbHVlGAMgASgFIkEKCFN0YXRUeXBlEggKBE5PTkUQABIH",
+            "CgNTVFIQARIHCgNWSVQQAhIHCgNJTlQQAxIHCgNBR0kQBBIHCgNDSEEQBSJM",
+            "ChFTZXRWYXJpYWJsZUFjdGlvbhITCgt2YXJpYWJsZV9pZBgBIAEoCRINCgV2",
+            "YWx1ZRgCIAEoBRITCgtpc19hZGRpdGl2ZRgDIAEoCCKwAgoSR2FtZURpY2VS",
+            "b2xsQWN0aW9uEhoKEnJlc3VsdF92YXJpYWJsZV9pZBgBIAEoCRISCgpkaWNl",
+            "X2NvdW50GAIgASgFEhIKCmRpY2VfZmFjZXMYAyABKAUSOwoKY2hlY2tfbW9k",
+            "ZRgEIAEoDjInLkJNQy5TdG9yeS5HYW1lRGljZVJvbGxBY3Rpb24uQ2hlY2tN",
+            "b2RlEhQKDHRhcmdldF92YWx1ZRgFIAEoBRIaChJ0YXJnZXRfdmFyaWFibGVf",
+            "aWQYBiABKAkSFwoPc3VjY2Vzc19ub2RlX2lkGAcgASgJEhQKDGZhaWxfbm9k",
+            "ZV9pZBgIIAEoCSI4CglDaGVja01vZGUSCAoETk9ORRAAEhEKDUdSRUFURVJf",
+            "RVFVQUwQARIOCgpMRVNTX0VRVUFMEAIi8AEKGUdhbWVSdXNzaWFuUm91bGV0",
+            "dGVBY3Rpb24SEQoJcGxheWVyX2hwGAEgASgFEhMKC29wcG9uZW50X2hwGAIg",
+            "ASgFEhMKC29wcG9uZW50X2lkGAMgASgJEhwKFGZpeGVkX3NoZWxsX3NlcXVl",
+            "bmNlGAQgAygIEhsKE3JhbmRvbV90b3RhbF9zaGVsbHMYBSABKAUSGgoScmFu",
+            "ZG9tX2xpdmVfc2hlbGxzGAYgASgFEhQKDGVuYWJsZV9pdGVtcxgHIAEoCBIT",
+            "Cgt3aW5fbm9kZV9pZBgIIAEoCRIUCgxsb3NlX25vZGVfaWQYCSABKAkigQMK",
+            "DUdhbWVRVEVBY3Rpb24SLgoEdHlwZRgBIAEoDjIgLkJNQy5TdG9yeS5HYW1l",
+            "UVRFQWN0aW9uLlFURVR5cGUSEwoLcHJvbXB0X3RleHQYAiABKAkSEQoJaW5w",
+            "dXRfa2V5GAMgASgJEhgKEGR1cmF0aW9uX3NlY29uZHMYBCABKAISEgoKZ29h",
+            "bF92YWx1ZRgFIAEoAhI7Cg9zd2lwZV9kaXJlY3Rpb24YBiABKA4yIi5CTUMu",
+            "U3RvcnkuR2FtZVFURUFjdGlvbi5EaXJlY3Rpb24SFwoPc3VjY2Vzc19ub2Rl",
+            "X2lkGAcgASgJEhQKDGZhaWxfbm9kZV9pZBgIIAEoCSJACgdRVEVUeXBlEgcK",
+            "A1RBUBAAEggKBE1BU0gQARIICgRIT0xEEAISCQoFU1dJUEUQAxINCglUSU1F",
+            "RF9ISVQQBCI8CglEaXJlY3Rpb24SCAoETk9ORRAAEgYKAlVQEAESCAoERE9X",
+            "ThACEggKBExFRlQQAxIJCgVSSUdIVBAEIkwKEVNob3dDaG9pY2VzQWN0aW9u",
+            "EiIKB2Nob2ljZXMYASADKAsyES5CTUMuU3RvcnkuQ2hvaWNlEhMKC2FwcGVu",
+            "ZF9tb2RlGAIgASgIItMECgpTdG9yeUV2ZW50EhUKDWRlbGF5X3NlY29uZHMY",
+            "ASABKAISMAoKcGxheV92aWRlbxgKIAEoCzIaLkJNQy5TdG9yeS5QbGF5Vmlk",
+            "ZW9BY3Rpb25IABI7Cgt1cGRhdGVfc3RhdBgLIAEoCzIkLkJNQy5TdG9yeS5V",
+            "cGRhdGVDaGFyYWN0ZXJTdGF0QWN0aW9uSAASNAoMc2V0X3ZhcmlhYmxlGAwg",
+            "ASgLMhwuQk1DLlN0b3J5LlNldFZhcmlhYmxlQWN0aW9uSAASOAoIcGxheV9i",
+            "Z20YDSABKAsyJC5CTUMuU3RvcnkuUGxheUJhY2tncm91bmRNdXNpY0FjdGlv",
+            "bkgAEjQKCHBsYXlfc2Z4GA4gASgLMiAuQk1DLlN0b3J5LlBsYXlTb3VuZEVm",
+            "ZmVjdEFjdGlvbkgAEjAKCnBsYXlfdm9pY2UYDyABKAsyGi5CTUMuU3Rvcnku",
+            "UGxheVZvaWNlQWN0aW9uSAASMgoJZ2FtZV9kaWNlGBAgASgLMh0uQk1DLlN0",
+            "b3J5LkdhbWVEaWNlUm9sbEFjdGlvbkgAEkUKFWdhbWVfcnVzc2lhbl9yb3Vs",
+            "ZXR0ZRgRIAEoCzIkLkJNQy5TdG9yeS5HYW1lUnVzc2lhblJvdWxldHRlQWN0",
+            "aW9uSAASLAoIZ2FtZV9xdGUYEiABKAsyGC5CTUMuU3RvcnkuR2FtZVFURUFj",
+            "dGlvbkgAEjQKDHNob3dfY2hvaWNlcxgTIAEoCzIcLkJNQy5TdG9yeS5TaG93",
+            "Q2hvaWNlc0FjdGlvbkgAQggKBmFjdGlvbiLWAQoGQ2hvaWNlEgwKBHRleHQY",
+            "ASABKAkSFgoOdGFyZ2V0X25vZGVfaWQYAiABKAkSLwoQb25fc2VsZWN0X2V2",
+            "ZW50cxgDIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50EjAKEnZpc2libGVf",
+            "Y29uZGl0aW9ucxgFIAMoCzIULkJNQy5TdG9yeS5Db25kaXRpb24SLQoPbG9j",
+            "a19jb25kaXRpb25zGAYgAygLMhQuQk1DLlN0b3J5LkNvbmRpdGlvbhIUCgxs",
+            "b2NrX21lc3NhZ2UYByABKAkiiQIKCVN0b3J5Tm9kZRIKCgJpZBgBIAEoCRIN",
+            "CgV0aXRsZRgCIAEoCRImCgdjaG9pY2VzGAMgAygLMhEuQk1DLlN0b3J5LkNo",
+            "b2ljZUICGAESLgoPb25fZW50ZXJfZXZlbnRzGAQgAygLMhUuQk1DLlN0b3J5",
+            "LlN0b3J5RXZlbnQSLQoOb25fZXhpdF9ldmVudHMYBSADKAsyFS5CTUMuU3Rv",
+            "cnkuU3RvcnlFdmVudBIZChFhdXRvX2p1bXBfbm9kZV9pZBgHIAEoCRIXCg9h",
+            "dXRvX2p1bXBfZGVsYXkYCCABKAISGgoScHJldmlld19pbWFnZV9wYXRoGAkg",
+            "ASgJEgoKAnBzGAogASgJIsoBCgxTdG9yeVBhY2thZ2USEgoKY2hhcHRlcl9p",
+            "ZBgBIAEoCRIjCgVub2RlcxgCIAMoCzIULkJNQy5TdG9yeS5TdG9yeU5vZGUS",
+            "SAoRaW5pdGlhbF92YXJpYWJsZXMYAyADKAsyLS5CTUMuU3RvcnkuU3RvcnlQ",
+            "YWNrYWdlLkluaXRpYWxWYXJpYWJsZXNFbnRyeRo3ChVJbml0aWFsVmFyaWFi",
+            "bGVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgFOgI4AWIGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1580,19 +1581,19 @@ namespace BMC.Story {
 
     /// <summary>Field number for the "character_id" field.</summary>
     public const int CharacterIdFieldNumber = 1;
-    private string characterId_ = "";
+    private int characterId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string CharacterId {
+    public int CharacterId {
       get { return characterId_; }
       set {
-        characterId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        characterId_ = value;
       }
     }
 
     /// <summary>Field number for the "stat_type" field.</summary>
     public const int StatTypeFieldNumber = 2;
-    private global::BMC.Story.UpdateCharacterStatAction.Types.StatType statType_ = global::BMC.Story.UpdateCharacterStatAction.Types.StatType.Unknown;
+    private global::BMC.Story.UpdateCharacterStatAction.Types.StatType statType_ = global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.UpdateCharacterStatAction.Types.StatType StatType {
@@ -1639,8 +1640,8 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (CharacterId.Length != 0) hash ^= CharacterId.GetHashCode();
-      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.Unknown) hash ^= StatType.GetHashCode();
+      if (CharacterId != 0) hash ^= CharacterId.GetHashCode();
+      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) hash ^= StatType.GetHashCode();
       if (Value != 0) hash ^= Value.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -1660,11 +1661,11 @@ namespace BMC.Story {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (CharacterId.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(CharacterId);
+      if (CharacterId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(CharacterId);
       }
-      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.Unknown) {
+      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) {
         output.WriteRawTag(16);
         output.WriteEnum((int) StatType);
       }
@@ -1682,11 +1683,11 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (CharacterId.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(CharacterId);
+      if (CharacterId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(CharacterId);
       }
-      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.Unknown) {
+      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) {
         output.WriteRawTag(16);
         output.WriteEnum((int) StatType);
       }
@@ -1704,10 +1705,10 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (CharacterId.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(CharacterId);
+      if (CharacterId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(CharacterId);
       }
-      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.Unknown) {
+      if (StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) StatType);
       }
       if (Value != 0) {
@@ -1725,10 +1726,10 @@ namespace BMC.Story {
       if (other == null) {
         return;
       }
-      if (other.CharacterId.Length != 0) {
+      if (other.CharacterId != 0) {
         CharacterId = other.CharacterId;
       }
-      if (other.StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.Unknown) {
+      if (other.StatType != global::BMC.Story.UpdateCharacterStatAction.Types.StatType.None) {
         StatType = other.StatType;
       }
       if (other.Value != 0) {
@@ -1753,8 +1754,8 @@ namespace BMC.Story {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
-            CharacterId = input.ReadString();
+          case 8: {
+            CharacterId = input.ReadInt32();
             break;
           }
           case 16: {
@@ -1784,8 +1785,8 @@ namespace BMC.Story {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
-            CharacterId = input.ReadString();
+          case 8: {
+            CharacterId = input.ReadInt32();
             break;
           }
           case 16: {
@@ -1807,9 +1808,12 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static partial class Types {
       public enum StatType {
-        [pbr::OriginalName("UNKNOWN")] Unknown = 0,
-        [pbr::OriginalName("AFFECTION")] Affection = 1,
-        [pbr::OriginalName("HEALTH")] Health = 2,
+        [pbr::OriginalName("NONE")] None = 0,
+        [pbr::OriginalName("STR")] Str = 1,
+        [pbr::OriginalName("VIT")] Vit = 2,
+        [pbr::OriginalName("INT")] Int = 3,
+        [pbr::OriginalName("AGI")] Agi = 4,
+        [pbr::OriginalName("CHA")] Cha = 5,
       }
 
     }

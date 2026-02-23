@@ -499,7 +499,7 @@ namespace BMC.Story.Editor
                     break;
 
                 case StoryEvent.ActionOneofCase.UpdateStat:
-                    evt.UpdateStat.CharacterId = EditorGUILayout.TextField("Character ID", evt.UpdateStat.CharacterId);
+                    evt.UpdateStat.CharacterId = EditorGUILayout.IntField("Character ID", evt.UpdateStat.CharacterId);
                     evt.UpdateStat.StatType = (UpdateCharacterStatAction.Types.StatType)EditorGUILayout.EnumPopup("Stat Type", evt.UpdateStat.StatType);
                     evt.UpdateStat.Value = EditorGUILayout.IntField("Add Value", evt.UpdateStat.Value);
                     break;
