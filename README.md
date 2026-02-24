@@ -45,24 +45,24 @@ BMC_Framewok/
 
 框架的基礎核心模組，包含底層架構與通用工具。**（為確保其他模組正常運作，建議優先安裝此模組）**
 
-```text
-[https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.Core](https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.Core)
+```
+https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.Core
 ```
 
 #### 🖼️ UI 模組 (BMC.UI)
 
 提供遊戲中的介面管理與 UI 系統。
 
-```text
-[https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.UI](https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.UI)
+```
+https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.UI
 ```
 
 #### 📖 劇情模組 (BMC.Story)
 
 提供對話系統與劇情邏輯控制。
 
-```text
-[https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.Story](https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.Story)
+```
+https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.Story
 ```
 
 *(註：由於 UPM 只會匯入上述路徑內的程式碼，若您需要使用框架內建的 Luban 導出工具，請額外將本專案原始碼中的 `LubanTool/` 資料夾下載，並放置於您的專案根目錄下。)*
