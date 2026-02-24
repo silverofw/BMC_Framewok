@@ -35,6 +35,8 @@ public class ConfigLang : LangData
     public override string Local(string key)
     {
         var c = ConfigMgr.Instance.Tables.Tblocalization.GetOrDefault(key);
+        if(c == null)
+            return key;
         switch (LocalMgr.Instance.CrtLang)
         {
             case SystemLanguage.ChineseTraditional:
