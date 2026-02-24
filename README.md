@@ -2,6 +2,25 @@
 
 BMC Framework 是一個基於 Unity 引擎開發的模組化遊戲框架。本框架致力於提供高度解耦的系統架構，讓開發者能夠**以 Unity Package Manager (UPM) 的形式，將所需模組直接安裝到自己的專案中**，並整合了強大的資料配置導出工具 [Luban](https://github.com/focus-creative-games/luban)，大幅提升遊戲開發效率。
 
+## 🤝 貢獻指南
+
+本專案供大家學習與參考，但目前**不接受 Pull Request**。如果您有任何建議或發現了 Bug，歡迎發起 [Issues](https://github.com/silverofw/BMC_Framewok/issues) 進行交流與討論。
+
+---
+
+## 📑 目錄
+- [核心特性](#-核心特性)
+- [專案結構與模組介紹](#-專案結構與模組介紹)
+- [快速開始](#-快速開始)
+  - [環境要求](#環境要求)
+  - [安裝步驟](#安裝步驟)
+  - [Luban 數據導出工具使用方式](#luban-數據導出工具使用方式)
+- [第三方依賴 (Third-Party Plugins)](#-第三方依賴-third-party-plugins)
+- [貢獻指南](#-貢獻指南)
+- [授權條款](#-授權條款)
+
+---
+
 ## ✨ 核心特性
 
 * **UPM 模組化安裝**：框架被拆分為多個獨立的 UPM 套件（如 Core、UI、Story 等），不綁架您的專案架構，開發者可依專案需求「隨插即用」。
@@ -87,10 +106,6 @@ https://github.com/silverofw/BMC_Framewok.git?path=/Assets/Packages/BMC.Story
 * [**UIEffect**](https://github.com/mob-sakai/UIEffect)：為 Unity UI (uGUI) 提供各種視覺特效（模糊、灰階、漸層等）。
 * [**SQLite-net**](https://github.com/gilzoide/unity-sqlite-net)：輕量級的跨平台 C# SQLite ORM 資料庫解決方案。
 * [**NuGetForUnity**](https://github.com/GlitchEnzo/NuGetForUnity)：讓您能在 Unity 編輯器中直接管理和使用 NuGet 依賴套件。
-
-## 🤝 貢獻指南
-
-本專案供大家學習與參考，但目前**不接受 Pull Request**。如果您有任何建議或發現了 Bug，歡迎發起 [Issues](https://github.com/silverofw/BMC_Framewok/issues) 進行交流與討論。
 
 ## 📄 授權條款
 
