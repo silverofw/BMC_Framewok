@@ -61,7 +61,7 @@ namespace BMC.UI
         {
             // 訂閱註冊事件
             DebugPanel.OnRegisterGroups += panel => {
-                panel.AddDebugGroup("UI COMMON",
+                panel.AddDebugGroup("UI BASIC",
                     ("Log", () => Log.Info("Hello")),
                     ("Error", () => Log.Error("Error")),
                     ("Toast", () => Toast.Show("Hello")),
@@ -92,7 +92,13 @@ namespace BMC.UI
                                 await UniTask.WaitForSeconds(1f);
                             }, null, true);
                         });
-                    } )
+                    } ),
+                    ("FullScreen Switch", () => {
+                        Screen.fullScreen = !Screen.fullScreen;
+                        if (Screen.fullScreen)
+                            Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
+                        Toast.Show($"[{Screen.fullScreen}] fullScreen");
+                    })
                 );
             };
         }
