@@ -13,7 +13,6 @@ namespace BMC.Story.Editor
         private int _chapterId = 1;
         private StoryLinePanel _targetPanel;
 
-        // 將 CurrentPackage 與 ChapterId 設為 public，讓 Drawers 可以存取資訊
         public StoryPackage CurrentPackage { get; private set; }
         public int ChapterId => _chapterId;
         private string _selectedNodeId;
@@ -22,8 +21,9 @@ namespace BMC.Story.Editor
         private Vector2 _nodeListScrollPos;
         private Vector2 _nodeDetailScrollPos;
         private string _searchFilter = "";
+        private string _newVarName = "";
 
-        // --- 反射用的 Drawer 字典 ---
+        // 反射用的 Drawer 字典
         private Dictionary<StoryEvent.ActionOneofCase, StoryActionDrawer> _drawers = new Dictionary<StoryEvent.ActionOneofCase, StoryActionDrawer>();
         private List<StoryActionDrawer> _sortedDrawers = new List<StoryActionDrawer>();
 
@@ -56,7 +56,7 @@ namespace BMC.Story.Editor
         {
             _chapterId = StoryEditorContext.CurrentChapterId;
             SceneView.duringSceneGui += OnSceneGUI;
-            InitializeDrawers(); // 初始化所有的 Action Drawers
+            InitializeDrawers();
         }
 
         private void OnDisable() => SceneView.duringSceneGui -= OnSceneGUI;
@@ -71,28 +71,22 @@ namespace BMC.Story.Editor
             }
         }
 
-        // --- 自動註冊所有繼承 StoryActionDrawer 的子類別 ---
         private void InitializeDrawers()
         {
             _drawers.Clear();
             _sortedDrawers.Clear();
 
-            // 利用 Unity 內建的 TypeCache 快速抓出所有實作
             var drawerTypes = TypeCache.GetTypesDerivedFrom<StoryActionDrawer>();
             foreach (var type in drawerTypes)
             {
                 if (type.IsAbstract) continue;
-
                 var drawer = (StoryActionDrawer)Activator.CreateInstance(type);
                 _drawers[drawer.ActionCase] = drawer;
                 _sortedDrawers.Add(drawer);
             }
-
-            // 依照選單路徑排序，讓右鍵選單看起來整齊
             _sortedDrawers = _sortedDrawers.OrderBy(d => d.MenuPath).ToList();
         }
 
-        // --- Scene 視圖繪製 ---
         private void OnSceneGUI(SceneView sceneView)
         {
             if (CurrentPackage == null || _targetPanel == null) return;
@@ -141,7 +135,6 @@ namespace BMC.Story.Editor
             }
         }
 
-        // --- 主 GUI 繪製 ---
         private void OnGUI()
         {
             EditorGUILayout.Space(10);
@@ -174,6 +167,7 @@ namespace BMC.Story.Editor
             EditorGUILayout.BeginVertical("box");
             EditorGUILayout.LabelField("Chapter Config", Styles.HeaderLabel);
             EditorGUILayout.BeginHorizontal();
+
             EditorGUI.BeginChangeCheck();
             _chapterId = EditorGUILayout.IntField("Chapter ID", _chapterId);
             if (_chapterId < 1) _chapterId = 1;
@@ -190,6 +184,56 @@ namespace BMC.Story.Editor
             EditorGUILayout.TextField(StoryEditorContext.CurrentFilePath);
             GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
+
+            if (CurrentPackage != null && CurrentPackage.InitialVariables != null)
+            {
+                EditorGUILayout.Space(3);
+                EditorGUILayout.LabelField($"Initial Variables ({CurrentPackage.InitialVariables.Count})", EditorStyles.miniBoldLabel);
+
+                bool varsChanged = false;
+                var keys = CurrentPackage.InitialVariables.Keys.ToList();
+
+                foreach (var key in keys)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label(key, GUILayout.Width(110));
+
+                    EditorGUI.BeginChangeCheck();
+                    int val = EditorGUILayout.IntField(CurrentPackage.InitialVariables[key]);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        CurrentPackage.InitialVariables[key] = val;
+                        varsChanged = true;
+                    }
+
+                    GUI.backgroundColor = Styles.ErrorColor;
+                    if (GUILayout.Button("X", GUILayout.Width(25)))
+                    {
+                        CurrentPackage.InitialVariables.Remove(key);
+                        varsChanged = true;
+                    }
+                    GUI.backgroundColor = Color.white;
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                EditorGUILayout.BeginHorizontal();
+                _newVarName = EditorGUILayout.TextField(_newVarName);
+                GUI.backgroundColor = Styles.SuccessColor;
+                if (GUILayout.Button("Add Var", GUILayout.Width(70)))
+                {
+                    if (!string.IsNullOrEmpty(_newVarName) && !CurrentPackage.InitialVariables.ContainsKey(_newVarName))
+                    {
+                        CurrentPackage.InitialVariables.Add(_newVarName, 0);
+                        _newVarName = "";
+                        varsChanged = true;
+                        GUI.FocusControl(null);
+                    }
+                }
+                GUI.backgroundColor = Color.white;
+                EditorGUILayout.EndHorizontal();
+
+                if (varsChanged) SaveToDiskAndRefresh();
+            }
             EditorGUILayout.EndVertical();
         }
 
@@ -234,7 +278,6 @@ namespace BMC.Story.Editor
             EditorGUILayout.EndHorizontal();
         }
 
-        // --- 左側清單 ---
         private void DrawNodeListSidebar()
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(240));
@@ -248,8 +291,6 @@ namespace BMC.Story.Editor
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-
-            // 單純的基礎空節點按鈕
             if (GUILayout.Button("+ New Node", GUILayout.Height(25)))
             {
                 var newNode = StoryEditorContext.CreateNewNode(CurrentPackage);
@@ -257,7 +298,6 @@ namespace BMC.Story.Editor
                 SaveToDiskAndRefresh();
                 GUIUtility.ExitGUI();
             }
-
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(5);
@@ -302,7 +342,6 @@ namespace BMC.Story.Editor
             }
         }
 
-        // --- 右側編輯區 ---
         private void DrawNodeDetailArea()
         {
             EditorGUILayout.BeginVertical("box", GUILayout.ExpandHeight(true));
@@ -330,11 +369,24 @@ namespace BMC.Story.Editor
             if (_selectedNodeId == null) return;
 
             EditorGUILayout.Space();
+
+            EditorGUILayout.BeginVertical("helpbox");
+            EditorGUILayout.LabelField("Node Properties", EditorStyles.boldLabel);
+            EditorGUI.BeginChangeCheck();
+            node.Title = EditorGUILayout.TextField("Title", node.Title);
+            node.PreviewImagePath = EditorGUILayout.TextField("Preview Image", node.PreviewImagePath);
+            EditorGUILayout.LabelField("Memo (PS):");
+            node.Ps = EditorGUILayout.TextArea(node.Ps, GUILayout.Height(35));
+            if (EditorGUI.EndChangeCheck()) isDirty = true;
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space();
+
             EditorGUILayout.BeginVertical("helpbox");
             EditorGUILayout.LabelField("Auto Jump Logic", EditorStyles.boldLabel);
             EditorGUI.BeginChangeCheck();
-            node.AutoJumpDelay = EditorGUILayout.FloatField("Delay (Seconds)", node.AutoJumpDelay);
+            node.AutoJumpDelay = EditorGUILayout.DelayedFloatField("Delay (Seconds)", node.AutoJumpDelay);
             if (EditorGUI.EndChangeCheck()) isDirty = true;
+
             DrawTargetIdSelector("Jump Target", () => node.AutoJumpNodeId, (val) => node.AutoJumpNodeId = val, node);
             EditorGUILayout.EndVertical();
 
@@ -347,7 +399,6 @@ namespace BMC.Story.Editor
                 EditorGUILayout.BeginVertical("box");
                 EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-                // 動態取得選單路徑當作標題
                 string title = _drawers.TryGetValue(evt.ActionCase, out var d) ? d.MenuPath : evt.ActionCase.ToString();
                 GUILayout.Label($"#{i + 1}  {title}", EditorStyles.miniLabel);
 
@@ -355,12 +406,19 @@ namespace BMC.Story.Editor
                 {
                     (node.OnEnterEvents[i], node.OnEnterEvents[i - 1]) = (node.OnEnterEvents[i - 1], node.OnEnterEvents[i]);
                     isDirty = true;
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndVertical();
+                    break;
                 }
                 if (i < node.OnEnterEvents.Count - 1 && GUILayout.Button("▼", EditorStyles.toolbarButton, GUILayout.Width(25)))
                 {
                     (node.OnEnterEvents[i], node.OnEnterEvents[i + 1]) = (node.OnEnterEvents[i + 1], node.OnEnterEvents[i]);
                     isDirty = true;
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndVertical();
+                    break;
                 }
+
                 GUI.backgroundColor = Styles.ErrorColor;
                 if (GUILayout.Button("✕", EditorStyles.toolbarButton, GUILayout.Width(25)))
                 {
@@ -374,10 +432,9 @@ namespace BMC.Story.Editor
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUI.BeginChangeCheck();
-                evt.DelaySeconds = EditorGUILayout.FloatField("Pre-Delay", evt.DelaySeconds);
+                evt.DelaySeconds = EditorGUILayout.DelayedFloatField("Pre-Delay", evt.DelaySeconds);
                 if (EditorGUI.EndChangeCheck()) isDirty = true;
 
-                // --- 動態路由呼叫 Drawer ---
                 if (_drawers.TryGetValue(evt.ActionCase, out var drawer))
                 {
                     if (drawer.Draw(node, evt, this)) isDirty = true;
@@ -392,12 +449,9 @@ namespace BMC.Story.Editor
             }
 
             EditorGUILayout.Space();
-
-            // --- 動態展開新增事件的按鈕區塊 (取代原下拉選單) ---
             EditorGUILayout.LabelField("Add Event:", EditorStyles.boldLabel);
             EditorGUILayout.BeginVertical("box");
 
-            // 利用 MenuPath (如 "Media/Play Video") 的前綴進行群組分類
             var groupedDrawers = _sortedDrawers.GroupBy(d => {
                 int slashIdx = d.MenuPath.IndexOf('/');
                 return slashIdx > 0 ? d.MenuPath.Substring(0, slashIdx) : "General";
@@ -406,28 +460,20 @@ namespace BMC.Story.Editor
             foreach (var group in groupedDrawers)
             {
                 EditorGUILayout.BeginHorizontal();
-
-                // 顯示分類名稱 (如 "Media", "Game", "UI")
                 GUILayout.Label(group.Key, EditorStyles.miniBoldLabel, GUILayout.Width(50));
 
-                // 畫出該分類下的所有 Action 按鈕
                 foreach (var drawer in group)
                 {
-                    // 擷取 '/' 後面的實際名稱
                     string btnName = drawer.MenuPath.Substring(drawer.MenuPath.IndexOf('/') + 1);
-
-                    // 加入 GUILayout.ExpandWidth(false) 取消彈性拉伸
                     if (GUILayout.Button(btnName, EditorStyles.miniButton, GUILayout.ExpandWidth(false)))
                     {
                         node.OnEnterEvents.Add(drawer.CreateNewEvent());
                         SaveToDiskAndRefresh();
-                        GUIUtility.ExitGUI(); // 結束 GUI 繪製避免 List 改變時報錯
+                        GUIUtility.ExitGUI();
                     }
                 }
 
-                // 將剩餘空間推向右側，使按鈕靠左對齊且不被強制拉伸滿版
                 GUILayout.FlexibleSpace();
-
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndVertical();
@@ -468,16 +514,18 @@ namespace BMC.Story.Editor
             }
         }
 
-        // ===================================================================================
-        // 提供給各大 Drawer 呼叫的公用 Helper Methods
-        // ===================================================================================
-
         public void DrawTargetIdSelector(string label, Func<string> getter, Action<string> setter, StoryNode parentForGen = null)
         {
             EditorGUILayout.BeginHorizontal();
             string current = getter();
+
+            EditorGUI.BeginChangeCheck();
             string newVal = EditorGUILayout.DelayedTextField(label, current);
-            if (newVal != current) setter(newVal);
+            if (EditorGUI.EndChangeCheck())
+            {
+                setter(newVal);
+                SaveToDiskAndRefresh();
+            }
 
             bool exists = !string.IsNullOrEmpty(newVal) && CurrentPackage.Nodes.Any(n => n.Id == newVal);
             bool isEmpty = string.IsNullOrEmpty(newVal);
