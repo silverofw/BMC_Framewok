@@ -457,15 +457,20 @@ namespace BMC.Story.Editor
                 return slashIdx > 0 ? d.MenuPath.Substring(0, slashIdx) : "General";
             });
 
+            // 新增一個垂直置中對齊的樣式，用來對齊按鈕高度
+            GUIStyle groupLabelStyle = new GUIStyle(EditorStyles.miniBoldLabel) { alignment = TextAnchor.MiddleLeft };
+
             foreach (var group in groupedDrawers)
             {
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label(group.Key, EditorStyles.miniBoldLabel, GUILayout.Width(50));
+                // 將 Width 放寬到 80 避免 "MiniGame" 被擠壓，並固定 Height 為 20
+                GUILayout.Label(group.Key, groupLabelStyle, GUILayout.Width(80), GUILayout.Height(20));
 
                 foreach (var drawer in group)
                 {
                     string btnName = drawer.MenuPath.Substring(drawer.MenuPath.IndexOf('/') + 1);
-                    if (GUILayout.Button(btnName, EditorStyles.miniButton, GUILayout.ExpandWidth(false)))
+                    // 按鈕也加上固定的 Height(20)，確保跟標題在完美的同一水平線上
+                    if (GUILayout.Button(btnName, EditorStyles.miniButton, GUILayout.ExpandWidth(false), GUILayout.Height(20)))
                     {
                         node.OnEnterEvents.Add(drawer.CreateNewEvent());
                         SaveToDiskAndRefresh();

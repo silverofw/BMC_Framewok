@@ -46,7 +46,7 @@ namespace BMC.Story
         {
             base.OnDestroy();
             StoryPlayer.Instance.Play();
-        }  
+        }
 
         // --- 核心入口 ---
         public void RefreshStoryLayout(StoryNode startNode, StoryPackage package)
@@ -265,6 +265,10 @@ namespace BMC.Story
                 case StoryEvent.ActionOneofCase.GameQte:
                     if (!string.IsNullOrEmpty(evt.GameQte.SuccessNodeId)) yield return evt.GameQte.SuccessNodeId;
                     if (!string.IsNullOrEmpty(evt.GameQte.FailNodeId)) yield return evt.GameQte.FailNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GamePuzzle:
+                    if (!string.IsNullOrEmpty(evt.GamePuzzle.SuccessNodeId)) yield return evt.GamePuzzle.SuccessNodeId;
+                    if (!string.IsNullOrEmpty(evt.GamePuzzle.FailNodeId)) yield return evt.GamePuzzle.FailNodeId;
                     break;
             }
         }

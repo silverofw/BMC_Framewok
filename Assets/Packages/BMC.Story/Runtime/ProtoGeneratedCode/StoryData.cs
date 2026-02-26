@@ -66,45 +66,49 @@ namespace BMC.Story {
             "ByABKAkSFAoMZmFpbF9ub2RlX2lkGAggASgJIkAKB1FURVR5cGUSBwoDVEFQ",
             "EAASCAoETUFTSBABEggKBEhPTEQQAhIJCgVTV0lQRRADEg0KCVRJTUVEX0hJ",
             "VBAEIjwKCURpcmVjdGlvbhIICgROT05FEAASBgoCVVAQARIICgRET1dOEAIS",
-            "CAoETEVGVBADEgkKBVJJR0hUEAQiTAoRU2hvd0Nob2ljZXNBY3Rpb24SIgoH",
-            "Y2hvaWNlcxgBIAMoCzIRLkJNQy5TdG9yeS5DaG9pY2USEwoLYXBwZW5kX21v",
-            "ZGUYAiABKAgifwoLRGlhbG9nRnJhbWUSFAoMY2hhcmFjdGVyX2lkGAEgASgF",
-            "EgsKA2tleRgCIAEoCRIuCghwb3NpdGlvbhgDIAEoDjIcLkJNQy5TdG9yeS5D",
-            "aGFyYWN0ZXJQb3NpdGlvbhIdChVjaGFyYWN0ZXJfc3ByaXRlX25hbWUYBCAB",
-            "KAkiVwoTUGxheUF2Z0RpYWxvZ0FjdGlvbhIYChBiYWNrZ3JvdW5kX2ltYWdl",
-            "GAEgASgJEiYKBmZyYW1lcxgCIAMoCzIWLkJNQy5TdG9yeS5EaWFsb2dGcmFt",
-            "ZSKOBQoKU3RvcnlFdmVudBIVCg1kZWxheV9zZWNvbmRzGAEgASgCEjAKCnBs",
-            "YXlfdmlkZW8YCiABKAsyGi5CTUMuU3RvcnkuUGxheVZpZGVvQWN0aW9uSAAS",
-            "OwoLdXBkYXRlX3N0YXQYCyABKAsyJC5CTUMuU3RvcnkuVXBkYXRlQ2hhcmFj",
-            "dGVyU3RhdEFjdGlvbkgAEjQKDHNldF92YXJpYWJsZRgMIAEoCzIcLkJNQy5T",
-            "dG9yeS5TZXRWYXJpYWJsZUFjdGlvbkgAEjgKCHBsYXlfYmdtGA0gASgLMiQu",
-            "Qk1DLlN0b3J5LlBsYXlCYWNrZ3JvdW5kTXVzaWNBY3Rpb25IABI0CghwbGF5",
-            "X3NmeBgOIAEoCzIgLkJNQy5TdG9yeS5QbGF5U291bmRFZmZlY3RBY3Rpb25I",
-            "ABIwCgpwbGF5X3ZvaWNlGA8gASgLMhouQk1DLlN0b3J5LlBsYXlWb2ljZUFj",
-            "dGlvbkgAEjIKCWdhbWVfZGljZRgQIAEoCzIdLkJNQy5TdG9yeS5HYW1lRGlj",
-            "ZVJvbGxBY3Rpb25IABJFChVnYW1lX3J1c3NpYW5fcm91bGV0dGUYESABKAsy",
-            "JC5CTUMuU3RvcnkuR2FtZVJ1c3NpYW5Sb3VsZXR0ZUFjdGlvbkgAEiwKCGdh",
-            "bWVfcXRlGBIgASgLMhguQk1DLlN0b3J5LkdhbWVRVEVBY3Rpb25IABI0Cgxz",
-            "aG93X2Nob2ljZXMYEyABKAsyHC5CTUMuU3RvcnkuU2hvd0Nob2ljZXNBY3Rp",
-            "b25IABI5Cg9wbGF5X2F2Z19kaWFsb2cYFCABKAsyHi5CTUMuU3RvcnkuUGxh",
-            "eUF2Z0RpYWxvZ0FjdGlvbkgAQggKBmFjdGlvbiLWAQoGQ2hvaWNlEgwKBHRl",
-            "eHQYASABKAkSFgoOdGFyZ2V0X25vZGVfaWQYAiABKAkSLwoQb25fc2VsZWN0",
-            "X2V2ZW50cxgDIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50EjAKEnZpc2li",
-            "bGVfY29uZGl0aW9ucxgFIAMoCzIULkJNQy5TdG9yeS5Db25kaXRpb24SLQoP",
-            "bG9ja19jb25kaXRpb25zGAYgAygLMhQuQk1DLlN0b3J5LkNvbmRpdGlvbhIU",
-            "Cgxsb2NrX21lc3NhZ2UYByABKAki4QEKCVN0b3J5Tm9kZRIKCgJpZBgBIAEo",
-            "CRINCgV0aXRsZRgCIAEoCRIuCg9vbl9lbnRlcl9ldmVudHMYBCADKAsyFS5C",
-            "TUMuU3RvcnkuU3RvcnlFdmVudBItCg5vbl9leGl0X2V2ZW50cxgFIAMoCzIV",
-            "LkJNQy5TdG9yeS5TdG9yeUV2ZW50EhkKEWF1dG9fanVtcF9ub2RlX2lkGAcg",
-            "ASgJEhcKD2F1dG9fanVtcF9kZWxheRgIIAEoAhIaChJwcmV2aWV3X2ltYWdl",
-            "X3BhdGgYCSABKAkSCgoCcHMYCiABKAkiygEKDFN0b3J5UGFja2FnZRISCgpj",
-            "aGFwdGVyX2lkGAEgASgJEiMKBW5vZGVzGAIgAygLMhQuQk1DLlN0b3J5LlN0",
-            "b3J5Tm9kZRJIChFpbml0aWFsX3ZhcmlhYmxlcxgDIAMoCzItLkJNQy5TdG9y",
-            "eS5TdG9yeVBhY2thZ2UuSW5pdGlhbFZhcmlhYmxlc0VudHJ5GjcKFUluaXRp",
-            "YWxWYXJpYWJsZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAU6",
-            "AjgBKkEKCFN0YXRUeXBlEggKBE5PTkUQABIHCgNTVFIQARIHCgNWSVQQAhIH",
-            "CgNJTlQQAxIHCgNBR0kQBBIHCgNDSEEQBSo0ChFDaGFyYWN0ZXJQb3NpdGlv",
-            "bhIICgRMRUZUEAASCgoGQ0VOVEVSEAESCQoFUklHSFQQAmIGcHJvdG8z"));
+            "CAoETEVGVBADEgkKBVJJR0hUEAQiVgoQR2FtZVB1enpsZUFjdGlvbhITCgtw",
+            "cmVmYWJfbmFtZRgBIAEoCRIXCg9zdWNjZXNzX25vZGVfaWQYAiABKAkSFAoM",
+            "ZmFpbF9ub2RlX2lkGAMgASgJIkwKEVNob3dDaG9pY2VzQWN0aW9uEiIKB2No",
+            "b2ljZXMYASADKAsyES5CTUMuU3RvcnkuQ2hvaWNlEhMKC2FwcGVuZF9tb2Rl",
+            "GAIgASgIIn8KC0RpYWxvZ0ZyYW1lEhQKDGNoYXJhY3Rlcl9pZBgBIAEoBRIL",
+            "CgNrZXkYAiABKAkSLgoIcG9zaXRpb24YAyABKA4yHC5CTUMuU3RvcnkuQ2hh",
+            "cmFjdGVyUG9zaXRpb24SHQoVY2hhcmFjdGVyX3Nwcml0ZV9uYW1lGAQgASgJ",
+            "IlcKE1BsYXlBdmdEaWFsb2dBY3Rpb24SGAoQYmFja2dyb3VuZF9pbWFnZRgB",
+            "IAEoCRImCgZmcmFtZXMYAiADKAsyFi5CTUMuU3RvcnkuRGlhbG9nRnJhbWUi",
+            "wgUKClN0b3J5RXZlbnQSFQoNZGVsYXlfc2Vjb25kcxgBIAEoAhIwCgpwbGF5",
+            "X3ZpZGVvGAogASgLMhouQk1DLlN0b3J5LlBsYXlWaWRlb0FjdGlvbkgAEjsK",
+            "C3VwZGF0ZV9zdGF0GAsgASgLMiQuQk1DLlN0b3J5LlVwZGF0ZUNoYXJhY3Rl",
+            "clN0YXRBY3Rpb25IABI0CgxzZXRfdmFyaWFibGUYDCABKAsyHC5CTUMuU3Rv",
+            "cnkuU2V0VmFyaWFibGVBY3Rpb25IABI4CghwbGF5X2JnbRgNIAEoCzIkLkJN",
+            "Qy5TdG9yeS5QbGF5QmFja2dyb3VuZE11c2ljQWN0aW9uSAASNAoIcGxheV9z",
+            "ZngYDiABKAsyIC5CTUMuU3RvcnkuUGxheVNvdW5kRWZmZWN0QWN0aW9uSAAS",
+            "MAoKcGxheV92b2ljZRgPIAEoCzIaLkJNQy5TdG9yeS5QbGF5Vm9pY2VBY3Rp",
+            "b25IABIyCglnYW1lX2RpY2UYECABKAsyHS5CTUMuU3RvcnkuR2FtZURpY2VS",
+            "b2xsQWN0aW9uSAASRQoVZ2FtZV9ydXNzaWFuX3JvdWxldHRlGBEgASgLMiQu",
+            "Qk1DLlN0b3J5LkdhbWVSdXNzaWFuUm91bGV0dGVBY3Rpb25IABIsCghnYW1l",
+            "X3F0ZRgSIAEoCzIYLkJNQy5TdG9yeS5HYW1lUVRFQWN0aW9uSAASMgoLZ2Ft",
+            "ZV9wdXp6bGUYFSABKAsyGy5CTUMuU3RvcnkuR2FtZVB1enpsZUFjdGlvbkgA",
+            "EjQKDHNob3dfY2hvaWNlcxgTIAEoCzIcLkJNQy5TdG9yeS5TaG93Q2hvaWNl",
+            "c0FjdGlvbkgAEjkKD3BsYXlfYXZnX2RpYWxvZxgUIAEoCzIeLkJNQy5TdG9y",
+            "eS5QbGF5QXZnRGlhbG9nQWN0aW9uSABCCAoGYWN0aW9uItYBCgZDaG9pY2US",
+            "DAoEdGV4dBgBIAEoCRIWCg50YXJnZXRfbm9kZV9pZBgCIAEoCRIvChBvbl9z",
+            "ZWxlY3RfZXZlbnRzGAMgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSMAoS",
+            "dmlzaWJsZV9jb25kaXRpb25zGAUgAygLMhQuQk1DLlN0b3J5LkNvbmRpdGlv",
+            "bhItCg9sb2NrX2NvbmRpdGlvbnMYBiADKAsyFC5CTUMuU3RvcnkuQ29uZGl0",
+            "aW9uEhQKDGxvY2tfbWVzc2FnZRgHIAEoCSLhAQoJU3RvcnlOb2RlEgoKAmlk",
+            "GAEgASgJEg0KBXRpdGxlGAIgASgJEi4KD29uX2VudGVyX2V2ZW50cxgEIAMo",
+            "CzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50Ei0KDm9uX2V4aXRfZXZlbnRzGAUg",
+            "AygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSGQoRYXV0b19qdW1wX25vZGVf",
+            "aWQYByABKAkSFwoPYXV0b19qdW1wX2RlbGF5GAggASgCEhoKEnByZXZpZXdf",
+            "aW1hZ2VfcGF0aBgJIAEoCRIKCgJwcxgKIAEoCSLKAQoMU3RvcnlQYWNrYWdl",
+            "EhIKCmNoYXB0ZXJfaWQYASABKAkSIwoFbm9kZXMYAiADKAsyFC5CTUMuU3Rv",
+            "cnkuU3RvcnlOb2RlEkgKEWluaXRpYWxfdmFyaWFibGVzGAMgAygLMi0uQk1D",
+            "LlN0b3J5LlN0b3J5UGFja2FnZS5Jbml0aWFsVmFyaWFibGVzRW50cnkaNwoV",
+            "SW5pdGlhbFZhcmlhYmxlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgC",
+            "IAEoBToCOAEqQQoIU3RhdFR5cGUSCAoETk9ORRAAEgcKA1NUUhABEgcKA1ZJ",
+            "VBACEgcKA0lOVBADEgcKA0FHSRAEEgcKA0NIQRAFKjQKEUNoYXJhY3RlclBv",
+            "c2l0aW9uEggKBExFRlQQABIKCgZDRU5URVIQARIJCgVSSUdIVBACYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::BMC.Story.StatType), typeof(global::BMC.Story.CharacterPosition), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -118,10 +122,11 @@ namespace BMC.Story {
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GameDiceRollAction), global::BMC.Story.GameDiceRollAction.Parser, new[]{ "ResultVariableId", "DiceCount", "DiceFaces", "CheckMode", "TargetValue", "TargetVariableId", "SuccessNodeId", "FailNodeId" }, null, new[]{ typeof(global::BMC.Story.GameDiceRollAction.Types.CheckMode) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GameRussianRouletteAction), global::BMC.Story.GameRussianRouletteAction.Parser, new[]{ "PlayerHp", "OpponentHp", "OpponentId", "FixedShellSequence", "RandomTotalShells", "RandomLiveShells", "EnableItems", "WinNodeId", "LoseNodeId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GameQTEAction), global::BMC.Story.GameQTEAction.Parser, new[]{ "Type", "PromptText", "InputKey", "DurationSeconds", "GoalValue", "SwipeDirection", "SuccessNodeId", "FailNodeId" }, null, new[]{ typeof(global::BMC.Story.GameQTEAction.Types.QTEType), typeof(global::BMC.Story.GameQTEAction.Types.Direction) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GamePuzzleAction), global::BMC.Story.GamePuzzleAction.Parser, new[]{ "PrefabName", "SuccessNodeId", "FailNodeId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.ShowChoicesAction), global::BMC.Story.ShowChoicesAction.Parser, new[]{ "Choices", "AppendMode" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame), global::BMC.Story.DialogFrame.Parser, new[]{ "CharacterId", "Key", "Position", "CharacterSpriteName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayAvgDialogAction), global::BMC.Story.PlayAvgDialogAction.Parser, new[]{ "BackgroundImage", "Frames" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "ShowChoices", "PlayAvgDialog" }, new[]{ "Action" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "GamePuzzle", "ShowChoices", "PlayAvgDialog" }, new[]{ "Action" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.Choice), global::BMC.Story.Choice.Parser, new[]{ "Text", "TargetNodeId", "OnSelectEvents", "VisibleConditions", "LockConditions", "LockMessage" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryNode), global::BMC.Story.StoryNode.Parser, new[]{ "Id", "Title", "OnEnterEvents", "OnExitEvents", "AutoJumpNodeId", "AutoJumpDelay", "PreviewImagePath", "Ps" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryPackage), global::BMC.Story.StoryPackage.Parser, new[]{ "ChapterId", "Nodes", "InitialVariables" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
@@ -3795,6 +3800,290 @@ namespace BMC.Story {
   }
 
   /// <summary>
+  /// 解謎遊戲玩法
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class GamePuzzleAction : pb::IMessage<GamePuzzleAction>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<GamePuzzleAction> _parser = new pb::MessageParser<GamePuzzleAction>(() => new GamePuzzleAction());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<GamePuzzleAction> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[10]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GamePuzzleAction() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GamePuzzleAction(GamePuzzleAction other) : this() {
+      prefabName_ = other.prefabName_;
+      successNodeId_ = other.successNodeId_;
+      failNodeId_ = other.failNodeId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public GamePuzzleAction Clone() {
+      return new GamePuzzleAction(this);
+    }
+
+    /// <summary>Field number for the "prefab_name" field.</summary>
+    public const int PrefabNameFieldNumber = 1;
+    private string prefabName_ = "";
+    /// <summary>
+    /// 要加載的解謎遊戲 Prefab 名稱
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string PrefabName {
+      get { return prefabName_; }
+      set {
+        prefabName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "success_node_id" field.</summary>
+    public const int SuccessNodeIdFieldNumber = 2;
+    private string successNodeId_ = "";
+    /// <summary>
+    /// 解謎成功後跳轉的節點
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SuccessNodeId {
+      get { return successNodeId_; }
+      set {
+        successNodeId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "fail_node_id" field.</summary>
+    public const int FailNodeIdFieldNumber = 3;
+    private string failNodeId_ = "";
+    /// <summary>
+    /// 解謎失敗後跳轉的節點 (若無失敗條件可留空)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string FailNodeId {
+      get { return failNodeId_; }
+      set {
+        failNodeId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as GamePuzzleAction);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(GamePuzzleAction other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (PrefabName != other.PrefabName) return false;
+      if (SuccessNodeId != other.SuccessNodeId) return false;
+      if (FailNodeId != other.FailNodeId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (PrefabName.Length != 0) hash ^= PrefabName.GetHashCode();
+      if (SuccessNodeId.Length != 0) hash ^= SuccessNodeId.GetHashCode();
+      if (FailNodeId.Length != 0) hash ^= FailNodeId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (PrefabName.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(PrefabName);
+      }
+      if (SuccessNodeId.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(SuccessNodeId);
+      }
+      if (FailNodeId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(FailNodeId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (PrefabName.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(PrefabName);
+      }
+      if (SuccessNodeId.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(SuccessNodeId);
+      }
+      if (FailNodeId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(FailNodeId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (PrefabName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(PrefabName);
+      }
+      if (SuccessNodeId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SuccessNodeId);
+      }
+      if (FailNodeId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(FailNodeId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(GamePuzzleAction other) {
+      if (other == null) {
+        return;
+      }
+      if (other.PrefabName.Length != 0) {
+        PrefabName = other.PrefabName;
+      }
+      if (other.SuccessNodeId.Length != 0) {
+        SuccessNodeId = other.SuccessNodeId;
+      }
+      if (other.FailNodeId.Length != 0) {
+        FailNodeId = other.FailNodeId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            PrefabName = input.ReadString();
+            break;
+          }
+          case 18: {
+            SuccessNodeId = input.ReadString();
+            break;
+          }
+          case 26: {
+            FailNodeId = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            PrefabName = input.ReadString();
+            break;
+          }
+          case 18: {
+            SuccessNodeId = input.ReadString();
+            break;
+          }
+          case 26: {
+            FailNodeId = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
   /// 顯示選項 Action (讓選項也能透過 Event 觸發與延遲)
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
@@ -3812,7 +4101,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[10]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4042,7 +4331,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[11]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4366,7 +4655,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[12]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4596,7 +4885,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[13]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4644,6 +4933,9 @@ namespace BMC.Story {
           break;
         case ActionOneofCase.GameQte:
           GameQte = other.GameQte.Clone();
+          break;
+        case ActionOneofCase.GamePuzzle:
+          GamePuzzle = other.GamePuzzle.Clone();
           break;
         case ActionOneofCase.ShowChoices:
           ShowChoices = other.ShowChoices.Clone();
@@ -4785,6 +5077,21 @@ namespace BMC.Story {
       }
     }
 
+    /// <summary>Field number for the "game_puzzle" field.</summary>
+    public const int GamePuzzleFieldNumber = 21;
+    /// <summary>
+    /// 新增：解謎遊戲事件 (編號延續到 21)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::BMC.Story.GamePuzzleAction GamePuzzle {
+      get { return actionCase_ == ActionOneofCase.GamePuzzle ? (global::BMC.Story.GamePuzzleAction) action_ : null; }
+      set {
+        action_ = value;
+        actionCase_ = value == null ? ActionOneofCase.None : ActionOneofCase.GamePuzzle;
+      }
+    }
+
     /// <summary>Field number for the "show_choices" field.</summary>
     public const int ShowChoicesFieldNumber = 19;
     /// <summary>
@@ -4828,6 +5135,7 @@ namespace BMC.Story {
       GameDice = 16,
       GameRussianRoulette = 17,
       GameQte = 18,
+      GamePuzzle = 21,
       ShowChoices = 19,
       PlayAvgDialog = 20,
     }
@@ -4870,6 +5178,7 @@ namespace BMC.Story {
       if (!object.Equals(GameDice, other.GameDice)) return false;
       if (!object.Equals(GameRussianRoulette, other.GameRussianRoulette)) return false;
       if (!object.Equals(GameQte, other.GameQte)) return false;
+      if (!object.Equals(GamePuzzle, other.GamePuzzle)) return false;
       if (!object.Equals(ShowChoices, other.ShowChoices)) return false;
       if (!object.Equals(PlayAvgDialog, other.PlayAvgDialog)) return false;
       if (ActionCase != other.ActionCase) return false;
@@ -4890,6 +5199,7 @@ namespace BMC.Story {
       if (actionCase_ == ActionOneofCase.GameDice) hash ^= GameDice.GetHashCode();
       if (actionCase_ == ActionOneofCase.GameRussianRoulette) hash ^= GameRussianRoulette.GetHashCode();
       if (actionCase_ == ActionOneofCase.GameQte) hash ^= GameQte.GetHashCode();
+      if (actionCase_ == ActionOneofCase.GamePuzzle) hash ^= GamePuzzle.GetHashCode();
       if (actionCase_ == ActionOneofCase.ShowChoices) hash ^= ShowChoices.GetHashCode();
       if (actionCase_ == ActionOneofCase.PlayAvgDialog) hash ^= PlayAvgDialog.GetHashCode();
       hash ^= (int) actionCase_;
@@ -4959,6 +5269,10 @@ namespace BMC.Story {
         output.WriteRawTag(162, 1);
         output.WriteMessage(PlayAvgDialog);
       }
+      if (actionCase_ == ActionOneofCase.GamePuzzle) {
+        output.WriteRawTag(170, 1);
+        output.WriteMessage(GamePuzzle);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5017,6 +5331,10 @@ namespace BMC.Story {
         output.WriteRawTag(162, 1);
         output.WriteMessage(PlayAvgDialog);
       }
+      if (actionCase_ == ActionOneofCase.GamePuzzle) {
+        output.WriteRawTag(170, 1);
+        output.WriteMessage(GamePuzzle);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5056,6 +5374,9 @@ namespace BMC.Story {
       }
       if (actionCase_ == ActionOneofCase.GameQte) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(GameQte);
+      }
+      if (actionCase_ == ActionOneofCase.GamePuzzle) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(GamePuzzle);
       }
       if (actionCase_ == ActionOneofCase.ShowChoices) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(ShowChoices);
@@ -5132,6 +5453,12 @@ namespace BMC.Story {
             GameQte = new global::BMC.Story.GameQTEAction();
           }
           GameQte.MergeFrom(other.GameQte);
+          break;
+        case ActionOneofCase.GamePuzzle:
+          if (GamePuzzle == null) {
+            GamePuzzle = new global::BMC.Story.GamePuzzleAction();
+          }
+          GamePuzzle.MergeFrom(other.GamePuzzle);
           break;
         case ActionOneofCase.ShowChoices:
           if (ShowChoices == null) {
@@ -5269,6 +5596,15 @@ namespace BMC.Story {
             PlayAvgDialog = subBuilder;
             break;
           }
+          case 170: {
+            global::BMC.Story.GamePuzzleAction subBuilder = new global::BMC.Story.GamePuzzleAction();
+            if (actionCase_ == ActionOneofCase.GamePuzzle) {
+              subBuilder.MergeFrom(GamePuzzle);
+            }
+            input.ReadMessage(subBuilder);
+            GamePuzzle = subBuilder;
+            break;
+          }
         }
       }
     #endif
@@ -5391,6 +5727,15 @@ namespace BMC.Story {
             PlayAvgDialog = subBuilder;
             break;
           }
+          case 170: {
+            global::BMC.Story.GamePuzzleAction subBuilder = new global::BMC.Story.GamePuzzleAction();
+            if (actionCase_ == ActionOneofCase.GamePuzzle) {
+              subBuilder.MergeFrom(GamePuzzle);
+            }
+            input.ReadMessage(subBuilder);
+            GamePuzzle = subBuilder;
+            break;
+          }
         }
       }
     }
@@ -5413,7 +5758,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[14]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5763,7 +6108,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[15]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6198,7 +6543,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[16]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
