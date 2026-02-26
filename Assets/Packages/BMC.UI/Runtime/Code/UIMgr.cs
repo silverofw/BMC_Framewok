@@ -219,6 +219,20 @@ namespace BMC.UI
             return joypadPanels.Peek() == panel;
         }
 
+        public async UniTask<UIPanel> ShowPanel(Type type, UICanvasType uICanvasType = UICanvasType.SCENE_UI_1, bool checkSame = true)
+        {
+            var method = typeof(UIMgr).GetMethod(nameof(ShowPanel), new Type[] { typeof(UICanvasType), typeof(bool) });
+            var genericMethod = method.MakeGenericMethod(type);
+            var task = (UniTask)genericMethod.Invoke(this, new object[] { uICanvasType, checkSame });
+
+            // 等待 UniTask 完成並回傳結果
+            await task;
+
+            // 由於 UniTask<T> 在反射中處理較複雜，
+            // 最簡單的方式是從內部的 panels 清單直接抓回剛生成的物件
+            return panels.Find(p => p.GetType() == type);
+        }
+
         public async UniTask<T> ShowPanel<T>(UICanvasType uICanvasType = UICanvasType.SCENE_UI_1, bool checkSame = true) where T : UIPanel
         {
             if (checkSame)
