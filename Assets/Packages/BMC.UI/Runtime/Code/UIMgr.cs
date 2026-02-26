@@ -221,15 +221,21 @@ namespace BMC.UI
 
         public async UniTask<UIPanel> ShowPanel(Type type, UICanvasType uICanvasType = UICanvasType.SCENE_UI_1, bool checkSame = true)
         {
+            // 1. 抓取泛型方法 ShowPanel<T>
             var method = typeof(UIMgr).GetMethod(nameof(ShowPanel), new Type[] { typeof(UICanvasType), typeof(bool) });
             var genericMethod = method.MakeGenericMethod(type);
-            var task = (UniTask)genericMethod.Invoke(this, new object[] { uICanvasType, checkSame });
 
-            // 等待 UniTask 完成並回傳結果
-            await task;
+            // 2. 執行 Invoke，此時回傳的是 object (實質為 UniTask<T>)
+            var taskObj = genericMethod.Invoke(this, new object[] { uICanvasType, checkSame });
 
-            // 由於 UniTask<T> 在反射中處理較複雜，
-            // 最簡單的方式是從內部的 panels 清單直接抓回剛生成的物件
+            // 3. 【關鍵】因為 UniTask<T> 沒繼承 UniTask，必須透過反射呼叫 AsUniTask() 轉型
+            var asUniTaskMethod = taskObj.GetType().GetMethod("AsUniTask");
+            var uniTask = (UniTask)asUniTaskMethod.Invoke(taskObj, null);
+
+            // 4. 等待完成
+            await uniTask;
+
+            // 5. 從已載入清單回傳對應類型的實例
             return panels.Find(p => p.GetType() == type);
         }
 
