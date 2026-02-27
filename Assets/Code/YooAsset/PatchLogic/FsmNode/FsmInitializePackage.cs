@@ -112,22 +112,22 @@ internal class FsmInitializePackage : IStateNode
 
 #if UNITY_EDITOR
         if (UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.Android)
-            return $"{hostServerIP}/CDN/Android/{appVersion}";
+            return $"{hostServerIP}/CDN/{RuntimePlatform.Android}/{appVersion}";
         else if (UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.iOS)
-            return $"{hostServerIP}/CDN/IPhone/{appVersion}";
+            return $"{hostServerIP}/CDN/{RuntimePlatform.IPhonePlayer}/{appVersion}";
         else if (UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.WebGL)
-            return $"{hostServerIP}/CDN/WebGL/{appVersion}";
+            return $"{hostServerIP}/CDN/{RuntimePlatform.WebGLPlayer}/{appVersion}";
         else
-            return $"{hostServerIP}/CDN/StandaloneWindows64/{appVersion}";
+            return $"{hostServerIP}/CDN/{RuntimePlatform.WindowsPlayer}/{appVersion}";
 #else
         if (Application.platform == RuntimePlatform.Android)
-            return $"{hostServerIP}/CDN/Android/{appVersion}";
+            return $"{hostServerIP}/CDN/{RuntimePlatform.Android}/{appVersion}";
         else if (Application.platform == RuntimePlatform.IPhonePlayer)
-            return $"{hostServerIP}/CDN/IPhone/{appVersion}";
+            return $"{hostServerIP}/CDN/{RuntimePlatform.IPhonePlayer}/{appVersion}";
         else if (Application.platform == RuntimePlatform.WebGLPlayer)
-            return $"{hostServerIP}/CDN/WebGL/{appVersion}";
+            return $"{hostServerIP}/CDN/{RuntimePlatform.WebGLPlayer}/{appVersion}";
         else
-            return $"{hostServerIP}/CDN/StandaloneWindows64/{appVersion}";
+            return $"{hostServerIP}/CDN/{RuntimePlatform.WindowsPlayer}/{appVersion}";
 #endif
     }
 
