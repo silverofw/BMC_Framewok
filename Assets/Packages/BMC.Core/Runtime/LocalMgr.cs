@@ -29,6 +29,15 @@ namespace BMC.Core
             }
             return Data.Local(key);
         }
+
+        public void Local(string key, System.Action<string> action)
+        {
+            action?.Invoke(Local(key));
+        }
+        public string LocalFormat(string key, object arg0)
+        {
+            return string.Format(Local(key), arg0);
+        }
     }
 
     /// <summary>

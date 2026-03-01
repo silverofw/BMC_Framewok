@@ -6,12 +6,17 @@ namespace BMC.Patch.Core
 {
     public static class CommonDebugRegister
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-        private static void Init()
+        public static void Init()
         {
             // 訂閱註冊事件
-            DebugPanel.OnRegisterGroups += panel => {
-                panel.AddDebugGroup("COMMON",
+            DebugPanel.OnRegisterGroups -= RegisterGroups;
+            DebugPanel.OnRegisterGroups += RegisterGroups;
+        }
+
+        private static void RegisterGroups(DebugPanel panel)
+        {
+            panel.AddDebugGroup(
+                "COMMON",
                     ("FPS", () => UIInputTrigger.ShowFPS = !UIInputTrigger.ShowFPS),
                     ("切換語言 英文", () => setLang(SystemLanguage.English)),
                     ("切換語言 繁中", () => setLang(SystemLanguage.ChineseTraditional)),
@@ -20,19 +25,27 @@ namespace BMC.Patch.Core
                     ("讀取紀錄 0", () => {
                         SaveMgr.Instance.EnableDebugLogs = true;
                         SaveMgr.Instance.SwitchAndLoadSlot(0);
-                    } ),
+                    }
+            ),
                     ("刪除紀錄 0", () => {
                         SaveMgr.Instance.DeleteSlot(0);
-                        SceneMgr.Instance.GotoScene("Entry");
-                    } ),
+                        SceneMgr.Instance.GotoScene("Entry", false);
+                    }
+            ),
                     ("測試多語言(Continue)", () => {
                         var index = SaveMgr.Instance.GetCoreInt(LocalMgr.SC_LANGUAGE, (int)SystemLanguage.English);
                         LocalMgr.Instance.Load(new ConfigLang(), (SystemLanguage)index);
                         Log.Info($"[{LocalMgr.Instance.CrtLang}] {LocalMgr.Instance.Local("Continue")}");
-                    } ),             
-                    ("重新運行遊戲", () => SceneMgr.Instance.GotoScene("Entry"))
-                );
-            };
+                    }
+            ),
+                    ("重新運行遊戲", () => SceneMgr.Instance.GotoScene("Entry", false)),
+                    ("離開遊戲", () => {
+                        UIMgr.Instance.ShowPanel<MsgPanel>(UICanvasType.UI_Debug).ContinueWith(p => {
+                            p.Initial("QUIT GAME?", "HINT", Application.Quit);
+                        }).Forget();
+                    }
+            )
+            );
             void setLang(SystemLanguage language)
             {
                 SaveMgr.Instance.SetCore(LocalMgr.SC_LANGUAGE, $"{(int)language}");
@@ -40,6 +53,5 @@ namespace BMC.Patch.Core
                 LocalMgr.Instance.Set(language);
             }
         }
-
     }
 }
