@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using UnityEditorInternal;
 
 namespace BMC.Story.Editor
 {
@@ -22,6 +23,9 @@ namespace BMC.Story.Editor
         private Vector2 _nodeDetailScrollPos;
         private string _searchFilter = "";
         private string _newVarName = "";
+
+        // Unity 內建的可拖拉列表
+        private ReorderableList _nodeReorderableList;
 
         // 反射用的 Drawer 字典
         private Dictionary<StoryEvent.ActionOneofCase, StoryActionDrawer> _drawers = new Dictionary<StoryEvent.ActionOneofCase, StoryActionDrawer>();
@@ -278,6 +282,51 @@ namespace BMC.Story.Editor
             EditorGUILayout.EndHorizontal();
         }
 
+        private void InitReorderableList()
+        {
+            if (CurrentPackage == null)
+            {
+                _nodeReorderableList = null;
+                return;
+            }
+
+            // 初始化可拖拉列表：開啟 draggable，關閉預設的 Header / Add / Remove 按鈕
+            _nodeReorderableList = new ReorderableList(CurrentPackage.Nodes, typeof(StoryNode), true, false, false, false);
+
+            _nodeReorderableList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            {
+                if (index < 0 || index >= CurrentPackage.Nodes.Count) return;
+                var node = CurrentPackage.Nodes[index];
+
+                rect.y += 2;
+                rect.height = EditorGUIUtility.singleLineHeight;
+
+                string displayName = string.IsNullOrEmpty(node.Id) ? "[Empty ID]" : node.Id;
+
+                // Unity 預設在選取時會給藍底，所以字體顏色根據 isActive 切換以保持對比度
+                GUIStyle labelStyle = isActive ? EditorStyles.whiteLabel : EditorStyles.label;
+                GUI.Label(rect, displayName, labelStyle);
+            };
+
+            _nodeReorderableList.onSelectCallback = (ReorderableList list) =>
+            {
+                if (list.index >= 0 && list.index < CurrentPackage.Nodes.Count)
+                {
+                    _selectedNodeId = CurrentPackage.Nodes[list.index].Id;
+                    GUI.FocusControl(null);
+                    SceneView.RepaintAll();
+                }
+            };
+
+            _nodeReorderableList.onReorderCallback = (ReorderableList list) =>
+            {
+                SaveToDiskAndRefresh();
+            };
+
+            _nodeReorderableList.headerHeight = 0;
+            _nodeReorderableList.footerHeight = 0;
+        }
+
         private void DrawNodeListSidebar()
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(240));
@@ -305,51 +354,57 @@ namespace BMC.Story.Editor
 
             bool isSearching = !string.IsNullOrEmpty(_searchFilter);
 
-            for (int i = 0; i < CurrentPackage.Nodes.Count; i++)
+            if (isSearching)
             {
-                var node = CurrentPackage.Nodes[i];
-                if (isSearching && node.Id.IndexOf(_searchFilter, System.StringComparison.OrdinalIgnoreCase) < 0) continue;
-
-                EditorGUILayout.BeginHorizontal();
-
-                if (_selectedNodeId == node.Id) GUI.backgroundColor = Styles.SelectionColor;
-                string displayName = string.IsNullOrEmpty(node.Id) ? "[Empty ID]" : node.Id;
-                if (GUILayout.Button(displayName, EditorStyles.miniButton, GUILayout.Height(24)))
+                // 搜尋狀態下，退回簡單的顯示清單 (不允許排序)
+                for (int i = 0; i < CurrentPackage.Nodes.Count; i++)
                 {
-                    _selectedNodeId = node.Id;
-                    GUI.FocusControl(null);
-                    SceneView.RepaintAll();
-                }
-                GUI.backgroundColor = Color.white;
+                    var node = CurrentPackage.Nodes[i];
+                    if (node.Id.IndexOf(_searchFilter, System.StringComparison.OrdinalIgnoreCase) < 0) continue;
 
-                // 若不在搜尋狀態，顯示上下排序按鈕
-                if (!isSearching)
-                {
-                    EditorGUI.BeginDisabledGroup(i == 0);
-                    if (GUILayout.Button("▲", EditorStyles.miniButtonLeft, GUILayout.Width(20), GUILayout.Height(24)))
+                    EditorGUILayout.BeginHorizontal();
+
+                    if (_selectedNodeId == node.Id) GUI.backgroundColor = Styles.SelectionColor;
+                    string displayName = string.IsNullOrEmpty(node.Id) ? "[Empty ID]" : node.Id;
+                    if (GUILayout.Button(displayName, EditorStyles.miniButton, GUILayout.Height(24)))
                     {
-                        (CurrentPackage.Nodes[i], CurrentPackage.Nodes[i - 1]) = (CurrentPackage.Nodes[i - 1], CurrentPackage.Nodes[i]);
-                        SaveToDiskAndRefresh();
-                        EditorGUI.EndDisabledGroup();
-                        EditorGUILayout.EndHorizontal();
-                        break;
+                        _selectedNodeId = node.Id;
+                        GUI.FocusControl(null);
+                        SceneView.RepaintAll();
                     }
-                    EditorGUI.EndDisabledGroup();
+                    GUI.backgroundColor = Color.white;
 
-                    EditorGUI.BeginDisabledGroup(i == CurrentPackage.Nodes.Count - 1);
-                    if (GUILayout.Button("▼", EditorStyles.miniButtonRight, GUILayout.Width(20), GUILayout.Height(24)))
-                    {
-                        (CurrentPackage.Nodes[i], CurrentPackage.Nodes[i + 1]) = (CurrentPackage.Nodes[i + 1], CurrentPackage.Nodes[i]);
-                        SaveToDiskAndRefresh();
-                        EditorGUI.EndDisabledGroup();
-                        EditorGUILayout.EndHorizontal();
-                        break;
-                    }
-                    EditorGUI.EndDisabledGroup();
+                    EditorGUILayout.EndHorizontal();
                 }
-
-                EditorGUILayout.EndHorizontal();
             }
+            else
+            {
+                // 非搜尋狀態下，使用 Unity 內建的拖曳列表
+                if (_nodeReorderableList == null && CurrentPackage != null)
+                {
+                    InitReorderableList();
+                }
+
+                if (_nodeReorderableList != null)
+                {
+                    // 同步外部選取狀態到拖拉列表中
+                    int targetIdx = -1;
+                    for (int i = 0; i < CurrentPackage.Nodes.Count; i++)
+                    {
+                        if (CurrentPackage.Nodes[i].Id == _selectedNodeId)
+                        {
+                            targetIdx = i;
+                            break;
+                        }
+                    }
+
+                    if (_nodeReorderableList.index != targetIdx)
+                        _nodeReorderableList.index = targetIdx;
+
+                    _nodeReorderableList.DoLayoutList();
+                }
+            }
+
             EditorGUILayout.EndScrollView();
 
             EditorGUILayout.Space();
@@ -717,6 +772,7 @@ namespace BMC.Story.Editor
         {
             if (_targetPanel == null) return;
             CurrentPackage = StoryEditorContext.LoadPackage(StoryEditorContext.CurrentFilePath);
+            InitReorderableList();
             if (CurrentPackage != null && CurrentPackage.Nodes.Count > 0)
             {
                 _targetPanel.RefreshStoryLayout(CurrentPackage.Nodes[0], CurrentPackage);
