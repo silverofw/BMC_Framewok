@@ -303,9 +303,14 @@ namespace BMC.Story.Editor
             EditorGUILayout.Space(5);
             _nodeListScrollPos = EditorGUILayout.BeginScrollView(_nodeListScrollPos, "box", GUILayout.ExpandHeight(true));
 
-            foreach (var node in CurrentPackage.Nodes)
+            bool isSearching = !string.IsNullOrEmpty(_searchFilter);
+
+            for (int i = 0; i < CurrentPackage.Nodes.Count; i++)
             {
-                if (!string.IsNullOrEmpty(_searchFilter) && node.Id.IndexOf(_searchFilter, System.StringComparison.OrdinalIgnoreCase) < 0) continue;
+                var node = CurrentPackage.Nodes[i];
+                if (isSearching && node.Id.IndexOf(_searchFilter, System.StringComparison.OrdinalIgnoreCase) < 0) continue;
+
+                EditorGUILayout.BeginHorizontal();
 
                 if (_selectedNodeId == node.Id) GUI.backgroundColor = Styles.SelectionColor;
                 string displayName = string.IsNullOrEmpty(node.Id) ? "[Empty ID]" : node.Id;
@@ -316,6 +321,34 @@ namespace BMC.Story.Editor
                     SceneView.RepaintAll();
                 }
                 GUI.backgroundColor = Color.white;
+
+                // 若不在搜尋狀態，顯示上下排序按鈕
+                if (!isSearching)
+                {
+                    EditorGUI.BeginDisabledGroup(i == 0);
+                    if (GUILayout.Button("▲", EditorStyles.miniButtonLeft, GUILayout.Width(20), GUILayout.Height(24)))
+                    {
+                        (CurrentPackage.Nodes[i], CurrentPackage.Nodes[i - 1]) = (CurrentPackage.Nodes[i - 1], CurrentPackage.Nodes[i]);
+                        SaveToDiskAndRefresh();
+                        EditorGUI.EndDisabledGroup();
+                        EditorGUILayout.EndHorizontal();
+                        break;
+                    }
+                    EditorGUI.EndDisabledGroup();
+
+                    EditorGUI.BeginDisabledGroup(i == CurrentPackage.Nodes.Count - 1);
+                    if (GUILayout.Button("▼", EditorStyles.miniButtonRight, GUILayout.Width(20), GUILayout.Height(24)))
+                    {
+                        (CurrentPackage.Nodes[i], CurrentPackage.Nodes[i + 1]) = (CurrentPackage.Nodes[i + 1], CurrentPackage.Nodes[i]);
+                        SaveToDiskAndRefresh();
+                        EditorGUI.EndDisabledGroup();
+                        EditorGUILayout.EndHorizontal();
+                        break;
+                    }
+                    EditorGUI.EndDisabledGroup();
+                }
+
+                EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndScrollView();
 

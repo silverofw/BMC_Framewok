@@ -156,7 +156,8 @@ namespace BMC.Story.Editor
                 else if (frame.FrameType == DialogFrame.Types.FrameType.WithJumpNode)
                 {
                     EditorGUILayout.BeginVertical("helpbox");
-                    frame.TargetNodeId = EditorGUILayout.TextField("Target Node ID", frame.TargetNodeId);
+                    // 使用 StoryLineEditorWindow 提供的通用 TargetIdSelector
+                    window.DrawTargetIdSelector("Target Node ID", () => frame.TargetNodeId, (val) => frame.TargetNodeId = val, node);
                     EditorGUILayout.EndVertical();
                 }
 
