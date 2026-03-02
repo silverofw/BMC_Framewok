@@ -27,6 +27,7 @@ namespace BMC.Story.Editor
                 var frame = action.Frames[i];
                 EditorGUILayout.BeginVertical("box");
 
+                // --- 標題與操作按鈕 ---
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label($"Frame #{i + 1}", EditorStyles.boldLabel, GUILayout.Width(75));
 
@@ -44,13 +45,11 @@ namespace BMC.Story.Editor
                 GUI.backgroundColor = new Color(0.6f, 0.8f, 1f);
                 if (GUILayout.Button("C", EditorStyles.miniButtonMid, GUILayout.Width(25)))
                 {
-                    var newFrame = new DialogFrame
-                    {
-                        CharacterId = frame.CharacterId,
-                        Position = frame.Position,
-                        CharacterSpriteName = frame.CharacterSpriteName,
-                        Key = frame.Key + "_NEXT"
-                    };
+                    // 使用 Protobuf 內建的 Clone 進行深拷貝，並賦予新的獨立 ID 與 Key
+                    var newFrame = frame.Clone();
+                    newFrame.Key += "_NEXT";
+                    newFrame.FrameId = System.Guid.NewGuid().ToString("N").Substring(0, 8);
+
                     action.Frames.Insert(i + 1, newFrame);
                     changed = true;
                     GUI.backgroundColor = Color.white;
@@ -59,7 +58,6 @@ namespace BMC.Story.Editor
                     break;
                 }
 
-                // 這裡存取了主視窗定義的 ErrorColor 樣式
                 GUI.backgroundColor = StoryLineEditorWindow.Styles.ErrorColor;
                 if (GUILayout.Button("X", EditorStyles.miniButtonRight, GUILayout.Width(25)))
                 {
@@ -73,21 +71,19 @@ namespace BMC.Story.Editor
                 GUI.backgroundColor = Color.white;
                 EditorGUILayout.EndHorizontal();
 
+                // --- 主要內容設定 ---
                 EditorGUI.BeginChangeCheck();
 
+                // 1. 識別與站位設定
                 EditorGUILayout.BeginHorizontal();
-
-                // === 修正區域 ===
-                // 將 Label 與 Field 拆開畫，避免 EditorGUIUtility.labelWidth 吃掉輸入框的空間
+                GUILayout.Label("Frame ID", GUILayout.Width(60));
+                frame.FrameId = EditorGUILayout.TextField(frame.FrameId, GUILayout.Width(80));
+                GUILayout.Space(10);
                 GUILayout.Label("Char ID", GUILayout.Width(50));
                 frame.CharacterId = EditorGUILayout.IntField(frame.CharacterId, GUILayout.Width(60));
-
-                GUILayout.Space(10); // 加上一點間距
-
+                GUILayout.Space(10);
                 GUILayout.Label("Pos", GUILayout.Width(30));
                 frame.Position = (CharacterPosition)EditorGUILayout.EnumPopup(frame.Position, GUILayout.Width(80));
-                // === 修正區域結束 ===
-
                 EditorGUILayout.EndHorizontal();
 
                 frame.CharacterSpriteName = EditorGUILayout.TextField("Sprite Name", frame.CharacterSpriteName);
@@ -95,23 +91,100 @@ namespace BMC.Story.Editor
                 EditorGUILayout.LabelField("Dialog Text Key:");
                 frame.Key = EditorGUILayout.TextArea(frame.Key, GUILayout.Height(45));
 
+                // 2. 文本類型與選項設定 (新增功能區)
+                EditorGUILayout.Space(3);
+                frame.FrameType = (DialogFrame.Types.FrameType)EditorGUILayout.EnumPopup("Frame Type", frame.FrameType);
+
+                if (frame.FrameType == DialogFrame.Types.FrameType.WithChoices)
+                {
+                    EditorGUILayout.BeginVertical("helpbox");
+                    EditorGUILayout.LabelField("Choices", EditorStyles.miniBoldLabel);
+                    EditorGUI.indentLevel++;
+
+                    for (int j = 0; j < frame.Choices.Count; j++)
+                    {
+                        var choice = frame.Choices[j];
+                        EditorGUILayout.BeginVertical("box");
+
+                        EditorGUILayout.BeginHorizontal();
+                        choice.Text = EditorGUILayout.TextField("Text", choice.Text);
+
+                        GUI.backgroundColor = StoryLineEditorWindow.Styles.ErrorColor;
+                        if (GUILayout.Button("X", EditorStyles.miniButton, GUILayout.Width(20)))
+                        {
+                            frame.Choices.RemoveAt(j);
+                            changed = true;
+                            GUI.backgroundColor = Color.white;
+                            EditorGUILayout.EndHorizontal();
+                            EditorGUILayout.EndVertical();
+                            break;
+                        }
+                        GUI.backgroundColor = Color.white;
+                        EditorGUILayout.EndHorizontal();
+
+                        EditorGUILayout.BeginHorizontal();
+                        GUILayout.Label("Action", GUILayout.Width(45));
+                        choice.Type = (DialogChoice.Types.ChoiceType)EditorGUILayout.EnumPopup(choice.Type, GUILayout.Width(150));
+
+                        if (choice.Type == DialogChoice.Types.ChoiceType.JumpFrame)
+                        {
+                            GUILayout.Space(10);
+                            GUILayout.Label("Target ID:", GUILayout.Width(60));
+                            choice.TargetFrameId = EditorGUILayout.TextField(choice.TargetFrameId);
+                        }
+                        EditorGUILayout.EndHorizontal();
+
+                        EditorGUILayout.EndVertical();
+                    }
+
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Space(15 * EditorGUI.indentLevel);
+                    if (GUILayout.Button("+ Add Choice", EditorStyles.miniButton, GUILayout.Width(100)))
+                    {
+                        frame.Choices.Add(new DialogChoice
+                        {
+                            Text = "New Choice",
+                            Type = DialogChoice.Types.ChoiceType.JumpFrame
+                        });
+                        changed = true;
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUI.indentLevel--;
+                    EditorGUILayout.EndVertical();
+                }
+                else if (frame.FrameType == DialogFrame.Types.FrameType.WithJumpNode)
+                {
+                    EditorGUILayout.BeginVertical("helpbox");
+                    frame.TargetNodeId = EditorGUILayout.TextField("Target Node ID", frame.TargetNodeId);
+                    EditorGUILayout.EndVertical();
+                }
+
                 if (EditorGUI.EndChangeCheck()) changed = true;
 
                 EditorGUILayout.EndVertical();
             }
 
+            // --- 底部操作按鈕 ---
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("+ Add Frame"))
             {
                 string newKey = action.Frames.Count > 0 ? action.Frames.Last().Key + "_NEW" : "LOC_DIALOG_...";
                 int lastCharId = action.Frames.Count > 0 ? action.Frames.Last().CharacterId : 0;
                 var lastPos = action.Frames.Count > 0 ? action.Frames.Last().Position : CharacterPosition.Center;
+                string newId = System.Guid.NewGuid().ToString("N").Substring(0, 8); // 自動生成新的 ID
 
-                action.Frames.Add(new DialogFrame { Key = newKey, CharacterId = lastCharId, Position = lastPos });
+                action.Frames.Add(new DialogFrame
+                {
+                    Key = newKey,
+                    CharacterId = lastCharId,
+                    Position = lastPos,
+                    FrameId = newId,
+                    FrameType = DialogFrame.Types.FrameType.Normal
+                });
                 changed = true;
             }
 
-            // 這裡存取了主視窗定義的 WarningColor 樣式
             GUI.backgroundColor = StoryLineEditorWindow.Styles.WarningColor;
             if (GUILayout.Button("Clear All", GUILayout.Width(80)))
             {

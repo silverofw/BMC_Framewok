@@ -70,45 +70,52 @@ namespace BMC.Story {
             "cmVmYWJfbmFtZRgBIAEoCRIXCg9zdWNjZXNzX25vZGVfaWQYAiABKAkSFAoM",
             "ZmFpbF9ub2RlX2lkGAMgASgJIkwKEVNob3dDaG9pY2VzQWN0aW9uEiIKB2No",
             "b2ljZXMYASADKAsyES5CTUMuU3RvcnkuQ2hvaWNlEhMKC2FwcGVuZF9tb2Rl",
-            "GAIgASgIIn8KC0RpYWxvZ0ZyYW1lEhQKDGNoYXJhY3Rlcl9pZBgBIAEoBRIL",
-            "CgNrZXkYAiABKAkSLgoIcG9zaXRpb24YAyABKA4yHC5CTUMuU3RvcnkuQ2hh",
-            "cmFjdGVyUG9zaXRpb24SHQoVY2hhcmFjdGVyX3Nwcml0ZV9uYW1lGAQgASgJ",
-            "IlcKE1BsYXlBdmdEaWFsb2dBY3Rpb24SGAoQYmFja2dyb3VuZF9pbWFnZRgB",
-            "IAEoCRImCgZmcmFtZXMYAiADKAsyFi5CTUMuU3RvcnkuRGlhbG9nRnJhbWUi",
-            "wgUKClN0b3J5RXZlbnQSFQoNZGVsYXlfc2Vjb25kcxgBIAEoAhIwCgpwbGF5",
-            "X3ZpZGVvGAogASgLMhouQk1DLlN0b3J5LlBsYXlWaWRlb0FjdGlvbkgAEjsK",
-            "C3VwZGF0ZV9zdGF0GAsgASgLMiQuQk1DLlN0b3J5LlVwZGF0ZUNoYXJhY3Rl",
-            "clN0YXRBY3Rpb25IABI0CgxzZXRfdmFyaWFibGUYDCABKAsyHC5CTUMuU3Rv",
-            "cnkuU2V0VmFyaWFibGVBY3Rpb25IABI4CghwbGF5X2JnbRgNIAEoCzIkLkJN",
-            "Qy5TdG9yeS5QbGF5QmFja2dyb3VuZE11c2ljQWN0aW9uSAASNAoIcGxheV9z",
-            "ZngYDiABKAsyIC5CTUMuU3RvcnkuUGxheVNvdW5kRWZmZWN0QWN0aW9uSAAS",
-            "MAoKcGxheV92b2ljZRgPIAEoCzIaLkJNQy5TdG9yeS5QbGF5Vm9pY2VBY3Rp",
-            "b25IABIyCglnYW1lX2RpY2UYECABKAsyHS5CTUMuU3RvcnkuR2FtZURpY2VS",
-            "b2xsQWN0aW9uSAASRQoVZ2FtZV9ydXNzaWFuX3JvdWxldHRlGBEgASgLMiQu",
-            "Qk1DLlN0b3J5LkdhbWVSdXNzaWFuUm91bGV0dGVBY3Rpb25IABIsCghnYW1l",
-            "X3F0ZRgSIAEoCzIYLkJNQy5TdG9yeS5HYW1lUVRFQWN0aW9uSAASMgoLZ2Ft",
-            "ZV9wdXp6bGUYFSABKAsyGy5CTUMuU3RvcnkuR2FtZVB1enpsZUFjdGlvbkgA",
-            "EjQKDHNob3dfY2hvaWNlcxgTIAEoCzIcLkJNQy5TdG9yeS5TaG93Q2hvaWNl",
-            "c0FjdGlvbkgAEjkKD3BsYXlfYXZnX2RpYWxvZxgUIAEoCzIeLkJNQy5TdG9y",
-            "eS5QbGF5QXZnRGlhbG9nQWN0aW9uSABCCAoGYWN0aW9uItYBCgZDaG9pY2US",
-            "DAoEdGV4dBgBIAEoCRIWCg50YXJnZXRfbm9kZV9pZBgCIAEoCRIvChBvbl9z",
-            "ZWxlY3RfZXZlbnRzGAMgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSMAoS",
-            "dmlzaWJsZV9jb25kaXRpb25zGAUgAygLMhQuQk1DLlN0b3J5LkNvbmRpdGlv",
-            "bhItCg9sb2NrX2NvbmRpdGlvbnMYBiADKAsyFC5CTUMuU3RvcnkuQ29uZGl0",
-            "aW9uEhQKDGxvY2tfbWVzc2FnZRgHIAEoCSLhAQoJU3RvcnlOb2RlEgoKAmlk",
-            "GAEgASgJEg0KBXRpdGxlGAIgASgJEi4KD29uX2VudGVyX2V2ZW50cxgEIAMo",
-            "CzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50Ei0KDm9uX2V4aXRfZXZlbnRzGAUg",
-            "AygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSGQoRYXV0b19qdW1wX25vZGVf",
-            "aWQYByABKAkSFwoPYXV0b19qdW1wX2RlbGF5GAggASgCEhoKEnByZXZpZXdf",
-            "aW1hZ2VfcGF0aBgJIAEoCRIKCgJwcxgKIAEoCSLKAQoMU3RvcnlQYWNrYWdl",
-            "EhIKCmNoYXB0ZXJfaWQYASABKAkSIwoFbm9kZXMYAiADKAsyFC5CTUMuU3Rv",
-            "cnkuU3RvcnlOb2RlEkgKEWluaXRpYWxfdmFyaWFibGVzGAMgAygLMi0uQk1D",
-            "LlN0b3J5LlN0b3J5UGFja2FnZS5Jbml0aWFsVmFyaWFibGVzRW50cnkaNwoV",
-            "SW5pdGlhbFZhcmlhYmxlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgC",
-            "IAEoBToCOAEqQQoIU3RhdFR5cGUSCAoETk9ORRAAEgcKA1NUUhABEgcKA1ZJ",
-            "VBACEgcKA0lOVBADEgcKA0FHSRAEEgcKA0NIQRAFKjQKEUNoYXJhY3RlclBv",
-            "c2l0aW9uEggKBExFRlQQABIKCgZDRU5URVIQARIJCgVSSUdIVBACYgZwcm90",
-            "bzM="));
+            "GAIgASgIIoUBCgxEaWFsb2dDaG9pY2USDAoEdGV4dBgBIAEoCRIwCgR0eXBl",
+            "GAIgASgOMiIuQk1DLlN0b3J5LkRpYWxvZ0Nob2ljZS5DaG9pY2VUeXBlEhcK",
+            "D3RhcmdldF9mcmFtZV9pZBgDIAEoCSIcCgpDaG9pY2VUeXBlEg4KCkpVTVBf",
+            "RlJBTUUQACLIAgoLRGlhbG9nRnJhbWUSFAoMY2hhcmFjdGVyX2lkGAEgASgF",
+            "EgsKA2tleRgCIAEoCRIuCghwb3NpdGlvbhgDIAEoDjIcLkJNQy5TdG9yeS5D",
+            "aGFyYWN0ZXJQb3NpdGlvbhIdChVjaGFyYWN0ZXJfc3ByaXRlX25hbWUYBCAB",
+            "KAkSEAoIZnJhbWVfaWQYBSABKAkSNAoKZnJhbWVfdHlwZRgGIAEoDjIgLkJN",
+            "Qy5TdG9yeS5EaWFsb2dGcmFtZS5GcmFtZVR5cGUSKAoHY2hvaWNlcxgHIAMo",
+            "CzIXLkJNQy5TdG9yeS5EaWFsb2dDaG9pY2USFgoOdGFyZ2V0X25vZGVfaWQY",
+            "CCABKAkiPQoJRnJhbWVUeXBlEgoKBk5PUk1BTBAAEhAKDFdJVEhfQ0hPSUNF",
+            "UxABEhIKDldJVEhfSlVNUF9OT0RFEAIiVwoTUGxheUF2Z0RpYWxvZ0FjdGlv",
+            "bhIYChBiYWNrZ3JvdW5kX2ltYWdlGAEgASgJEiYKBmZyYW1lcxgCIAMoCzIW",
+            "LkJNQy5TdG9yeS5EaWFsb2dGcmFtZSLCBQoKU3RvcnlFdmVudBIVCg1kZWxh",
+            "eV9zZWNvbmRzGAEgASgCEjAKCnBsYXlfdmlkZW8YCiABKAsyGi5CTUMuU3Rv",
+            "cnkuUGxheVZpZGVvQWN0aW9uSAASOwoLdXBkYXRlX3N0YXQYCyABKAsyJC5C",
+            "TUMuU3RvcnkuVXBkYXRlQ2hhcmFjdGVyU3RhdEFjdGlvbkgAEjQKDHNldF92",
+            "YXJpYWJsZRgMIAEoCzIcLkJNQy5TdG9yeS5TZXRWYXJpYWJsZUFjdGlvbkgA",
+            "EjgKCHBsYXlfYmdtGA0gASgLMiQuQk1DLlN0b3J5LlBsYXlCYWNrZ3JvdW5k",
+            "TXVzaWNBY3Rpb25IABI0CghwbGF5X3NmeBgOIAEoCzIgLkJNQy5TdG9yeS5Q",
+            "bGF5U291bmRFZmZlY3RBY3Rpb25IABIwCgpwbGF5X3ZvaWNlGA8gASgLMhou",
+            "Qk1DLlN0b3J5LlBsYXlWb2ljZUFjdGlvbkgAEjIKCWdhbWVfZGljZRgQIAEo",
+            "CzIdLkJNQy5TdG9yeS5HYW1lRGljZVJvbGxBY3Rpb25IABJFChVnYW1lX3J1",
+            "c3NpYW5fcm91bGV0dGUYESABKAsyJC5CTUMuU3RvcnkuR2FtZVJ1c3NpYW5S",
+            "b3VsZXR0ZUFjdGlvbkgAEiwKCGdhbWVfcXRlGBIgASgLMhguQk1DLlN0b3J5",
+            "LkdhbWVRVEVBY3Rpb25IABIyCgtnYW1lX3B1enpsZRgVIAEoCzIbLkJNQy5T",
+            "dG9yeS5HYW1lUHV6emxlQWN0aW9uSAASNAoMc2hvd19jaG9pY2VzGBMgASgL",
+            "MhwuQk1DLlN0b3J5LlNob3dDaG9pY2VzQWN0aW9uSAASOQoPcGxheV9hdmdf",
+            "ZGlhbG9nGBQgASgLMh4uQk1DLlN0b3J5LlBsYXlBdmdEaWFsb2dBY3Rpb25I",
+            "AEIICgZhY3Rpb24i1gEKBkNob2ljZRIMCgR0ZXh0GAEgASgJEhYKDnRhcmdl",
+            "dF9ub2RlX2lkGAIgASgJEi8KEG9uX3NlbGVjdF9ldmVudHMYAyADKAsyFS5C",
+            "TUMuU3RvcnkuU3RvcnlFdmVudBIwChJ2aXNpYmxlX2NvbmRpdGlvbnMYBSAD",
+            "KAsyFC5CTUMuU3RvcnkuQ29uZGl0aW9uEi0KD2xvY2tfY29uZGl0aW9ucxgG",
+            "IAMoCzIULkJNQy5TdG9yeS5Db25kaXRpb24SFAoMbG9ja19tZXNzYWdlGAcg",
+            "ASgJIuEBCglTdG9yeU5vZGUSCgoCaWQYASABKAkSDQoFdGl0bGUYAiABKAkS",
+            "LgoPb25fZW50ZXJfZXZlbnRzGAQgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZl",
+            "bnQSLQoOb25fZXhpdF9ldmVudHMYBSADKAsyFS5CTUMuU3RvcnkuU3RvcnlF",
+            "dmVudBIZChFhdXRvX2p1bXBfbm9kZV9pZBgHIAEoCRIXCg9hdXRvX2p1bXBf",
+            "ZGVsYXkYCCABKAISGgoScHJldmlld19pbWFnZV9wYXRoGAkgASgJEgoKAnBz",
+            "GAogASgJIsoBCgxTdG9yeVBhY2thZ2USEgoKY2hhcHRlcl9pZBgBIAEoCRIj",
+            "CgVub2RlcxgCIAMoCzIULkJNQy5TdG9yeS5TdG9yeU5vZGUSSAoRaW5pdGlh",
+            "bF92YXJpYWJsZXMYAyADKAsyLS5CTUMuU3RvcnkuU3RvcnlQYWNrYWdlLklu",
+            "aXRpYWxWYXJpYWJsZXNFbnRyeRo3ChVJbml0aWFsVmFyaWFibGVzRW50cnkS",
+            "CwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgFOgI4ASpBCghTdGF0VHlwZRII",
+            "CgROT05FEAASBwoDU1RSEAESBwoDVklUEAISBwoDSU5UEAMSBwoDQUdJEAQS",
+            "BwoDQ0hBEAUqNAoRQ2hhcmFjdGVyUG9zaXRpb24SCAoETEVGVBAAEgoKBkNF",
+            "TlRFUhABEgkKBVJJR0hUEAJiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::BMC.Story.StatType), typeof(global::BMC.Story.CharacterPosition), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -124,7 +131,8 @@ namespace BMC.Story {
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GameQTEAction), global::BMC.Story.GameQTEAction.Parser, new[]{ "Type", "PromptText", "InputKey", "DurationSeconds", "GoalValue", "SwipeDirection", "SuccessNodeId", "FailNodeId" }, null, new[]{ typeof(global::BMC.Story.GameQTEAction.Types.QTEType), typeof(global::BMC.Story.GameQTEAction.Types.Direction) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GamePuzzleAction), global::BMC.Story.GamePuzzleAction.Parser, new[]{ "PrefabName", "SuccessNodeId", "FailNodeId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.ShowChoicesAction), global::BMC.Story.ShowChoicesAction.Parser, new[]{ "Choices", "AppendMode" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame), global::BMC.Story.DialogFrame.Parser, new[]{ "CharacterId", "Key", "Position", "CharacterSpriteName" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice), global::BMC.Story.DialogChoice.Parser, new[]{ "Text", "Type", "TargetFrameId" }, null, new[]{ typeof(global::BMC.Story.DialogChoice.Types.ChoiceType) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame), global::BMC.Story.DialogFrame.Parser, new[]{ "CharacterId", "Key", "Position", "CharacterSpriteName", "FrameId", "FrameType", "Choices", "TargetNodeId" }, null, new[]{ typeof(global::BMC.Story.DialogFrame.Types.FrameType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayAvgDialogAction), global::BMC.Story.PlayAvgDialogAction.Parser, new[]{ "BackgroundImage", "Frames" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "GamePuzzle", "ShowChoices", "PlayAvgDialog" }, new[]{ "Action" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.Choice), global::BMC.Story.Choice.Parser, new[]{ "Text", "TargetNodeId", "OnSelectEvents", "VisibleConditions", "LockConditions", "LockMessage" }, null, null, null, null),
@@ -4314,6 +4322,305 @@ namespace BMC.Story {
   }
 
   /// <summary>
+  /// AVG 對話專用選項
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class DialogChoice : pb::IMessage<DialogChoice>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<DialogChoice> _parser = new pb::MessageParser<DialogChoice>(() => new DialogChoice());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<DialogChoice> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[12]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DialogChoice() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DialogChoice(DialogChoice other) : this() {
+      text_ = other.text_;
+      type_ = other.type_;
+      targetFrameId_ = other.targetFrameId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DialogChoice Clone() {
+      return new DialogChoice(this);
+    }
+
+    /// <summary>Field number for the "text" field.</summary>
+    public const int TextFieldNumber = 1;
+    private string text_ = "";
+    /// <summary>
+    /// 選項顯示文本
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Text {
+      get { return text_; }
+      set {
+        text_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "type" field.</summary>
+    public const int TypeFieldNumber = 2;
+    private global::BMC.Story.DialogChoice.Types.ChoiceType type_ = global::BMC.Story.DialogChoice.Types.ChoiceType.JumpFrame;
+    /// <summary>
+    /// 選項類型
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::BMC.Story.DialogChoice.Types.ChoiceType Type {
+      get { return type_; }
+      set {
+        type_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "target_frame_id" field.</summary>
+    public const int TargetFrameIdFieldNumber = 3;
+    private string targetFrameId_ = "";
+    /// <summary>
+    /// 當 type 為 JUMP_FRAME 時，指定要跳轉的 frame_id
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string TargetFrameId {
+      get { return targetFrameId_; }
+      set {
+        targetFrameId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as DialogChoice);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(DialogChoice other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Text != other.Text) return false;
+      if (Type != other.Type) return false;
+      if (TargetFrameId != other.TargetFrameId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Text.Length != 0) hash ^= Text.GetHashCode();
+      if (Type != global::BMC.Story.DialogChoice.Types.ChoiceType.JumpFrame) hash ^= Type.GetHashCode();
+      if (TargetFrameId.Length != 0) hash ^= TargetFrameId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Text.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Text);
+      }
+      if (Type != global::BMC.Story.DialogChoice.Types.ChoiceType.JumpFrame) {
+        output.WriteRawTag(16);
+        output.WriteEnum((int) Type);
+      }
+      if (TargetFrameId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(TargetFrameId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Text.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Text);
+      }
+      if (Type != global::BMC.Story.DialogChoice.Types.ChoiceType.JumpFrame) {
+        output.WriteRawTag(16);
+        output.WriteEnum((int) Type);
+      }
+      if (TargetFrameId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(TargetFrameId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Text.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Text);
+      }
+      if (Type != global::BMC.Story.DialogChoice.Types.ChoiceType.JumpFrame) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
+      }
+      if (TargetFrameId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(TargetFrameId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(DialogChoice other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Text.Length != 0) {
+        Text = other.Text;
+      }
+      if (other.Type != global::BMC.Story.DialogChoice.Types.ChoiceType.JumpFrame) {
+        Type = other.Type;
+      }
+      if (other.TargetFrameId.Length != 0) {
+        TargetFrameId = other.TargetFrameId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Text = input.ReadString();
+            break;
+          }
+          case 16: {
+            Type = (global::BMC.Story.DialogChoice.Types.ChoiceType) input.ReadEnum();
+            break;
+          }
+          case 26: {
+            TargetFrameId = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Text = input.ReadString();
+            break;
+          }
+          case 16: {
+            Type = (global::BMC.Story.DialogChoice.Types.ChoiceType) input.ReadEnum();
+            break;
+          }
+          case 26: {
+            TargetFrameId = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the DialogChoice message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static partial class Types {
+      public enum ChoiceType {
+        /// <summary>
+        /// 類型：指定跳轉到另一個 DialogFrame
+        /// </summary>
+        [pbr::OriginalName("JUMP_FRAME")] JumpFrame = 0,
+      }
+
+    }
+    #endregion
+
+  }
+
+  /// <summary>
   /// AVG 對話單句 (Frame)
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
@@ -4331,7 +4638,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[12]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4355,6 +4662,10 @@ namespace BMC.Story {
       key_ = other.key_;
       position_ = other.position_;
       characterSpriteName_ = other.characterSpriteName_;
+      frameId_ = other.frameId_;
+      frameType_ = other.frameType_;
+      choices_ = other.choices_.Clone();
+      targetNodeId_ = other.targetNodeId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4424,6 +4735,65 @@ namespace BMC.Story {
       }
     }
 
+    /// <summary>Field number for the "frame_id" field.</summary>
+    public const int FrameIdFieldNumber = 5;
+    private string frameId_ = "";
+    /// <summary>
+    /// --- 新增基礎類型欄位 ---
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string FrameId {
+      get { return frameId_; }
+      set {
+        frameId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "frame_type" field.</summary>
+    public const int FrameTypeFieldNumber = 6;
+    private global::BMC.Story.DialogFrame.Types.FrameType frameType_ = global::BMC.Story.DialogFrame.Types.FrameType.Normal;
+    /// <summary>
+    /// 當前單句類型
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::BMC.Story.DialogFrame.Types.FrameType FrameType {
+      get { return frameType_; }
+      set {
+        frameType_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "choices" field.</summary>
+    public const int ChoicesFieldNumber = 7;
+    private static readonly pb::FieldCodec<global::BMC.Story.DialogChoice> _repeated_choices_codec
+        = pb::FieldCodec.ForMessage(58, global::BMC.Story.DialogChoice.Parser);
+    private readonly pbc::RepeatedField<global::BMC.Story.DialogChoice> choices_ = new pbc::RepeatedField<global::BMC.Story.DialogChoice>();
+    /// <summary>
+    /// 依據 frame_type 決定使用以下欄位
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::BMC.Story.DialogChoice> Choices {
+      get { return choices_; }
+    }
+
+    /// <summary>Field number for the "target_node_id" field.</summary>
+    public const int TargetNodeIdFieldNumber = 8;
+    private string targetNodeId_ = "";
+    /// <summary>
+    /// [WITH_JUMP_NODE 專用] 對話結束後跳轉的 StoryNode ID
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string TargetNodeId {
+      get { return targetNodeId_; }
+      set {
+        targetNodeId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -4443,6 +4813,10 @@ namespace BMC.Story {
       if (Key != other.Key) return false;
       if (Position != other.Position) return false;
       if (CharacterSpriteName != other.CharacterSpriteName) return false;
+      if (FrameId != other.FrameId) return false;
+      if (FrameType != other.FrameType) return false;
+      if(!choices_.Equals(other.choices_)) return false;
+      if (TargetNodeId != other.TargetNodeId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4454,6 +4828,10 @@ namespace BMC.Story {
       if (Key.Length != 0) hash ^= Key.GetHashCode();
       if (Position != global::BMC.Story.CharacterPosition.Left) hash ^= Position.GetHashCode();
       if (CharacterSpriteName.Length != 0) hash ^= CharacterSpriteName.GetHashCode();
+      if (FrameId.Length != 0) hash ^= FrameId.GetHashCode();
+      if (FrameType != global::BMC.Story.DialogFrame.Types.FrameType.Normal) hash ^= FrameType.GetHashCode();
+      hash ^= choices_.GetHashCode();
+      if (TargetNodeId.Length != 0) hash ^= TargetNodeId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4488,6 +4866,19 @@ namespace BMC.Story {
         output.WriteRawTag(34);
         output.WriteString(CharacterSpriteName);
       }
+      if (FrameId.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(FrameId);
+      }
+      if (FrameType != global::BMC.Story.DialogFrame.Types.FrameType.Normal) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) FrameType);
+      }
+      choices_.WriteTo(output, _repeated_choices_codec);
+      if (TargetNodeId.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(TargetNodeId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4514,6 +4905,19 @@ namespace BMC.Story {
         output.WriteRawTag(34);
         output.WriteString(CharacterSpriteName);
       }
+      if (FrameId.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(FrameId);
+      }
+      if (FrameType != global::BMC.Story.DialogFrame.Types.FrameType.Normal) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) FrameType);
+      }
+      choices_.WriteTo(ref output, _repeated_choices_codec);
+      if (TargetNodeId.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(TargetNodeId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4535,6 +4939,16 @@ namespace BMC.Story {
       }
       if (CharacterSpriteName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CharacterSpriteName);
+      }
+      if (FrameId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(FrameId);
+      }
+      if (FrameType != global::BMC.Story.DialogFrame.Types.FrameType.Normal) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) FrameType);
+      }
+      size += choices_.CalculateSize(_repeated_choices_codec);
+      if (TargetNodeId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(TargetNodeId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -4559,6 +4973,16 @@ namespace BMC.Story {
       }
       if (other.CharacterSpriteName.Length != 0) {
         CharacterSpriteName = other.CharacterSpriteName;
+      }
+      if (other.FrameId.Length != 0) {
+        FrameId = other.FrameId;
+      }
+      if (other.FrameType != global::BMC.Story.DialogFrame.Types.FrameType.Normal) {
+        FrameType = other.FrameType;
+      }
+      choices_.Add(other.choices_);
+      if (other.TargetNodeId.Length != 0) {
+        TargetNodeId = other.TargetNodeId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -4593,6 +5017,22 @@ namespace BMC.Story {
           }
           case 34: {
             CharacterSpriteName = input.ReadString();
+            break;
+          }
+          case 42: {
+            FrameId = input.ReadString();
+            break;
+          }
+          case 48: {
+            FrameType = (global::BMC.Story.DialogFrame.Types.FrameType) input.ReadEnum();
+            break;
+          }
+          case 58: {
+            choices_.AddEntriesFrom(input, _repeated_choices_codec);
+            break;
+          }
+          case 66: {
+            TargetNodeId = input.ReadString();
             break;
           }
         }
@@ -4630,10 +5070,49 @@ namespace BMC.Story {
             CharacterSpriteName = input.ReadString();
             break;
           }
+          case 42: {
+            FrameId = input.ReadString();
+            break;
+          }
+          case 48: {
+            FrameType = (global::BMC.Story.DialogFrame.Types.FrameType) input.ReadEnum();
+            break;
+          }
+          case 58: {
+            choices_.AddEntriesFrom(ref input, _repeated_choices_codec);
+            break;
+          }
+          case 66: {
+            TargetNodeId = input.ReadString();
+            break;
+          }
         }
       }
     }
     #endif
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the DialogFrame message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static partial class Types {
+      public enum FrameType {
+        /// <summary>
+        /// 1. 普通文本
+        /// </summary>
+        [pbr::OriginalName("NORMAL")] Normal = 0,
+        /// <summary>
+        /// 2. 文本+選項
+        /// </summary>
+        [pbr::OriginalName("WITH_CHOICES")] WithChoices = 1,
+        /// <summary>
+        /// 3. 文本+跳轉節點
+        /// </summary>
+        [pbr::OriginalName("WITH_JUMP_NODE")] WithJumpNode = 2,
+      }
+
+    }
+    #endregion
 
   }
 
@@ -4655,7 +5134,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[13]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4885,7 +5364,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[14]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5758,7 +6237,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[15]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6108,7 +6587,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[16]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6543,7 +7022,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[17]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
