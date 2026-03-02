@@ -108,7 +108,9 @@ namespace BMC.Story.Editor
             {
                 if (!nodeMap.ContainsKey(node.Id)) continue;
                 Vector3 startPos = nodeMap[node.Id].position;
-                var targets = StoryEditorContext.GetTargetNodeIds(node).ToList();
+
+                // 改為呼叫 StoryLinePanel 的 public static 方法
+                var targets = StoryLinePanel.GetTargetNodeIds(node).ToList();
                 bool isSelected = (node.Id == _selectedNodeId);
 
                 if (node.Id == "Start") Handles.color = Color.green;
@@ -416,7 +418,8 @@ namespace BMC.Story.Editor
 
         private void CheckAndCleanOrphans()
         {
-            var orphans = StoryEditorContext.GetOrphanedNodes(CurrentPackage);
+            var orphans = GetOrphanedNodesLocal();
+
             if (orphans.Count == 0)
             {
                 EditorUtility.DisplayDialog("Check Complete", "No orphan nodes found.", "OK");
@@ -428,6 +431,43 @@ namespace BMC.Story.Editor
                 if (orphans.Contains(_selectedNodeId)) _selectedNodeId = null;
                 SaveToDiskAndRefresh();
             }
+        }
+
+        private List<string> GetOrphanedNodesLocal()
+        {
+            List<string> orphans = new List<string>();
+            if (CurrentPackage == null || CurrentPackage.Nodes.Count == 0) return orphans;
+
+            HashSet<string> reachable = new HashSet<string>();
+            Queue<string> queue = new Queue<string>();
+
+            // 預設從 Start 開始掃描
+            var startNode = CurrentPackage.Nodes.FirstOrDefault(n => n.Id == "Start") ?? CurrentPackage.Nodes[0];
+            queue.Enqueue(startNode.Id);
+            reachable.Add(startNode.Id);
+
+            while (queue.Count > 0)
+            {
+                string currId = queue.Dequeue();
+                var node = CurrentPackage.Nodes.FirstOrDefault(n => n.Id == currId);
+                if (node == null) continue;
+
+                // 改為呼叫 StoryLinePanel 的 public static 方法
+                foreach (var targetId in StoryLinePanel.GetTargetNodeIds(node))
+                {
+                    if (!string.IsNullOrEmpty(targetId) && !reachable.Contains(targetId))
+                    {
+                        reachable.Add(targetId);
+                        queue.Enqueue(targetId);
+                    }
+                }
+            }
+
+            foreach (var node in CurrentPackage.Nodes)
+            {
+                if (!reachable.Contains(node.Id)) orphans.Add(node.Id);
+            }
+            return orphans;
         }
 
         private void DrawNodeDetailArea()

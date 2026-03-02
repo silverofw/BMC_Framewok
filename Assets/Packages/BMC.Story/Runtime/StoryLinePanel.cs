@@ -219,8 +219,9 @@ namespace BMC.Story
         /// <summary>
         /// 核心輔助方法：遞歸獲取節點中所有可能跳轉的目標 ID
         /// (包含 AutoJump, ShowChoices, GameDice, GameRoulette, GameQTE)
+        /// 改為 public static 提供 Editor 使用
         /// </summary>
-        private IEnumerable<string> GetTargetNodeIds(StoryNode node)
+        public static IEnumerable<string> GetTargetNodeIds(StoryNode node)
         {
             // 1. 自動跳轉
             if (!string.IsNullOrEmpty(node.AutoJumpNodeId)) yield return node.AutoJumpNodeId;
@@ -244,7 +245,7 @@ namespace BMC.Story
             }
         }
 
-        private IEnumerable<string> GetTargetsFromEvent(StoryEvent evt)
+        public static IEnumerable<string> GetTargetsFromEvent(StoryEvent evt)
         {
             switch (evt.ActionCase)
             {
@@ -269,6 +270,20 @@ namespace BMC.Story
                 case StoryEvent.ActionOneofCase.GamePuzzle:
                     if (!string.IsNullOrEmpty(evt.GamePuzzle.SuccessNodeId)) yield return evt.GamePuzzle.SuccessNodeId;
                     if (!string.IsNullOrEmpty(evt.GamePuzzle.FailNodeId)) yield return evt.GamePuzzle.FailNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.PlayAvgDialog:
+                    // 掃描 AVG 對話列表中的每一句話，若為跳轉節點類型則抓取目標
+                    if (evt.PlayAvgDialog.Frames != null)
+                    {
+                        foreach (var frame in evt.PlayAvgDialog.Frames)
+                        {
+                            if (frame.FrameType == DialogFrame.Types.FrameType.WithJumpNode &&
+                                !string.IsNullOrEmpty(frame.TargetNodeId))
+                            {
+                                yield return frame.TargetNodeId;
+                            }
+                        }
+                    }
                     break;
             }
         }
