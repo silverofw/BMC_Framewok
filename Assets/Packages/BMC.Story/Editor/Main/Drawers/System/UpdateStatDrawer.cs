@@ -5,7 +5,7 @@ namespace BMC.Story.Editor
 {
     public class UpdateStatDrawer : StoryActionDrawer
     {
-        public override string MenuPath => "Logic/Update Stat (更新角色屬性)";
+        public override string MenuPath => "System/Update Stat (更新角色屬性)";
         public override StoryEvent.ActionOneofCase ActionCase => StoryEvent.ActionOneofCase.UpdateStat;
         public override StoryEvent CreateNewEvent() => new StoryEvent { UpdateStat = new UpdateCharacterStatAction() };
 

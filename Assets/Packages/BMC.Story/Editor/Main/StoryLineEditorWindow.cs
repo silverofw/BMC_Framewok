@@ -519,11 +519,25 @@ namespace BMC.Story.Editor
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Events Pipeline (Execute sequentially)", EditorStyles.boldLabel);
 
-            for (int i = 0; i < node.OnEnterEvents.Count; i++)
+            // --- 替換為呼叫共用的 DrawEventList ---
+            if (DrawEventList("Events Pipeline (Execute sequentially)", node.OnEnterEvents, node))
             {
-                var evt = node.OnEnterEvents[i];
+                isDirty = true;
+            }
+
+            if (isDirty) SaveToDiskAndRefresh();
+        }
+
+        // --- 新增共用的事件列表繪製方法 ---
+        public bool DrawEventList(string headerTitle, IList<StoryEvent> events, StoryNode node)
+        {
+            bool isDirty = false;
+            EditorGUILayout.LabelField(headerTitle, EditorStyles.boldLabel);
+
+            for (int i = 0; i < events.Count; i++)
+            {
+                var evt = events[i];
                 EditorGUILayout.BeginVertical("box");
                 EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
@@ -532,15 +546,15 @@ namespace BMC.Story.Editor
 
                 if (i > 0 && GUILayout.Button("▲", EditorStyles.toolbarButton, GUILayout.Width(25)))
                 {
-                    (node.OnEnterEvents[i], node.OnEnterEvents[i - 1]) = (node.OnEnterEvents[i - 1], node.OnEnterEvents[i]);
+                    (events[i], events[i - 1]) = (events[i - 1], events[i]);
                     isDirty = true;
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
                     break;
                 }
-                if (i < node.OnEnterEvents.Count - 1 && GUILayout.Button("▼", EditorStyles.toolbarButton, GUILayout.Width(25)))
+                if (i < events.Count - 1 && GUILayout.Button("▼", EditorStyles.toolbarButton, GUILayout.Width(25)))
                 {
-                    (node.OnEnterEvents[i], node.OnEnterEvents[i + 1]) = (node.OnEnterEvents[i + 1], node.OnEnterEvents[i]);
+                    (events[i], events[i + 1]) = (events[i + 1], events[i]);
                     isDirty = true;
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
@@ -550,7 +564,7 @@ namespace BMC.Story.Editor
                 GUI.backgroundColor = Styles.ErrorColor;
                 if (GUILayout.Button("✕", EditorStyles.toolbarButton, GUILayout.Width(25)))
                 {
-                    node.OnEnterEvents.RemoveAt(i);
+                    events.RemoveAt(i);
                     isDirty = true;
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
@@ -585,22 +599,19 @@ namespace BMC.Story.Editor
                 return slashIdx > 0 ? d.MenuPath.Substring(0, slashIdx) : "General";
             });
 
-            // 新增一個垂直置中對齊的樣式，用來對齊按鈕高度
             GUIStyle groupLabelStyle = new GUIStyle(EditorStyles.miniBoldLabel) { alignment = TextAnchor.MiddleLeft };
 
             foreach (var group in groupedDrawers)
             {
                 EditorGUILayout.BeginHorizontal();
-                // 將 Width 放寬到 80 避免 "MiniGame" 被擠壓，並固定 Height 為 20
                 GUILayout.Label(group.Key, groupLabelStyle, GUILayout.Width(80), GUILayout.Height(20));
 
                 foreach (var drawer in group)
                 {
                     string btnName = drawer.MenuPath.Substring(drawer.MenuPath.IndexOf('/') + 1);
-                    // 按鈕也加上固定的 Height(20)，確保跟標題在完美的同一水平線上
                     if (GUILayout.Button(btnName, EditorStyles.miniButton, GUILayout.ExpandWidth(false), GUILayout.Height(20)))
                     {
-                        node.OnEnterEvents.Add(drawer.CreateNewEvent());
+                        events.Add(drawer.CreateNewEvent());
                         SaveToDiskAndRefresh();
                         GUIUtility.ExitGUI();
                     }
@@ -611,7 +622,7 @@ namespace BMC.Story.Editor
             }
             EditorGUILayout.EndVertical();
 
-            if (isDirty) SaveToDiskAndRefresh();
+            return isDirty;
         }
 
         private void DrawNodeHeader(StoryNode node, ref bool isDirty)

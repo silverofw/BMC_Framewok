@@ -45,7 +45,6 @@ namespace BMC.Story.Editor
                 GUI.backgroundColor = new Color(0.6f, 0.8f, 1f);
                 if (GUILayout.Button("C", EditorStyles.miniButtonMid, GUILayout.Width(25)))
                 {
-                    // 使用 Protobuf 內建的 Clone 進行深拷貝，並賦予新的獨立 ID 與 Key
                     var newFrame = frame.Clone();
                     newFrame.Key += "_NEXT";
                     newFrame.FrameId = System.Guid.NewGuid().ToString("N").Substring(0, 8);
@@ -74,7 +73,6 @@ namespace BMC.Story.Editor
                 // --- 主要內容設定 ---
                 EditorGUI.BeginChangeCheck();
 
-                // 1. 識別與站位設定
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("Frame ID", GUILayout.Width(60));
                 frame.FrameId = EditorGUILayout.TextField(frame.FrameId, GUILayout.Width(80));
@@ -91,7 +89,7 @@ namespace BMC.Story.Editor
                 EditorGUILayout.LabelField("Dialog Text Key:");
                 frame.Key = EditorGUILayout.TextArea(frame.Key, GUILayout.Height(45));
 
-                // 2. 文本類型與選項設定 (新增功能區)
+                // 2. 文本類型與選項設定
                 EditorGUILayout.Space(3);
                 frame.FrameType = (DialogFrame.Types.FrameType)EditorGUILayout.EnumPopup("Frame Type", frame.FrameType);
 
@@ -122,17 +120,67 @@ namespace BMC.Story.Editor
                         GUI.backgroundColor = Color.white;
                         EditorGUILayout.EndHorizontal();
 
+                        // 選擇 Type
                         EditorGUILayout.BeginHorizontal();
                         GUILayout.Label("Action", GUILayout.Width(45));
-                        choice.Type = (DialogChoice.Types.ChoiceType)EditorGUILayout.EnumPopup(choice.Type, GUILayout.Width(150));
+                        choice.Type = (DialogChoice.Types.ChoiceType)EditorGUILayout.EnumPopup(choice.Type, GUILayout.Width(110));
+                        EditorGUILayout.EndHorizontal();
 
+                        // 根據 Type 展開細節
                         if (choice.Type == DialogChoice.Types.ChoiceType.JumpFrame)
                         {
-                            GUILayout.Space(10);
-                            GUILayout.Label("Target ID:", GUILayout.Width(60));
+                            EditorGUILayout.BeginHorizontal();
+                            GUILayout.Space(45);
+                            GUILayout.Label("Target ID:", GUILayout.Width(65));
                             choice.TargetFrameId = EditorGUILayout.TextField(choice.TargetFrameId);
+                            EditorGUILayout.EndHorizontal();
                         }
-                        EditorGUILayout.EndHorizontal();
+                        else if (choice.Type == DialogChoice.Types.ChoiceType.MaxVariableJump)
+                        {
+                            EditorGUILayout.BeginVertical("box");
+                            EditorGUILayout.LabelField("Variable Rules (Jump to highest)", EditorStyles.miniBoldLabel);
+
+                            for (int k = 0; k < choice.VariableRules.Count; k++)
+                            {
+                                var rule = choice.VariableRules[k];
+                                EditorGUILayout.BeginHorizontal();
+                                rule.VariableId = EditorGUILayout.TextField(rule.VariableId, GUILayout.Width(100));
+                                GUILayout.Label("->", EditorStyles.centeredGreyMiniLabel, GUILayout.Width(20));
+                                rule.TargetFrameId = EditorGUILayout.TextField(rule.TargetFrameId);
+
+                                GUI.backgroundColor = StoryLineEditorWindow.Styles.ErrorColor;
+                                if (GUILayout.Button("X", EditorStyles.miniButton, GUILayout.Width(20)))
+                                {
+                                    choice.VariableRules.RemoveAt(k);
+                                    changed = true;
+                                    GUI.backgroundColor = Color.white;
+                                    EditorGUILayout.EndHorizontal();
+                                    break;
+                                }
+                                GUI.backgroundColor = Color.white;
+                                EditorGUILayout.EndHorizontal();
+                            }
+
+                            EditorGUILayout.BeginHorizontal();
+                            GUILayout.FlexibleSpace();
+                            if (GUILayout.Button("+ Add Rule", EditorStyles.miniButton, GUILayout.Width(80)))
+                            {
+                                choice.VariableRules.Add(new DialogChoice.Types.VariableJumpRule { VariableId = "Var_XXX", TargetFrameId = "" });
+                                changed = true;
+                            }
+                            EditorGUILayout.EndHorizontal();
+
+                            EditorGUILayout.EndVertical();
+                        }
+
+                        // --- 新增：選項附加事件列表 ---
+                        EditorGUILayout.Space(5);
+                        EditorGUILayout.BeginVertical("helpbox");
+                        if (window.DrawEventList("On Select Events (選擇此項時觸發)", choice.OnSelectEvents, node))
+                        {
+                            changed = true;
+                        }
+                        EditorGUILayout.EndVertical();
 
                         EditorGUILayout.EndVertical();
                     }
@@ -156,7 +204,6 @@ namespace BMC.Story.Editor
                 else if (frame.FrameType == DialogFrame.Types.FrameType.WithJumpNode)
                 {
                     EditorGUILayout.BeginVertical("helpbox");
-                    // 使用 StoryLineEditorWindow 提供的通用 TargetIdSelector
                     window.DrawTargetIdSelector("Target Node ID", () => frame.TargetNodeId, (val) => frame.TargetNodeId = val, node);
                     EditorGUILayout.EndVertical();
                 }
@@ -173,7 +220,7 @@ namespace BMC.Story.Editor
                 string newKey = action.Frames.Count > 0 ? action.Frames.Last().Key + "_NEW" : "LOC_DIALOG_...";
                 int lastCharId = action.Frames.Count > 0 ? action.Frames.Last().CharacterId : 0;
                 var lastPos = action.Frames.Count > 0 ? action.Frames.Last().Position : CharacterPosition.Center;
-                string newId = System.Guid.NewGuid().ToString("N").Substring(0, 8); // 自動生成新的 ID
+                string newId = System.Guid.NewGuid().ToString("N").Substring(0, 8);
 
                 action.Frames.Add(new DialogFrame
                 {

@@ -70,52 +70,59 @@ namespace BMC.Story {
             "cmVmYWJfbmFtZRgBIAEoCRIXCg9zdWNjZXNzX25vZGVfaWQYAiABKAkSFAoM",
             "ZmFpbF9ub2RlX2lkGAMgASgJIkwKEVNob3dDaG9pY2VzQWN0aW9uEiIKB2No",
             "b2ljZXMYASADKAsyES5CTUMuU3RvcnkuQ2hvaWNlEhMKC2FwcGVuZF9tb2Rl",
-            "GAIgASgIIoUBCgxEaWFsb2dDaG9pY2USDAoEdGV4dBgBIAEoCRIwCgR0eXBl",
-            "GAIgASgOMiIuQk1DLlN0b3J5LkRpYWxvZ0Nob2ljZS5DaG9pY2VUeXBlEhcK",
-            "D3RhcmdldF9mcmFtZV9pZBgDIAEoCSIcCgpDaG9pY2VUeXBlEg4KCkpVTVBf",
-            "RlJBTUUQACLIAgoLRGlhbG9nRnJhbWUSFAoMY2hhcmFjdGVyX2lkGAEgASgF",
-            "EgsKA2tleRgCIAEoCRIuCghwb3NpdGlvbhgDIAEoDjIcLkJNQy5TdG9yeS5D",
-            "aGFyYWN0ZXJQb3NpdGlvbhIdChVjaGFyYWN0ZXJfc3ByaXRlX25hbWUYBCAB",
-            "KAkSEAoIZnJhbWVfaWQYBSABKAkSNAoKZnJhbWVfdHlwZRgGIAEoDjIgLkJN",
-            "Qy5TdG9yeS5EaWFsb2dGcmFtZS5GcmFtZVR5cGUSKAoHY2hvaWNlcxgHIAMo",
-            "CzIXLkJNQy5TdG9yeS5EaWFsb2dDaG9pY2USFgoOdGFyZ2V0X25vZGVfaWQY",
-            "CCABKAkiPQoJRnJhbWVUeXBlEgoKBk5PUk1BTBAAEhAKDFdJVEhfQ0hPSUNF",
-            "UxABEhIKDldJVEhfSlVNUF9OT0RFEAIiVwoTUGxheUF2Z0RpYWxvZ0FjdGlv",
-            "bhIYChBiYWNrZ3JvdW5kX2ltYWdlGAEgASgJEiYKBmZyYW1lcxgCIAMoCzIW",
-            "LkJNQy5TdG9yeS5EaWFsb2dGcmFtZSLCBQoKU3RvcnlFdmVudBIVCg1kZWxh",
-            "eV9zZWNvbmRzGAEgASgCEjAKCnBsYXlfdmlkZW8YCiABKAsyGi5CTUMuU3Rv",
-            "cnkuUGxheVZpZGVvQWN0aW9uSAASOwoLdXBkYXRlX3N0YXQYCyABKAsyJC5C",
-            "TUMuU3RvcnkuVXBkYXRlQ2hhcmFjdGVyU3RhdEFjdGlvbkgAEjQKDHNldF92",
-            "YXJpYWJsZRgMIAEoCzIcLkJNQy5TdG9yeS5TZXRWYXJpYWJsZUFjdGlvbkgA",
-            "EjgKCHBsYXlfYmdtGA0gASgLMiQuQk1DLlN0b3J5LlBsYXlCYWNrZ3JvdW5k",
-            "TXVzaWNBY3Rpb25IABI0CghwbGF5X3NmeBgOIAEoCzIgLkJNQy5TdG9yeS5Q",
-            "bGF5U291bmRFZmZlY3RBY3Rpb25IABIwCgpwbGF5X3ZvaWNlGA8gASgLMhou",
-            "Qk1DLlN0b3J5LlBsYXlWb2ljZUFjdGlvbkgAEjIKCWdhbWVfZGljZRgQIAEo",
-            "CzIdLkJNQy5TdG9yeS5HYW1lRGljZVJvbGxBY3Rpb25IABJFChVnYW1lX3J1",
-            "c3NpYW5fcm91bGV0dGUYESABKAsyJC5CTUMuU3RvcnkuR2FtZVJ1c3NpYW5S",
-            "b3VsZXR0ZUFjdGlvbkgAEiwKCGdhbWVfcXRlGBIgASgLMhguQk1DLlN0b3J5",
-            "LkdhbWVRVEVBY3Rpb25IABIyCgtnYW1lX3B1enpsZRgVIAEoCzIbLkJNQy5T",
-            "dG9yeS5HYW1lUHV6emxlQWN0aW9uSAASNAoMc2hvd19jaG9pY2VzGBMgASgL",
-            "MhwuQk1DLlN0b3J5LlNob3dDaG9pY2VzQWN0aW9uSAASOQoPcGxheV9hdmdf",
-            "ZGlhbG9nGBQgASgLMh4uQk1DLlN0b3J5LlBsYXlBdmdEaWFsb2dBY3Rpb25I",
-            "AEIICgZhY3Rpb24i1gEKBkNob2ljZRIMCgR0ZXh0GAEgASgJEhYKDnRhcmdl",
-            "dF9ub2RlX2lkGAIgASgJEi8KEG9uX3NlbGVjdF9ldmVudHMYAyADKAsyFS5C",
-            "TUMuU3RvcnkuU3RvcnlFdmVudBIwChJ2aXNpYmxlX2NvbmRpdGlvbnMYBSAD",
-            "KAsyFC5CTUMuU3RvcnkuQ29uZGl0aW9uEi0KD2xvY2tfY29uZGl0aW9ucxgG",
-            "IAMoCzIULkJNQy5TdG9yeS5Db25kaXRpb24SFAoMbG9ja19tZXNzYWdlGAcg",
-            "ASgJIuEBCglTdG9yeU5vZGUSCgoCaWQYASABKAkSDQoFdGl0bGUYAiABKAkS",
-            "LgoPb25fZW50ZXJfZXZlbnRzGAQgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZl",
-            "bnQSLQoOb25fZXhpdF9ldmVudHMYBSADKAsyFS5CTUMuU3RvcnkuU3RvcnlF",
-            "dmVudBIZChFhdXRvX2p1bXBfbm9kZV9pZBgHIAEoCRIXCg9hdXRvX2p1bXBf",
-            "ZGVsYXkYCCABKAISGgoScHJldmlld19pbWFnZV9wYXRoGAkgASgJEgoKAnBz",
-            "GAogASgJIsoBCgxTdG9yeVBhY2thZ2USEgoKY2hhcHRlcl9pZBgBIAEoCRIj",
-            "CgVub2RlcxgCIAMoCzIULkJNQy5TdG9yeS5TdG9yeU5vZGUSSAoRaW5pdGlh",
-            "bF92YXJpYWJsZXMYAyADKAsyLS5CTUMuU3RvcnkuU3RvcnlQYWNrYWdlLklu",
-            "aXRpYWxWYXJpYWJsZXNFbnRyeRo3ChVJbml0aWFsVmFyaWFibGVzRW50cnkS",
-            "CwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgFOgI4ASpBCghTdGF0VHlwZRII",
-            "CgROT05FEAASBwoDU1RSEAESBwoDVklUEAISBwoDSU5UEAMSBwoDQUdJEAQS",
-            "BwoDQ0hBEAUqNAoRQ2hhcmFjdGVyUG9zaXRpb24SCAoETEVGVBAAEgoKBkNF",
-            "TlRFUhABEgkKBVJJR0hUEAJiBnByb3RvMw=="));
+            "GAIgASgIIj4KE0Rpc3BhdGNoRXZlbnRBY3Rpb24SEgoKZXZlbnRfdHlwZRgB",
+            "IAEoCRITCgtldmVudF9wYXJhbRgCIAEoCSLRAgoMRGlhbG9nQ2hvaWNlEgwK",
+            "BHRleHQYASABKAkSMAoEdHlwZRgCIAEoDjIiLkJNQy5TdG9yeS5EaWFsb2dD",
+            "aG9pY2UuQ2hvaWNlVHlwZRIXCg90YXJnZXRfZnJhbWVfaWQYAyABKAkSQAoO",
+            "dmFyaWFibGVfcnVsZXMYBiADKAsyKC5CTUMuU3RvcnkuRGlhbG9nQ2hvaWNl",
+            "LlZhcmlhYmxlSnVtcFJ1bGUSLwoQb25fc2VsZWN0X2V2ZW50cxgHIAMoCzIV",
+            "LkJNQy5TdG9yeS5TdG9yeUV2ZW50GkAKEFZhcmlhYmxlSnVtcFJ1bGUSEwoL",
+            "dmFyaWFibGVfaWQYASABKAkSFwoPdGFyZ2V0X2ZyYW1lX2lkGAIgASgJIjMK",
+            "CkNob2ljZVR5cGUSDgoKSlVNUF9GUkFNRRAAEhUKEU1BWF9WQVJJQUJMRV9K",
+            "VU1QEAEiyAIKC0RpYWxvZ0ZyYW1lEhQKDGNoYXJhY3Rlcl9pZBgBIAEoBRIL",
+            "CgNrZXkYAiABKAkSLgoIcG9zaXRpb24YAyABKA4yHC5CTUMuU3RvcnkuQ2hh",
+            "cmFjdGVyUG9zaXRpb24SHQoVY2hhcmFjdGVyX3Nwcml0ZV9uYW1lGAQgASgJ",
+            "EhAKCGZyYW1lX2lkGAUgASgJEjQKCmZyYW1lX3R5cGUYBiABKA4yIC5CTUMu",
+            "U3RvcnkuRGlhbG9nRnJhbWUuRnJhbWVUeXBlEigKB2Nob2ljZXMYByADKAsy",
+            "Fy5CTUMuU3RvcnkuRGlhbG9nQ2hvaWNlEhYKDnRhcmdldF9ub2RlX2lkGAgg",
+            "ASgJIj0KCUZyYW1lVHlwZRIKCgZOT1JNQUwQABIQCgxXSVRIX0NIT0lDRVMQ",
+            "ARISCg5XSVRIX0pVTVBfTk9ERRACIlcKE1BsYXlBdmdEaWFsb2dBY3Rpb24S",
+            "GAoQYmFja2dyb3VuZF9pbWFnZRgBIAEoCRImCgZmcmFtZXMYAiADKAsyFi5C",
+            "TUMuU3RvcnkuRGlhbG9nRnJhbWUi/AUKClN0b3J5RXZlbnQSFQoNZGVsYXlf",
+            "c2Vjb25kcxgBIAEoAhIwCgpwbGF5X3ZpZGVvGAogASgLMhouQk1DLlN0b3J5",
+            "LlBsYXlWaWRlb0FjdGlvbkgAEjsKC3VwZGF0ZV9zdGF0GAsgASgLMiQuQk1D",
+            "LlN0b3J5LlVwZGF0ZUNoYXJhY3RlclN0YXRBY3Rpb25IABI0CgxzZXRfdmFy",
+            "aWFibGUYDCABKAsyHC5CTUMuU3RvcnkuU2V0VmFyaWFibGVBY3Rpb25IABI4",
+            "CghwbGF5X2JnbRgNIAEoCzIkLkJNQy5TdG9yeS5QbGF5QmFja2dyb3VuZE11",
+            "c2ljQWN0aW9uSAASNAoIcGxheV9zZngYDiABKAsyIC5CTUMuU3RvcnkuUGxh",
+            "eVNvdW5kRWZmZWN0QWN0aW9uSAASMAoKcGxheV92b2ljZRgPIAEoCzIaLkJN",
+            "Qy5TdG9yeS5QbGF5Vm9pY2VBY3Rpb25IABIyCglnYW1lX2RpY2UYECABKAsy",
+            "HS5CTUMuU3RvcnkuR2FtZURpY2VSb2xsQWN0aW9uSAASRQoVZ2FtZV9ydXNz",
+            "aWFuX3JvdWxldHRlGBEgASgLMiQuQk1DLlN0b3J5LkdhbWVSdXNzaWFuUm91",
+            "bGV0dGVBY3Rpb25IABIsCghnYW1lX3F0ZRgSIAEoCzIYLkJNQy5TdG9yeS5H",
+            "YW1lUVRFQWN0aW9uSAASMgoLZ2FtZV9wdXp6bGUYFSABKAsyGy5CTUMuU3Rv",
+            "cnkuR2FtZVB1enpsZUFjdGlvbkgAEjQKDHNob3dfY2hvaWNlcxgTIAEoCzIc",
+            "LkJNQy5TdG9yeS5TaG93Q2hvaWNlc0FjdGlvbkgAEjkKD3BsYXlfYXZnX2Rp",
+            "YWxvZxgUIAEoCzIeLkJNQy5TdG9yeS5QbGF5QXZnRGlhbG9nQWN0aW9uSAAS",
+            "OAoOZGlzcGF0Y2hfZXZlbnQYFiABKAsyHi5CTUMuU3RvcnkuRGlzcGF0Y2hF",
+            "dmVudEFjdGlvbkgAQggKBmFjdGlvbiLWAQoGQ2hvaWNlEgwKBHRleHQYASAB",
+            "KAkSFgoOdGFyZ2V0X25vZGVfaWQYAiABKAkSLwoQb25fc2VsZWN0X2V2ZW50",
+            "cxgDIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50EjAKEnZpc2libGVfY29u",
+            "ZGl0aW9ucxgFIAMoCzIULkJNQy5TdG9yeS5Db25kaXRpb24SLQoPbG9ja19j",
+            "b25kaXRpb25zGAYgAygLMhQuQk1DLlN0b3J5LkNvbmRpdGlvbhIUCgxsb2Nr",
+            "X21lc3NhZ2UYByABKAki4QEKCVN0b3J5Tm9kZRIKCgJpZBgBIAEoCRINCgV0",
+            "aXRsZRgCIAEoCRIuCg9vbl9lbnRlcl9ldmVudHMYBCADKAsyFS5CTUMuU3Rv",
+            "cnkuU3RvcnlFdmVudBItCg5vbl9leGl0X2V2ZW50cxgFIAMoCzIVLkJNQy5T",
+            "dG9yeS5TdG9yeUV2ZW50EhkKEWF1dG9fanVtcF9ub2RlX2lkGAcgASgJEhcK",
+            "D2F1dG9fanVtcF9kZWxheRgIIAEoAhIaChJwcmV2aWV3X2ltYWdlX3BhdGgY",
+            "CSABKAkSCgoCcHMYCiABKAkiygEKDFN0b3J5UGFja2FnZRISCgpjaGFwdGVy",
+            "X2lkGAEgASgJEiMKBW5vZGVzGAIgAygLMhQuQk1DLlN0b3J5LlN0b3J5Tm9k",
+            "ZRJIChFpbml0aWFsX3ZhcmlhYmxlcxgDIAMoCzItLkJNQy5TdG9yeS5TdG9y",
+            "eVBhY2thZ2UuSW5pdGlhbFZhcmlhYmxlc0VudHJ5GjcKFUluaXRpYWxWYXJp",
+            "YWJsZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAU6AjgBKkEK",
+            "CFN0YXRUeXBlEggKBE5PTkUQABIHCgNTVFIQARIHCgNWSVQQAhIHCgNJTlQQ",
+            "AxIHCgNBR0kQBBIHCgNDSEEQBSo0ChFDaGFyYWN0ZXJQb3NpdGlvbhIICgRM",
+            "RUZUEAASCgoGQ0VOVEVSEAESCQoFUklHSFQQAmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::BMC.Story.StatType), typeof(global::BMC.Story.CharacterPosition), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -131,10 +138,11 @@ namespace BMC.Story {
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GameQTEAction), global::BMC.Story.GameQTEAction.Parser, new[]{ "Type", "PromptText", "InputKey", "DurationSeconds", "GoalValue", "SwipeDirection", "SuccessNodeId", "FailNodeId" }, null, new[]{ typeof(global::BMC.Story.GameQTEAction.Types.QTEType), typeof(global::BMC.Story.GameQTEAction.Types.Direction) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.GamePuzzleAction), global::BMC.Story.GamePuzzleAction.Parser, new[]{ "PrefabName", "SuccessNodeId", "FailNodeId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.ShowChoicesAction), global::BMC.Story.ShowChoicesAction.Parser, new[]{ "Choices", "AppendMode" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice), global::BMC.Story.DialogChoice.Parser, new[]{ "Text", "Type", "TargetFrameId" }, null, new[]{ typeof(global::BMC.Story.DialogChoice.Types.ChoiceType) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DispatchEventAction), global::BMC.Story.DispatchEventAction.Parser, new[]{ "EventType", "EventParam" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice), global::BMC.Story.DialogChoice.Parser, new[]{ "Text", "Type", "TargetFrameId", "VariableRules", "OnSelectEvents" }, null, new[]{ typeof(global::BMC.Story.DialogChoice.Types.ChoiceType) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice.Types.VariableJumpRule), global::BMC.Story.DialogChoice.Types.VariableJumpRule.Parser, new[]{ "VariableId", "TargetFrameId" }, null, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame), global::BMC.Story.DialogFrame.Parser, new[]{ "CharacterId", "Key", "Position", "CharacterSpriteName", "FrameId", "FrameType", "Choices", "TargetNodeId" }, null, new[]{ typeof(global::BMC.Story.DialogFrame.Types.FrameType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayAvgDialogAction), global::BMC.Story.PlayAvgDialogAction.Parser, new[]{ "BackgroundImage", "Frames" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "GamePuzzle", "ShowChoices", "PlayAvgDialog" }, new[]{ "Action" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "GamePuzzle", "ShowChoices", "PlayAvgDialog", "DispatchEvent" }, new[]{ "Action" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.Choice), global::BMC.Story.Choice.Parser, new[]{ "Text", "TargetNodeId", "OnSelectEvents", "VisibleConditions", "LockConditions", "LockMessage" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryNode), global::BMC.Story.StoryNode.Parser, new[]{ "Id", "Title", "OnEnterEvents", "OnExitEvents", "AutoJumpNodeId", "AutoJumpDelay", "PreviewImagePath", "Ps" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryPackage), global::BMC.Story.StoryPackage.Parser, new[]{ "ChapterId", "Nodes", "InitialVariables" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
@@ -144,9 +152,6 @@ namespace BMC.Story {
 
   }
   #region Enums
-  /// <summary>
-  /// 將 StatType 抽離到最外層，讓 Condition 和 Action 都能共用
-  /// </summary>
   public enum StatType {
     [pbr::OriginalName("NONE")] None = 0,
     [pbr::OriginalName("STR")] Str = 1,
@@ -156,9 +161,6 @@ namespace BMC.Story {
     [pbr::OriginalName("CHA")] Cha = 5,
   }
 
-  /// <summary>
-  /// AVG 腳色站位
-  /// </summary>
   public enum CharacterPosition {
     [pbr::OriginalName("LEFT")] Left = 0,
     [pbr::OriginalName("CENTER")] Center = 1,
@@ -168,9 +170,6 @@ namespace BMC.Story {
   #endregion
 
   #region Messages
-  /// <summary>
-  /// 條件判斷：用於決定選項是否開啟，或是自動跳轉邏輯
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Condition : pb::IMessage<Condition>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -237,9 +236,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "variable_id" field.</summary>
     public const int VariableIdFieldNumber = 2;
     private string variableId_ = "";
-    /// <summary>
-    /// 依據 target_type 決定使用以下哪些欄位
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string VariableId {
@@ -252,9 +248,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "character_id" field.</summary>
     public const int CharacterIdFieldNumber = 3;
     private int characterId_;
-    /// <summary>
-    /// [STAT / AFFECTION 專用] 主體腳色 ID (對應 Excel 表)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CharacterId {
@@ -267,9 +260,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "stat_type" field.</summary>
     public const int StatTypeFieldNumber = 4;
     private global::BMC.Story.StatType statType_ = global::BMC.Story.StatType.None;
-    /// <summary>
-    /// [STAT 專用] 屬性類型
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.StatType StatType {
@@ -282,9 +272,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "target_character_id" field.</summary>
     public const int TargetCharacterIdFieldNumber = 5;
     private int targetCharacterId_;
-    /// <summary>
-    /// [AFFECTION 專用] 客體腳色 ID (對應 Excel 表)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int TargetCharacterId {
@@ -309,9 +296,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "target_value" field.</summary>
     public const int TargetValueFieldNumber = 7;
     private int targetValue_;
-    /// <summary>
-    /// 目標數值 (例如: 50)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int TargetValue {
@@ -610,44 +594,17 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static partial class Types {
       public enum TargetType {
-        /// <summary>
-        /// 全域變數 (如金錢、道德值)
-        /// </summary>
         [pbr::OriginalName("GLOBAL_VARIABLE")] GlobalVariable = 0,
-        /// <summary>
-        /// 腳色屬性 (如力量、敏捷)
-        /// </summary>
         [pbr::OriginalName("CHARACTER_STAT")] CharacterStat = 1,
-        /// <summary>
-        /// 腳色好感度 (A 對 B 的好感度)
-        /// </summary>
         [pbr::OriginalName("CHARACTER_AFFECTION")] CharacterAffection = 2,
       }
 
       public enum CompareType {
-        /// <summary>
-        /// 等於
-        /// </summary>
         [pbr::OriginalName("EQUAL")] Equal = 0,
-        /// <summary>
-        /// 大於
-        /// </summary>
         [pbr::OriginalName("GREATER_THAN")] GreaterThan = 1,
-        /// <summary>
-        /// 小於
-        /// </summary>
         [pbr::OriginalName("LESS_THAN")] LessThan = 2,
-        /// <summary>
-        /// 大於等於
-        /// </summary>
         [pbr::OriginalName("GREATER_EQUAL")] GreaterEqual = 3,
-        /// <summary>
-        /// 小於等於
-        /// </summary>
         [pbr::OriginalName("LESS_EQUAL")] LessEqual = 4,
-        /// <summary>
-        /// 不等於
-        /// </summary>
         [pbr::OriginalName("NOT_EQUAL")] NotEqual = 5,
       }
 
@@ -928,9 +885,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// 1. 背景音樂 (BGM)
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PlayBackgroundMusicAction : pb::IMessage<PlayBackgroundMusicAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -1240,9 +1194,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// 2. 音效 (SFX)
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PlaySoundEffectAction : pb::IMessage<PlaySoundEffectAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -1515,9 +1466,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// 3. 語音 (Voice)
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PlayVoiceAction : pb::IMessage<PlayVoiceAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -1803,9 +1751,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "character_id" field.</summary>
     public const int CharacterIdFieldNumber = 1;
     private int characterId_;
-    /// <summary>
-    /// 腳色 ID (對應 Excel 表)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CharacterId {
@@ -2300,9 +2245,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// 骰子檢定/小遊戲事件
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GameDiceRollAction : pb::IMessage<GameDiceRollAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -2774,9 +2716,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// 通用俄羅斯輪盤玩法
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GameRussianRouletteAction : pb::IMessage<GameRussianRouletteAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -2833,9 +2772,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "player_hp" field.</summary>
     public const int PlayerHpFieldNumber = 1;
     private int playerHp_;
-    /// <summary>
-    /// 1. 基礎設定
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int PlayerHp {
@@ -2848,9 +2784,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "opponent_hp" field.</summary>
     public const int OpponentHpFieldNumber = 2;
     private int opponentHp_;
-    /// <summary>
-    /// 對手初始血量 (例如 2)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int OpponentHp {
@@ -2863,9 +2796,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "opponent_id" field.</summary>
     public const int OpponentIdFieldNumber = 3;
     private string opponentId_ = "";
-    /// <summary>
-    /// 對手 ID (用於顯示頭像或名稱)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string OpponentId {
@@ -2880,10 +2810,6 @@ namespace BMC.Story {
     private static readonly pb::FieldCodec<bool> _repeated_fixedShellSequence_codec
         = pb::FieldCodec.ForBool(34);
     private readonly pbc::RepeatedField<bool> fixedShellSequence_ = new pbc::RepeatedField<bool>();
-    /// <summary>
-    /// 2. 彈藥配置 (二選一)
-    /// 模式 A: 固定順序 (True=實彈, False=空包彈) - 例如 [T, F, F, T]
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<bool> FixedShellSequence {
@@ -2893,9 +2819,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "random_total_shells" field.</summary>
     public const int RandomTotalShellsFieldNumber = 5;
     private int randomTotalShells_;
-    /// <summary>
-    /// 模式 B: 隨機生成
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int RandomTotalShells {
@@ -2908,9 +2831,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "random_live_shells" field.</summary>
     public const int RandomLiveShellsFieldNumber = 6;
     private int randomLiveShells_;
-    /// <summary>
-    /// 其中有幾發實彈
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int RandomLiveShells {
@@ -2923,9 +2843,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "enable_items" field.</summary>
     public const int EnableItemsFieldNumber = 7;
     private bool enableItems_;
-    /// <summary>
-    /// 3. 道具設定
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public bool EnableItems {
@@ -2938,9 +2855,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "win_node_id" field.</summary>
     public const int WinNodeIdFieldNumber = 8;
     private string winNodeId_ = "";
-    /// <summary>
-    /// 4. 結算跳轉
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string WinNodeId {
@@ -2953,9 +2867,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "lose_node_id" field.</summary>
     public const int LoseNodeIdFieldNumber = 9;
     private string loseNodeId_ = "";
-    /// <summary>
-    /// 玩家血量歸零
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string LoseNodeId {
@@ -3290,9 +3201,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// QTE (Quick Time Event) 玩法
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GameQTEAction : pb::IMessage<GameQTEAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -3360,9 +3268,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "prompt_text" field.</summary>
     public const int PromptTextFieldNumber = 2;
     private string promptText_ = "";
-    /// <summary>
-    /// 提示與按鍵
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string PromptText {
@@ -3375,9 +3280,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "input_key" field.</summary>
     public const int InputKeyFieldNumber = 3;
     private string inputKey_ = "";
-    /// <summary>
-    /// 指定按鍵 (例如 "Space", "E", 或手機上的圖示名稱)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string InputKey {
@@ -3390,9 +3292,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "duration_seconds" field.</summary>
     public const int DurationSecondsFieldNumber = 4;
     private float durationSeconds_;
-    /// <summary>
-    /// 難度參數
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public float DurationSeconds {
@@ -3405,9 +3304,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "goal_value" field.</summary>
     public const int GoalValueFieldNumber = 5;
     private float goalValue_;
-    /// <summary>
-    /// 目標值 (連打次數 / 長按秒數)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public float GoalValue {
@@ -3432,9 +3328,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "success_node_id" field.</summary>
     public const int SuccessNodeIdFieldNumber = 7;
     private string successNodeId_ = "";
-    /// <summary>
-    /// 結果跳轉
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string SuccessNodeId {
@@ -3769,31 +3662,13 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static partial class Types {
       public enum QTEType {
-        /// <summary>
-        /// 單次點擊 (在時間內按一下)
-        /// </summary>
         [pbr::OriginalName("TAP")] Tap = 0,
-        /// <summary>
-        /// 連打 (在時間內按滿 N 次)
-        /// </summary>
         [pbr::OriginalName("MASH")] Mash = 1,
-        /// <summary>
-        /// 長按 (按住維持 N 秒)
-        /// </summary>
         [pbr::OriginalName("HOLD")] Hold = 2,
-        /// <summary>
-        /// 滑動 (依照指定方向)
-        /// </summary>
         [pbr::OriginalName("SWIPE")] Swipe = 3,
-        /// <summary>
-        /// 精準打擊 (縮圈到特定範圍時點擊)
-        /// </summary>
         [pbr::OriginalName("TIMED_HIT")] TimedHit = 4,
       }
 
-      /// <summary>
-      /// 滑動方向 (僅 SWIPE 用)
-      /// </summary>
       public enum Direction {
         [pbr::OriginalName("NONE")] None = 0,
         [pbr::OriginalName("UP")] Up = 1,
@@ -3807,9 +3682,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// 解謎遊戲玩法
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class GamePuzzleAction : pb::IMessage<GamePuzzleAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -3860,9 +3732,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "prefab_name" field.</summary>
     public const int PrefabNameFieldNumber = 1;
     private string prefabName_ = "";
-    /// <summary>
-    /// 要加載的解謎遊戲 Prefab 名稱
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string PrefabName {
@@ -3875,9 +3744,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "success_node_id" field.</summary>
     public const int SuccessNodeIdFieldNumber = 2;
     private string successNodeId_ = "";
-    /// <summary>
-    /// 解謎成功後跳轉的節點
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string SuccessNodeId {
@@ -3890,9 +3756,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "fail_node_id" field.</summary>
     public const int FailNodeIdFieldNumber = 3;
     private string failNodeId_ = "";
-    /// <summary>
-    /// 解謎失敗後跳轉的節點 (若無失敗條件可留空)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string FailNodeId {
@@ -4091,9 +3954,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// 顯示選項 Action (讓選項也能透過 Event 觸發與延遲)
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ShowChoicesAction : pb::IMessage<ShowChoicesAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -4154,9 +4014,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "append_mode" field.</summary>
     public const int AppendModeFieldNumber = 2;
     private bool appendMode_;
-    /// <summary>
-    /// 可選：是否要疊加在現有選項上 (True) 還是替換掉現有選項 (False, 預設)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public bool AppendMode {
@@ -4322,8 +4179,243 @@ namespace BMC.Story {
   }
 
   /// <summary>
-  /// AVG 對話專用選項
+  /// [新增] 自定義發送事件 (從 DialogChoice 獨立出來，變為通用事件)
   /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class DispatchEventAction : pb::IMessage<DispatchEventAction>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<DispatchEventAction> _parser = new pb::MessageParser<DispatchEventAction>(() => new DispatchEventAction());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<DispatchEventAction> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[12]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DispatchEventAction() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DispatchEventAction(DispatchEventAction other) : this() {
+      eventType_ = other.eventType_;
+      eventParam_ = other.eventParam_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DispatchEventAction Clone() {
+      return new DispatchEventAction(this);
+    }
+
+    /// <summary>Field number for the "event_type" field.</summary>
+    public const int EventTypeFieldNumber = 1;
+    private string eventType_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string EventType {
+      get { return eventType_; }
+      set {
+        eventType_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "event_param" field.</summary>
+    public const int EventParamFieldNumber = 2;
+    private string eventParam_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string EventParam {
+      get { return eventParam_; }
+      set {
+        eventParam_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as DispatchEventAction);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(DispatchEventAction other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (EventType != other.EventType) return false;
+      if (EventParam != other.EventParam) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (EventType.Length != 0) hash ^= EventType.GetHashCode();
+      if (EventParam.Length != 0) hash ^= EventParam.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (EventType.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(EventType);
+      }
+      if (EventParam.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(EventParam);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (EventType.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(EventType);
+      }
+      if (EventParam.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(EventParam);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (EventType.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(EventType);
+      }
+      if (EventParam.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(EventParam);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(DispatchEventAction other) {
+      if (other == null) {
+        return;
+      }
+      if (other.EventType.Length != 0) {
+        EventType = other.EventType;
+      }
+      if (other.EventParam.Length != 0) {
+        EventParam = other.EventParam;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            EventType = input.ReadString();
+            break;
+          }
+          case 18: {
+            EventParam = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            EventType = input.ReadString();
+            break;
+          }
+          case 18: {
+            EventParam = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class DialogChoice : pb::IMessage<DialogChoice>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -4339,7 +4431,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[12]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4362,6 +4454,8 @@ namespace BMC.Story {
       text_ = other.text_;
       type_ = other.type_;
       targetFrameId_ = other.targetFrameId_;
+      variableRules_ = other.variableRules_.Clone();
+      onSelectEvents_ = other.onSelectEvents_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4374,9 +4468,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "text" field.</summary>
     public const int TextFieldNumber = 1;
     private string text_ = "";
-    /// <summary>
-    /// 選項顯示文本
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string Text {
@@ -4389,9 +4480,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "type" field.</summary>
     public const int TypeFieldNumber = 2;
     private global::BMC.Story.DialogChoice.Types.ChoiceType type_ = global::BMC.Story.DialogChoice.Types.ChoiceType.JumpFrame;
-    /// <summary>
-    /// 選項類型
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.DialogChoice.Types.ChoiceType Type {
@@ -4405,7 +4493,7 @@ namespace BMC.Story {
     public const int TargetFrameIdFieldNumber = 3;
     private string targetFrameId_ = "";
     /// <summary>
-    /// 當 type 為 JUMP_FRAME 時，指定要跳轉的 frame_id
+    /// [JUMP_FRAME 共用] 跳轉目標 Frame ID
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4414,6 +4502,34 @@ namespace BMC.Story {
       set {
         targetFrameId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
+    }
+
+    /// <summary>Field number for the "variable_rules" field.</summary>
+    public const int VariableRulesFieldNumber = 6;
+    private static readonly pb::FieldCodec<global::BMC.Story.DialogChoice.Types.VariableJumpRule> _repeated_variableRules_codec
+        = pb::FieldCodec.ForMessage(50, global::BMC.Story.DialogChoice.Types.VariableJumpRule.Parser);
+    private readonly pbc::RepeatedField<global::BMC.Story.DialogChoice.Types.VariableJumpRule> variableRules_ = new pbc::RepeatedField<global::BMC.Story.DialogChoice.Types.VariableJumpRule>();
+    /// <summary>
+    /// 保留原本編號避免反序列化錯誤
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::BMC.Story.DialogChoice.Types.VariableJumpRule> VariableRules {
+      get { return variableRules_; }
+    }
+
+    /// <summary>Field number for the "on_select_events" field.</summary>
+    public const int OnSelectEventsFieldNumber = 7;
+    private static readonly pb::FieldCodec<global::BMC.Story.StoryEvent> _repeated_onSelectEvents_codec
+        = pb::FieldCodec.ForMessage(58, global::BMC.Story.StoryEvent.Parser);
+    private readonly pbc::RepeatedField<global::BMC.Story.StoryEvent> onSelectEvents_ = new pbc::RepeatedField<global::BMC.Story.StoryEvent>();
+    /// <summary>
+    /// [通用] 點擊該選項後觸發的事件列表 (可在此加入 DispatchEventAction 等)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::BMC.Story.StoryEvent> OnSelectEvents {
+      get { return onSelectEvents_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4434,6 +4550,8 @@ namespace BMC.Story {
       if (Text != other.Text) return false;
       if (Type != other.Type) return false;
       if (TargetFrameId != other.TargetFrameId) return false;
+      if(!variableRules_.Equals(other.variableRules_)) return false;
+      if(!onSelectEvents_.Equals(other.onSelectEvents_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4444,6 +4562,8 @@ namespace BMC.Story {
       if (Text.Length != 0) hash ^= Text.GetHashCode();
       if (Type != global::BMC.Story.DialogChoice.Types.ChoiceType.JumpFrame) hash ^= Type.GetHashCode();
       if (TargetFrameId.Length != 0) hash ^= TargetFrameId.GetHashCode();
+      hash ^= variableRules_.GetHashCode();
+      hash ^= onSelectEvents_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4474,6 +4594,8 @@ namespace BMC.Story {
         output.WriteRawTag(26);
         output.WriteString(TargetFrameId);
       }
+      variableRules_.WriteTo(output, _repeated_variableRules_codec);
+      onSelectEvents_.WriteTo(output, _repeated_onSelectEvents_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4496,6 +4618,8 @@ namespace BMC.Story {
         output.WriteRawTag(26);
         output.WriteString(TargetFrameId);
       }
+      variableRules_.WriteTo(ref output, _repeated_variableRules_codec);
+      onSelectEvents_.WriteTo(ref output, _repeated_onSelectEvents_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4515,6 +4639,8 @@ namespace BMC.Story {
       if (TargetFrameId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(TargetFrameId);
       }
+      size += variableRules_.CalculateSize(_repeated_variableRules_codec);
+      size += onSelectEvents_.CalculateSize(_repeated_onSelectEvents_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -4536,6 +4662,8 @@ namespace BMC.Story {
       if (other.TargetFrameId.Length != 0) {
         TargetFrameId = other.TargetFrameId;
       }
+      variableRules_.Add(other.variableRules_);
+      onSelectEvents_.Add(other.onSelectEvents_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4565,6 +4693,14 @@ namespace BMC.Story {
           }
           case 26: {
             TargetFrameId = input.ReadString();
+            break;
+          }
+          case 50: {
+            variableRules_.AddEntriesFrom(input, _repeated_variableRules_codec);
+            break;
+          }
+          case 58: {
+            onSelectEvents_.AddEntriesFrom(input, _repeated_onSelectEvents_codec);
             break;
           }
         }
@@ -4598,6 +4734,14 @@ namespace BMC.Story {
             TargetFrameId = input.ReadString();
             break;
           }
+          case 50: {
+            variableRules_.AddEntriesFrom(ref input, _repeated_variableRules_codec);
+            break;
+          }
+          case 58: {
+            onSelectEvents_.AddEntriesFrom(ref input, _repeated_onSelectEvents_codec);
+            break;
+          }
         }
       }
     }
@@ -4610,9 +4754,251 @@ namespace BMC.Story {
     public static partial class Types {
       public enum ChoiceType {
         /// <summary>
-        /// 類型：指定跳轉到另一個 DialogFrame
+        /// 1. 純跳轉對話單句
         /// </summary>
         [pbr::OriginalName("JUMP_FRAME")] JumpFrame = 0,
+        /// <summary>
+        /// 2. 通用變數判定 (多變數最高分者跳轉)
+        /// </summary>
+        [pbr::OriginalName("MAX_VARIABLE_JUMP")] MaxVariableJump = 1,
+      }
+
+      /// <summary>
+      /// [MAX_VARIABLE_JUMP 專用] 判定規則結構
+      /// </summary>
+      [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+      public sealed partial class VariableJumpRule : pb::IMessage<VariableJumpRule>
+      #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          , pb::IBufferMessage
+      #endif
+      {
+        private static readonly pb::MessageParser<VariableJumpRule> _parser = new pb::MessageParser<VariableJumpRule>(() => new VariableJumpRule());
+        private pb::UnknownFieldSet _unknownFields;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pb::MessageParser<VariableJumpRule> Parser { get { return _parser; } }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pbr::MessageDescriptor Descriptor {
+          get { return global::BMC.Story.DialogChoice.Descriptor.NestedTypes[0]; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
+          get { return Descriptor; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public VariableJumpRule() {
+          OnConstruction();
+        }
+
+        partial void OnConstruction();
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public VariableJumpRule(VariableJumpRule other) : this() {
+          variableId_ = other.variableId_;
+          targetFrameId_ = other.targetFrameId_;
+          _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public VariableJumpRule Clone() {
+          return new VariableJumpRule(this);
+        }
+
+        /// <summary>Field number for the "variable_id" field.</summary>
+        public const int VariableIdFieldNumber = 1;
+        private string variableId_ = "";
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public string VariableId {
+          get { return variableId_; }
+          set {
+            variableId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+          }
+        }
+
+        /// <summary>Field number for the "target_frame_id" field.</summary>
+        public const int TargetFrameIdFieldNumber = 2;
+        private string targetFrameId_ = "";
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public string TargetFrameId {
+          get { return targetFrameId_; }
+          set {
+            targetFrameId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+          }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override bool Equals(object other) {
+          return Equals(other as VariableJumpRule);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool Equals(VariableJumpRule other) {
+          if (ReferenceEquals(other, null)) {
+            return false;
+          }
+          if (ReferenceEquals(other, this)) {
+            return true;
+          }
+          if (VariableId != other.VariableId) return false;
+          if (TargetFrameId != other.TargetFrameId) return false;
+          return Equals(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override int GetHashCode() {
+          int hash = 1;
+          if (VariableId.Length != 0) hash ^= VariableId.GetHashCode();
+          if (TargetFrameId.Length != 0) hash ^= TargetFrameId.GetHashCode();
+          if (_unknownFields != null) {
+            hash ^= _unknownFields.GetHashCode();
+          }
+          return hash;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override string ToString() {
+          return pb::JsonFormatter.ToDiagnosticString(this);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void WriteTo(pb::CodedOutputStream output) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          output.WriteRawMessage(this);
+        #else
+          if (VariableId.Length != 0) {
+            output.WriteRawTag(10);
+            output.WriteString(VariableId);
+          }
+          if (TargetFrameId.Length != 0) {
+            output.WriteRawTag(18);
+            output.WriteString(TargetFrameId);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(output);
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+          if (VariableId.Length != 0) {
+            output.WriteRawTag(10);
+            output.WriteString(VariableId);
+          }
+          if (TargetFrameId.Length != 0) {
+            output.WriteRawTag(18);
+            output.WriteString(TargetFrameId);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(ref output);
+          }
+        }
+        #endif
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int CalculateSize() {
+          int size = 0;
+          if (VariableId.Length != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeStringSize(VariableId);
+          }
+          if (TargetFrameId.Length != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeStringSize(TargetFrameId);
+          }
+          if (_unknownFields != null) {
+            size += _unknownFields.CalculateSize();
+          }
+          return size;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(VariableJumpRule other) {
+          if (other == null) {
+            return;
+          }
+          if (other.VariableId.Length != 0) {
+            VariableId = other.VariableId;
+          }
+          if (other.TargetFrameId.Length != 0) {
+            TargetFrameId = other.TargetFrameId;
+          }
+          _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(pb::CodedInputStream input) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          input.ReadRawMessage(this);
+        #else
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+                break;
+              case 10: {
+                VariableId = input.ReadString();
+                break;
+              }
+              case 18: {
+                TargetFrameId = input.ReadString();
+                break;
+              }
+            }
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+                break;
+              case 10: {
+                VariableId = input.ReadString();
+                break;
+              }
+              case 18: {
+                TargetFrameId = input.ReadString();
+                break;
+              }
+            }
+          }
+        }
+        #endif
+
       }
 
     }
@@ -4620,9 +5006,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// AVG 對話單句 (Frame)
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class DialogFrame : pb::IMessage<DialogFrame>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -4638,7 +5021,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[13]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4678,9 +5061,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "character_id" field.</summary>
     public const int CharacterIdFieldNumber = 1;
     private int characterId_;
-    /// <summary>
-    /// 說話者 ID
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CharacterId {
@@ -4693,9 +5073,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "key" field.</summary>
     public const int KeyFieldNumber = 2;
     private string key_ = "";
-    /// <summary>
-    /// 多語言對話文本 Key
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string Key {
@@ -4708,9 +5085,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "position" field.</summary>
     public const int PositionFieldNumber = 3;
     private global::BMC.Story.CharacterPosition position_ = global::BMC.Story.CharacterPosition.Left;
-    /// <summary>
-    /// 腳色佔位 (左/中/右)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.CharacterPosition Position {
@@ -4723,9 +5097,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "character_sprite_name" field.</summary>
     public const int CharacterSpriteNameFieldNumber = 4;
     private string characterSpriteName_ = "";
-    /// <summary>
-    /// 腳色立繪/表情圖片名稱 (例如: "smile_01")
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string CharacterSpriteName {
@@ -4738,9 +5109,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "frame_id" field.</summary>
     public const int FrameIdFieldNumber = 5;
     private string frameId_ = "";
-    /// <summary>
-    /// --- 新增基礎類型欄位 ---
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string FrameId {
@@ -4753,9 +5121,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "frame_type" field.</summary>
     public const int FrameTypeFieldNumber = 6;
     private global::BMC.Story.DialogFrame.Types.FrameType frameType_ = global::BMC.Story.DialogFrame.Types.FrameType.Normal;
-    /// <summary>
-    /// 當前單句類型
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.DialogFrame.Types.FrameType FrameType {
@@ -4770,9 +5135,6 @@ namespace BMC.Story {
     private static readonly pb::FieldCodec<global::BMC.Story.DialogChoice> _repeated_choices_codec
         = pb::FieldCodec.ForMessage(58, global::BMC.Story.DialogChoice.Parser);
     private readonly pbc::RepeatedField<global::BMC.Story.DialogChoice> choices_ = new pbc::RepeatedField<global::BMC.Story.DialogChoice>();
-    /// <summary>
-    /// 依據 frame_type 決定使用以下欄位
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<global::BMC.Story.DialogChoice> Choices {
@@ -4782,9 +5144,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "target_node_id" field.</summary>
     public const int TargetNodeIdFieldNumber = 8;
     private string targetNodeId_ = "";
-    /// <summary>
-    /// [WITH_JUMP_NODE 專用] 對話結束後跳轉的 StoryNode ID
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string TargetNodeId {
@@ -5097,17 +5456,8 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static partial class Types {
       public enum FrameType {
-        /// <summary>
-        /// 1. 普通文本
-        /// </summary>
         [pbr::OriginalName("NORMAL")] Normal = 0,
-        /// <summary>
-        /// 2. 文本+選項
-        /// </summary>
         [pbr::OriginalName("WITH_CHOICES")] WithChoices = 1,
-        /// <summary>
-        /// 3. 文本+跳轉節點
-        /// </summary>
         [pbr::OriginalName("WITH_JUMP_NODE")] WithJumpNode = 2,
       }
 
@@ -5116,9 +5466,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// AVG 對話播放 Action
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class PlayAvgDialogAction : pb::IMessage<PlayAvgDialogAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -5134,7 +5481,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[14]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5168,9 +5515,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "background_image" field.</summary>
     public const int BackgroundImageFieldNumber = 1;
     private string backgroundImage_ = "";
-    /// <summary>
-    /// 背景圖名稱/路徑
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string BackgroundImage {
@@ -5185,9 +5529,6 @@ namespace BMC.Story {
     private static readonly pb::FieldCodec<global::BMC.Story.DialogFrame> _repeated_frames_codec
         = pb::FieldCodec.ForMessage(18, global::BMC.Story.DialogFrame.Parser);
     private readonly pbc::RepeatedField<global::BMC.Story.DialogFrame> frames_ = new pbc::RepeatedField<global::BMC.Story.DialogFrame>();
-    /// <summary>
-    /// 對話列表
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<global::BMC.Story.DialogFrame> Frames {
@@ -5364,7 +5705,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[15]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5421,6 +5762,9 @@ namespace BMC.Story {
           break;
         case ActionOneofCase.PlayAvgDialog:
           PlayAvgDialog = other.PlayAvgDialog.Clone();
+          break;
+        case ActionOneofCase.DispatchEvent:
+          DispatchEvent = other.DispatchEvent.Clone();
           break;
       }
 
@@ -5558,9 +5902,6 @@ namespace BMC.Story {
 
     /// <summary>Field number for the "game_puzzle" field.</summary>
     public const int GamePuzzleFieldNumber = 21;
-    /// <summary>
-    /// 新增：解謎遊戲事件 (編號延續到 21)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.GamePuzzleAction GamePuzzle {
@@ -5601,6 +5942,21 @@ namespace BMC.Story {
       }
     }
 
+    /// <summary>Field number for the "dispatch_event" field.</summary>
+    public const int DispatchEventFieldNumber = 22;
+    /// <summary>
+    /// 系統/腳本控制事件
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::BMC.Story.DispatchEventAction DispatchEvent {
+      get { return actionCase_ == ActionOneofCase.DispatchEvent ? (global::BMC.Story.DispatchEventAction) action_ : null; }
+      set {
+        action_ = value;
+        actionCase_ = value == null ? ActionOneofCase.None : ActionOneofCase.DispatchEvent;
+      }
+    }
+
     private object action_;
     /// <summary>Enum of possible cases for the "action" oneof.</summary>
     public enum ActionOneofCase {
@@ -5617,6 +5973,7 @@ namespace BMC.Story {
       GamePuzzle = 21,
       ShowChoices = 19,
       PlayAvgDialog = 20,
+      DispatchEvent = 22,
     }
     private ActionOneofCase actionCase_ = ActionOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5660,6 +6017,7 @@ namespace BMC.Story {
       if (!object.Equals(GamePuzzle, other.GamePuzzle)) return false;
       if (!object.Equals(ShowChoices, other.ShowChoices)) return false;
       if (!object.Equals(PlayAvgDialog, other.PlayAvgDialog)) return false;
+      if (!object.Equals(DispatchEvent, other.DispatchEvent)) return false;
       if (ActionCase != other.ActionCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -5681,6 +6039,7 @@ namespace BMC.Story {
       if (actionCase_ == ActionOneofCase.GamePuzzle) hash ^= GamePuzzle.GetHashCode();
       if (actionCase_ == ActionOneofCase.ShowChoices) hash ^= ShowChoices.GetHashCode();
       if (actionCase_ == ActionOneofCase.PlayAvgDialog) hash ^= PlayAvgDialog.GetHashCode();
+      if (actionCase_ == ActionOneofCase.DispatchEvent) hash ^= DispatchEvent.GetHashCode();
       hash ^= (int) actionCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -5752,6 +6111,10 @@ namespace BMC.Story {
         output.WriteRawTag(170, 1);
         output.WriteMessage(GamePuzzle);
       }
+      if (actionCase_ == ActionOneofCase.DispatchEvent) {
+        output.WriteRawTag(178, 1);
+        output.WriteMessage(DispatchEvent);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5814,6 +6177,10 @@ namespace BMC.Story {
         output.WriteRawTag(170, 1);
         output.WriteMessage(GamePuzzle);
       }
+      if (actionCase_ == ActionOneofCase.DispatchEvent) {
+        output.WriteRawTag(178, 1);
+        output.WriteMessage(DispatchEvent);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5862,6 +6229,9 @@ namespace BMC.Story {
       }
       if (actionCase_ == ActionOneofCase.PlayAvgDialog) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(PlayAvgDialog);
+      }
+      if (actionCase_ == ActionOneofCase.DispatchEvent) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(DispatchEvent);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -5950,6 +6320,12 @@ namespace BMC.Story {
             PlayAvgDialog = new global::BMC.Story.PlayAvgDialogAction();
           }
           PlayAvgDialog.MergeFrom(other.PlayAvgDialog);
+          break;
+        case ActionOneofCase.DispatchEvent:
+          if (DispatchEvent == null) {
+            DispatchEvent = new global::BMC.Story.DispatchEventAction();
+          }
+          DispatchEvent.MergeFrom(other.DispatchEvent);
           break;
       }
 
@@ -6084,6 +6460,15 @@ namespace BMC.Story {
             GamePuzzle = subBuilder;
             break;
           }
+          case 178: {
+            global::BMC.Story.DispatchEventAction subBuilder = new global::BMC.Story.DispatchEventAction();
+            if (actionCase_ == ActionOneofCase.DispatchEvent) {
+              subBuilder.MergeFrom(DispatchEvent);
+            }
+            input.ReadMessage(subBuilder);
+            DispatchEvent = subBuilder;
+            break;
+          }
         }
       }
     #endif
@@ -6215,6 +6600,15 @@ namespace BMC.Story {
             GamePuzzle = subBuilder;
             break;
           }
+          case 178: {
+            global::BMC.Story.DispatchEventAction subBuilder = new global::BMC.Story.DispatchEventAction();
+            if (actionCase_ == ActionOneofCase.DispatchEvent) {
+              subBuilder.MergeFrom(DispatchEvent);
+            }
+            input.ReadMessage(subBuilder);
+            DispatchEvent = subBuilder;
+            break;
+          }
         }
       }
     }
@@ -6237,7 +6631,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[16]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6587,7 +6981,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[17]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7022,7 +7416,7 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[18]; }
+      get { return global::BMC.Story.StoryDataReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

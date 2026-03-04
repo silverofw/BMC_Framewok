@@ -5,7 +5,7 @@ namespace BMC.Story.Editor
 {
     public class SetVariableDrawer : StoryActionDrawer
     {
-        public override string MenuPath => "Logic/Set Variable (設定全域變數)";
+        public override string MenuPath => "System/Set Variable (設定全域變數)";
         public override StoryEvent.ActionOneofCase ActionCase => StoryEvent.ActionOneofCase.SetVariable;
         public override StoryEvent CreateNewEvent() => new StoryEvent { SetVariable = new SetVariableAction() };
 
