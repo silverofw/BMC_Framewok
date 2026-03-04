@@ -591,36 +591,25 @@ namespace BMC.Story.Editor
             }
 
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Add Event:", EditorStyles.boldLabel);
-            EditorGUILayout.BeginVertical("box");
 
-            var groupedDrawers = _sortedDrawers.GroupBy(d => {
-                int slashIdx = d.MenuPath.IndexOf('/');
-                return slashIdx > 0 ? d.MenuPath.Substring(0, slashIdx) : "General";
-            });
-
-            GUIStyle groupLabelStyle = new GUIStyle(EditorStyles.miniBoldLabel) { alignment = TextAnchor.MiddleLeft };
-
-            foreach (var group in groupedDrawers)
+            // --- 改為使用 GenericMenu (下拉式選單) 一行解決 ---
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (EditorGUILayout.DropdownButton(new GUIContent("+ Add Event"), FocusType.Keyboard, GUILayout.Width(150), GUILayout.Height(25)))
             {
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label(group.Key, groupLabelStyle, GUILayout.Width(80), GUILayout.Height(20));
-
-                foreach (var drawer in group)
+                GenericMenu menu = new GenericMenu();
+                foreach (var drawer in _sortedDrawers)
                 {
-                    string btnName = drawer.MenuPath.Substring(drawer.MenuPath.IndexOf('/') + 1);
-                    if (GUILayout.Button(btnName, EditorStyles.miniButton, GUILayout.ExpandWidth(false), GUILayout.Height(20)))
-                    {
-                        events.Add(drawer.CreateNewEvent());
+                    var currentDrawer = drawer; // 避免 Closure 問題
+                    menu.AddItem(new GUIContent(currentDrawer.MenuPath), false, () => {
+                        events.Add(currentDrawer.CreateNewEvent());
                         SaveToDiskAndRefresh();
-                        GUIUtility.ExitGUI();
-                    }
+                        Repaint(); // 強制刷新編輯器畫面
+                    });
                 }
-
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndHorizontal();
+                menu.ShowAsContext();
             }
-            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
 
             return isDirty;
         }
