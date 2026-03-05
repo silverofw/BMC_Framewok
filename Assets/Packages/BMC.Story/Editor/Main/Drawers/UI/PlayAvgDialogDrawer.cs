@@ -24,8 +24,21 @@ namespace BMC.Story.Editor
 
             for (int i = 0; i < action.Frames.Count; i++)
             {
+                // --- 新增：在每個 Frame 之間加入明顯的分隔線 ---
+                if (i > 0)
+                {
+                    EditorGUILayout.Space(8);
+                    Rect rect = EditorGUILayout.GetControlRect(false, 2);
+                    EditorGUI.DrawRect(rect, new Color(0.4f, 0.4f, 0.4f, 1f)); // 畫一條深灰色的分隔線
+                    EditorGUILayout.Space(8);
+                }
+
                 var frame = action.Frames[i];
+
+                // 1. 區分對話單句 (Frame) 的背景色：奇偶數採用不同深淺的淡藍色
+                GUI.backgroundColor = (i % 2 == 0) ? new Color(0.85f, 0.92f, 1f) : new Color(0.78f, 0.85f, 0.95f);
                 EditorGUILayout.BeginVertical("box");
+                GUI.backgroundColor = Color.white; // 恢復預設，避免內部欄位被染色
 
                 // --- 標題與操作按鈕 ---
                 EditorGUILayout.BeginHorizontal();
@@ -73,6 +86,11 @@ namespace BMC.Story.Editor
                 // --- 主要內容設定 ---
                 EditorGUI.BeginChangeCheck();
 
+                // --- 新增：內部縮排，讓標題與內容有明顯的主從層次 ---
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Space(15); // 左側縮進 15 pixel
+                EditorGUILayout.BeginVertical();
+
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("Frame ID", GUILayout.Width(60));
                 frame.FrameId = EditorGUILayout.TextField(frame.FrameId, GUILayout.Width(80));
@@ -102,7 +120,11 @@ namespace BMC.Story.Editor
                     for (int j = 0; j < frame.Choices.Count; j++)
                     {
                         var choice = frame.Choices[j];
+
+                        // 2. 區分選項 (Choice) 的背景色：淡綠色
+                        GUI.backgroundColor = new Color(0.9f, 1f, 0.9f);
                         EditorGUILayout.BeginVertical("box");
+                        GUI.backgroundColor = Color.white; // 恢復預設
 
                         EditorGUILayout.BeginHorizontal();
                         choice.Text = EditorGUILayout.TextField("Text", choice.Text);
@@ -137,7 +159,11 @@ namespace BMC.Story.Editor
                         }
                         else if (choice.Type == DialogChoice.Types.ChoiceType.MaxVariableJump)
                         {
+                            // 3. 區分變數判定規則的背景色：淡橘色
+                            GUI.backgroundColor = new Color(1f, 0.95f, 0.85f);
                             EditorGUILayout.BeginVertical("box");
+                            GUI.backgroundColor = Color.white; // 恢復預設
+
                             EditorGUILayout.LabelField("Variable Rules (Jump to highest)", EditorStyles.miniBoldLabel);
 
                             for (int k = 0; k < choice.VariableRules.Count; k++)
@@ -173,9 +199,12 @@ namespace BMC.Story.Editor
                             EditorGUILayout.EndVertical();
                         }
 
-                        // --- 新增：選項附加事件列表 ---
+                        // 4. 區分選項附加事件列表的背景色：淡紫色
                         EditorGUILayout.Space(5);
+                        GUI.backgroundColor = new Color(0.95f, 0.9f, 1f);
                         EditorGUILayout.BeginVertical("helpbox");
+                        GUI.backgroundColor = Color.white; // 恢復預設
+
                         if (window.DrawEventList("On Select Events (選擇此項時觸發)", choice.OnSelectEvents, node))
                         {
                             changed = true;
@@ -209,6 +238,10 @@ namespace BMC.Story.Editor
                 }
 
                 if (EditorGUI.EndChangeCheck()) changed = true;
+
+                // --- 結束內部縮排 ---
+                EditorGUILayout.EndVertical();
+                EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.EndVertical();
             }
