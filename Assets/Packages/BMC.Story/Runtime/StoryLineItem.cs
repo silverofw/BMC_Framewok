@@ -6,7 +6,7 @@ namespace BMC.Story
 {
     public class StoryLineItem : UI.UIPanel
     {
-        [SerializeField] private UIText info;
+        [SerializeField] protected UIText info;
         [SerializeField] protected UIButton btn;
         [SerializeField] private GameObject select;
 

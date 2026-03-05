@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.core",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "displayName": "BMC Core",
   "description": "BMC 核心基礎模組 (Singleton, Data Types, Extensions)。",
   "unity": "6000.0",

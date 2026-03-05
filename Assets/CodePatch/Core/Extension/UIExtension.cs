@@ -9,6 +9,16 @@ namespace BMC.Patch.Core
 {
     public static class UIExtensions
     {
+        public static void Local(this UIText uIText, string key)
+        {
+            uIText.Set(LocalMgr.Instance.Local(key));
+        }
+
+        public static void Local(this UIText uIText, string key, object arg0)
+        {
+            uIText.Set(LocalMgr.Instance.LocalFormat(key, arg0));
+        }
+
         /// <summary>
         /// 道具多語言名稱
         /// </summary>
