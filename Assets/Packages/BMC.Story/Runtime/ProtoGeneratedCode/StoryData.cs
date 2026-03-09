@@ -88,41 +88,42 @@ namespace BMC.Story {
             "ASgJIj0KCUZyYW1lVHlwZRIKCgZOT1JNQUwQABIQCgxXSVRIX0NIT0lDRVMQ",
             "ARISCg5XSVRIX0pVTVBfTk9ERRACIlcKE1BsYXlBdmdEaWFsb2dBY3Rpb24S",
             "GAoQYmFja2dyb3VuZF9pbWFnZRgBIAEoCRImCgZmcmFtZXMYAiADKAsyFi5C",
-            "TUMuU3RvcnkuRGlhbG9nRnJhbWUi/AUKClN0b3J5RXZlbnQSFQoNZGVsYXlf",
-            "c2Vjb25kcxgBIAEoAhIwCgpwbGF5X3ZpZGVvGAogASgLMhouQk1DLlN0b3J5",
-            "LlBsYXlWaWRlb0FjdGlvbkgAEjsKC3VwZGF0ZV9zdGF0GAsgASgLMiQuQk1D",
-            "LlN0b3J5LlVwZGF0ZUNoYXJhY3RlclN0YXRBY3Rpb25IABI0CgxzZXRfdmFy",
-            "aWFibGUYDCABKAsyHC5CTUMuU3RvcnkuU2V0VmFyaWFibGVBY3Rpb25IABI4",
-            "CghwbGF5X2JnbRgNIAEoCzIkLkJNQy5TdG9yeS5QbGF5QmFja2dyb3VuZE11",
-            "c2ljQWN0aW9uSAASNAoIcGxheV9zZngYDiABKAsyIC5CTUMuU3RvcnkuUGxh",
-            "eVNvdW5kRWZmZWN0QWN0aW9uSAASMAoKcGxheV92b2ljZRgPIAEoCzIaLkJN",
-            "Qy5TdG9yeS5QbGF5Vm9pY2VBY3Rpb25IABIyCglnYW1lX2RpY2UYECABKAsy",
-            "HS5CTUMuU3RvcnkuR2FtZURpY2VSb2xsQWN0aW9uSAASRQoVZ2FtZV9ydXNz",
-            "aWFuX3JvdWxldHRlGBEgASgLMiQuQk1DLlN0b3J5LkdhbWVSdXNzaWFuUm91",
-            "bGV0dGVBY3Rpb25IABIsCghnYW1lX3F0ZRgSIAEoCzIYLkJNQy5TdG9yeS5H",
-            "YW1lUVRFQWN0aW9uSAASMgoLZ2FtZV9wdXp6bGUYFSABKAsyGy5CTUMuU3Rv",
-            "cnkuR2FtZVB1enpsZUFjdGlvbkgAEjQKDHNob3dfY2hvaWNlcxgTIAEoCzIc",
-            "LkJNQy5TdG9yeS5TaG93Q2hvaWNlc0FjdGlvbkgAEjkKD3BsYXlfYXZnX2Rp",
-            "YWxvZxgUIAEoCzIeLkJNQy5TdG9yeS5QbGF5QXZnRGlhbG9nQWN0aW9uSAAS",
-            "OAoOZGlzcGF0Y2hfZXZlbnQYFiABKAsyHi5CTUMuU3RvcnkuRGlzcGF0Y2hF",
-            "dmVudEFjdGlvbkgAQggKBmFjdGlvbiLWAQoGQ2hvaWNlEgwKBHRleHQYASAB",
-            "KAkSFgoOdGFyZ2V0X25vZGVfaWQYAiABKAkSLwoQb25fc2VsZWN0X2V2ZW50",
-            "cxgDIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50EjAKEnZpc2libGVfY29u",
-            "ZGl0aW9ucxgFIAMoCzIULkJNQy5TdG9yeS5Db25kaXRpb24SLQoPbG9ja19j",
-            "b25kaXRpb25zGAYgAygLMhQuQk1DLlN0b3J5LkNvbmRpdGlvbhIUCgxsb2Nr",
-            "X21lc3NhZ2UYByABKAki4QEKCVN0b3J5Tm9kZRIKCgJpZBgBIAEoCRINCgV0",
-            "aXRsZRgCIAEoCRIuCg9vbl9lbnRlcl9ldmVudHMYBCADKAsyFS5CTUMuU3Rv",
-            "cnkuU3RvcnlFdmVudBItCg5vbl9leGl0X2V2ZW50cxgFIAMoCzIVLkJNQy5T",
-            "dG9yeS5TdG9yeUV2ZW50EhkKEWF1dG9fanVtcF9ub2RlX2lkGAcgASgJEhcK",
-            "D2F1dG9fanVtcF9kZWxheRgIIAEoAhIaChJwcmV2aWV3X2ltYWdlX3BhdGgY",
-            "CSABKAkSCgoCcHMYCiABKAkiygEKDFN0b3J5UGFja2FnZRISCgpjaGFwdGVy",
-            "X2lkGAEgASgJEiMKBW5vZGVzGAIgAygLMhQuQk1DLlN0b3J5LlN0b3J5Tm9k",
-            "ZRJIChFpbml0aWFsX3ZhcmlhYmxlcxgDIAMoCzItLkJNQy5TdG9yeS5TdG9y",
-            "eVBhY2thZ2UuSW5pdGlhbFZhcmlhYmxlc0VudHJ5GjcKFUluaXRpYWxWYXJp",
-            "YWJsZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAU6AjgBKkEK",
-            "CFN0YXRUeXBlEggKBE5PTkUQABIHCgNTVFIQARIHCgNWSVQQAhIHCgNJTlQQ",
-            "AxIHCgNBR0kQBBIHCgNDSEEQBSo0ChFDaGFyYWN0ZXJQb3NpdGlvbhIICgRM",
-            "RUZUEAASCgoGQ0VOVEVSEAESCQoFUklHSFQQAmIGcHJvdG8z"));
+            "TUMuU3RvcnkuRGlhbG9nRnJhbWUilgYKClN0b3J5RXZlbnQSFQoNZGVsYXlf",
+            "c2Vjb25kcxgBIAEoAhIYChB3YWl0X2Zvcl90cmlnZ2VyGAIgASgIEjAKCnBs",
+            "YXlfdmlkZW8YCiABKAsyGi5CTUMuU3RvcnkuUGxheVZpZGVvQWN0aW9uSAAS",
+            "OwoLdXBkYXRlX3N0YXQYCyABKAsyJC5CTUMuU3RvcnkuVXBkYXRlQ2hhcmFj",
+            "dGVyU3RhdEFjdGlvbkgAEjQKDHNldF92YXJpYWJsZRgMIAEoCzIcLkJNQy5T",
+            "dG9yeS5TZXRWYXJpYWJsZUFjdGlvbkgAEjgKCHBsYXlfYmdtGA0gASgLMiQu",
+            "Qk1DLlN0b3J5LlBsYXlCYWNrZ3JvdW5kTXVzaWNBY3Rpb25IABI0CghwbGF5",
+            "X3NmeBgOIAEoCzIgLkJNQy5TdG9yeS5QbGF5U291bmRFZmZlY3RBY3Rpb25I",
+            "ABIwCgpwbGF5X3ZvaWNlGA8gASgLMhouQk1DLlN0b3J5LlBsYXlWb2ljZUFj",
+            "dGlvbkgAEjIKCWdhbWVfZGljZRgQIAEoCzIdLkJNQy5TdG9yeS5HYW1lRGlj",
+            "ZVJvbGxBY3Rpb25IABJFChVnYW1lX3J1c3NpYW5fcm91bGV0dGUYESABKAsy",
+            "JC5CTUMuU3RvcnkuR2FtZVJ1c3NpYW5Sb3VsZXR0ZUFjdGlvbkgAEiwKCGdh",
+            "bWVfcXRlGBIgASgLMhguQk1DLlN0b3J5LkdhbWVRVEVBY3Rpb25IABIyCgtn",
+            "YW1lX3B1enpsZRgVIAEoCzIbLkJNQy5TdG9yeS5HYW1lUHV6emxlQWN0aW9u",
+            "SAASNAoMc2hvd19jaG9pY2VzGBMgASgLMhwuQk1DLlN0b3J5LlNob3dDaG9p",
+            "Y2VzQWN0aW9uSAASOQoPcGxheV9hdmdfZGlhbG9nGBQgASgLMh4uQk1DLlN0",
+            "b3J5LlBsYXlBdmdEaWFsb2dBY3Rpb25IABI4Cg5kaXNwYXRjaF9ldmVudBgW",
+            "IAEoCzIeLkJNQy5TdG9yeS5EaXNwYXRjaEV2ZW50QWN0aW9uSABCCAoGYWN0",
+            "aW9uItYBCgZDaG9pY2USDAoEdGV4dBgBIAEoCRIWCg50YXJnZXRfbm9kZV9p",
+            "ZBgCIAEoCRIvChBvbl9zZWxlY3RfZXZlbnRzGAMgAygLMhUuQk1DLlN0b3J5",
+            "LlN0b3J5RXZlbnQSMAoSdmlzaWJsZV9jb25kaXRpb25zGAUgAygLMhQuQk1D",
+            "LlN0b3J5LkNvbmRpdGlvbhItCg9sb2NrX2NvbmRpdGlvbnMYBiADKAsyFC5C",
+            "TUMuU3RvcnkuQ29uZGl0aW9uEhQKDGxvY2tfbWVzc2FnZRgHIAEoCSLhAQoJ",
+            "U3RvcnlOb2RlEgoKAmlkGAEgASgJEg0KBXRpdGxlGAIgASgJEi4KD29uX2Vu",
+            "dGVyX2V2ZW50cxgEIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50Ei0KDm9u",
+            "X2V4aXRfZXZlbnRzGAUgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSGQoR",
+            "YXV0b19qdW1wX25vZGVfaWQYByABKAkSFwoPYXV0b19qdW1wX2RlbGF5GAgg",
+            "ASgCEhoKEnByZXZpZXdfaW1hZ2VfcGF0aBgJIAEoCRIKCgJwcxgKIAEoCSLK",
+            "AQoMU3RvcnlQYWNrYWdlEhIKCmNoYXB0ZXJfaWQYASABKAkSIwoFbm9kZXMY",
+            "AiADKAsyFC5CTUMuU3RvcnkuU3RvcnlOb2RlEkgKEWluaXRpYWxfdmFyaWFi",
+            "bGVzGAMgAygLMi0uQk1DLlN0b3J5LlN0b3J5UGFja2FnZS5Jbml0aWFsVmFy",
+            "aWFibGVzRW50cnkaNwoVSW5pdGlhbFZhcmlhYmxlc0VudHJ5EgsKA2tleRgB",
+            "IAEoCRINCgV2YWx1ZRgCIAEoBToCOAEqQQoIU3RhdFR5cGUSCAoETk9ORRAA",
+            "EgcKA1NUUhABEgcKA1ZJVBACEgcKA0lOVBADEgcKA0FHSRAEEgcKA0NIQRAF",
+            "KjQKEUNoYXJhY3RlclBvc2l0aW9uEggKBExFRlQQABIKCgZDRU5URVIQARIJ",
+            "CgVSSUdIVBACYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::BMC.Story.StatType), typeof(global::BMC.Story.CharacterPosition), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -142,7 +143,7 @@ namespace BMC.Story {
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice), global::BMC.Story.DialogChoice.Parser, new[]{ "Text", "Type", "TargetFrameId", "VariableRules", "OnSelectEvents" }, null, new[]{ typeof(global::BMC.Story.DialogChoice.Types.ChoiceType) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice.Types.VariableJumpRule), global::BMC.Story.DialogChoice.Types.VariableJumpRule.Parser, new[]{ "VariableId", "TargetFrameId" }, null, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame), global::BMC.Story.DialogFrame.Parser, new[]{ "CharacterId", "Key", "Position", "CharacterSpriteName", "FrameId", "FrameType", "Choices", "TargetNodeId" }, null, new[]{ typeof(global::BMC.Story.DialogFrame.Types.FrameType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayAvgDialogAction), global::BMC.Story.PlayAvgDialogAction.Parser, new[]{ "BackgroundImage", "Frames" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "GamePuzzle", "ShowChoices", "PlayAvgDialog", "DispatchEvent" }, new[]{ "Action" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "WaitForTrigger", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "GamePuzzle", "ShowChoices", "PlayAvgDialog", "DispatchEvent" }, new[]{ "Action" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.Choice), global::BMC.Story.Choice.Parser, new[]{ "Text", "TargetNodeId", "OnSelectEvents", "VisibleConditions", "LockConditions", "LockMessage" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryNode), global::BMC.Story.StoryNode.Parser, new[]{ "Id", "Title", "OnEnterEvents", "OnExitEvents", "AutoJumpNodeId", "AutoJumpDelay", "PreviewImagePath", "Ps" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryPackage), global::BMC.Story.StoryPackage.Parser, new[]{ "ChapterId", "Nodes", "InitialVariables" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
@@ -5726,6 +5727,7 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public StoryEvent(StoryEvent other) : this() {
       delaySeconds_ = other.delaySeconds_;
+      waitForTrigger_ = other.waitForTrigger_;
       switch (other.ActionCase) {
         case ActionOneofCase.PlayVideo:
           PlayVideo = other.PlayVideo.Clone();
@@ -5786,6 +5788,21 @@ namespace BMC.Story {
       get { return delaySeconds_; }
       set {
         delaySeconds_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "wait_for_trigger" field.</summary>
+    public const int WaitForTriggerFieldNumber = 2;
+    private bool waitForTrigger_;
+    /// <summary>
+    /// [新增] 是否等待手動觸發 (若為 true，則進入節點時不會自動執行，專門保留給特定系統如解謎去讀取資料用)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool WaitForTrigger {
+      get { return waitForTrigger_; }
+      set {
+        waitForTrigger_ = value;
       }
     }
 
@@ -6005,6 +6022,7 @@ namespace BMC.Story {
         return true;
       }
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DelaySeconds, other.DelaySeconds)) return false;
+      if (WaitForTrigger != other.WaitForTrigger) return false;
       if (!object.Equals(PlayVideo, other.PlayVideo)) return false;
       if (!object.Equals(UpdateStat, other.UpdateStat)) return false;
       if (!object.Equals(SetVariable, other.SetVariable)) return false;
@@ -6027,6 +6045,7 @@ namespace BMC.Story {
     public override int GetHashCode() {
       int hash = 1;
       if (DelaySeconds != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DelaySeconds);
+      if (WaitForTrigger != false) hash ^= WaitForTrigger.GetHashCode();
       if (actionCase_ == ActionOneofCase.PlayVideo) hash ^= PlayVideo.GetHashCode();
       if (actionCase_ == ActionOneofCase.UpdateStat) hash ^= UpdateStat.GetHashCode();
       if (actionCase_ == ActionOneofCase.SetVariable) hash ^= SetVariable.GetHashCode();
@@ -6062,6 +6081,10 @@ namespace BMC.Story {
       if (DelaySeconds != 0F) {
         output.WriteRawTag(13);
         output.WriteFloat(DelaySeconds);
+      }
+      if (WaitForTrigger != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(WaitForTrigger);
       }
       if (actionCase_ == ActionOneofCase.PlayVideo) {
         output.WriteRawTag(82);
@@ -6129,6 +6152,10 @@ namespace BMC.Story {
         output.WriteRawTag(13);
         output.WriteFloat(DelaySeconds);
       }
+      if (WaitForTrigger != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(WaitForTrigger);
+      }
       if (actionCase_ == ActionOneofCase.PlayVideo) {
         output.WriteRawTag(82);
         output.WriteMessage(PlayVideo);
@@ -6194,6 +6221,9 @@ namespace BMC.Story {
       if (DelaySeconds != 0F) {
         size += 1 + 4;
       }
+      if (WaitForTrigger != false) {
+        size += 1 + 1;
+      }
       if (actionCase_ == ActionOneofCase.PlayVideo) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(PlayVideo);
       }
@@ -6247,6 +6277,9 @@ namespace BMC.Story {
       }
       if (other.DelaySeconds != 0F) {
         DelaySeconds = other.DelaySeconds;
+      }
+      if (other.WaitForTrigger != false) {
+        WaitForTrigger = other.WaitForTrigger;
       }
       switch (other.ActionCase) {
         case ActionOneofCase.PlayVideo:
@@ -6350,6 +6383,10 @@ namespace BMC.Story {
             break;
           case 13: {
             DelaySeconds = input.ReadFloat();
+            break;
+          }
+          case 16: {
+            WaitForTrigger = input.ReadBool();
             break;
           }
           case 82: {
@@ -6490,6 +6527,10 @@ namespace BMC.Story {
             break;
           case 13: {
             DelaySeconds = input.ReadFloat();
+            break;
+          }
+          case 16: {
+            WaitForTrigger = input.ReadBool();
             break;
           }
           case 82: {

@@ -520,7 +520,6 @@ namespace BMC.Story.Editor
 
             EditorGUILayout.Space();
 
-            // --- 替換為呼叫共用的 DrawEventList ---
             if (DrawEventList("Events Pipeline (Execute sequentially)", node.OnEnterEvents, node))
             {
                 isDirty = true;
@@ -529,7 +528,6 @@ namespace BMC.Story.Editor
             if (isDirty) SaveToDiskAndRefresh();
         }
 
-        // --- 新增共用的事件列表繪製方法 ---
         public bool DrawEventList(string headerTitle, IList<StoryEvent> events, StoryNode node)
         {
             bool isDirty = false;
@@ -574,7 +572,15 @@ namespace BMC.Story.Editor
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUI.BeginChangeCheck();
-                evt.DelaySeconds = EditorGUILayout.DelayedFloatField("Pre-Delay", evt.DelaySeconds);
+
+                // --- 新增：將 Wait For Trigger 核取方塊加入 UI ---
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label("Pre-Delay", GUILayout.Width(65));
+                evt.DelaySeconds = EditorGUILayout.DelayedFloatField(evt.DelaySeconds, GUILayout.Width(60));
+                GUILayout.Space(15);
+                evt.WaitForTrigger = EditorGUILayout.ToggleLeft("Wait For Trigger (手動觸發)", evt.WaitForTrigger);
+                EditorGUILayout.EndHorizontal();
+
                 if (EditorGUI.EndChangeCheck()) isDirty = true;
 
                 if (_drawers.TryGetValue(evt.ActionCase, out var drawer))
@@ -592,7 +598,7 @@ namespace BMC.Story.Editor
 
             EditorGUILayout.Space();
 
-            // --- 改為使用 GenericMenu (下拉式選單) 一行解決 ---
+            // 使用 GenericMenu (下拉式選單) 添加新事件
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if (EditorGUILayout.DropdownButton(new GUIContent("+ Add Event"), FocusType.Keyboard, GUILayout.Width(150), GUILayout.Height(25)))
