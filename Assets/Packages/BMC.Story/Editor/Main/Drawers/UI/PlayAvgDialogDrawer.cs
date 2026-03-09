@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BMC.Story.Editor
@@ -9,6 +10,24 @@ namespace BMC.Story.Editor
         public override string MenuPath => "UI/AVG Dialog (AVG文字對話)";
         public override StoryEvent.ActionOneofCase ActionCase => StoryEvent.ActionOneofCase.PlayAvgDialog;
         public override StoryEvent CreateNewEvent() => new StoryEvent { PlayAvgDialog = new PlayAvgDialogAction() };
+
+        // 用來記錄每個 Frame 的摺疊狀態 (改為依據陣列的 index)
+        private Dictionary<int, bool> _frameFoldStates = new Dictionary<int, bool>();
+
+        private bool IsFrameExpanded(int index)
+        {
+            if (!_frameFoldStates.TryGetValue(index, out bool expanded))
+            {
+                expanded = true; // 預設展開
+                _frameFoldStates[index] = expanded;
+            }
+            return expanded;
+        }
+
+        private void SetFrameExpanded(int index, bool expanded)
+        {
+            _frameFoldStates[index] = expanded;
+        }
 
         public override bool Draw(StoryNode node, StoryEvent evt, StoryLineEditorWindow window)
         {
@@ -20,7 +39,20 @@ namespace BMC.Story.Editor
             if (EditorGUI.EndChangeCheck()) changed = true;
 
             EditorGUILayout.Space(3);
+
+            // 標題旁增加 Expand All / Collapse All 快速按鈕
+            EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField($"Dialog Frames ({action.Frames.Count})", EditorStyles.miniBoldLabel);
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Expand All", EditorStyles.miniButtonLeft, GUILayout.Width(75)))
+            {
+                for (int i = 0; i < action.Frames.Count; i++) SetFrameExpanded(i, true);
+            }
+            if (GUILayout.Button("Collapse All", EditorStyles.miniButtonRight, GUILayout.Width(75)))
+            {
+                for (int i = 0; i < action.Frames.Count; i++) SetFrameExpanded(i, false);
+            }
+            EditorGUILayout.EndHorizontal();
 
             for (int i = 0; i < action.Frames.Count; i++)
             {
@@ -42,7 +74,28 @@ namespace BMC.Story.Editor
 
                 // --- 標題與操作按鈕 ---
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label($"Frame #{i + 1}", EditorStyles.boldLabel, GUILayout.Width(75));
+
+                // --- 將標題改為可點擊的 Foldout (摺疊) 元件 ---
+                bool isExpanded = IsFrameExpanded(i);
+                GUIStyle foldoutStyle = new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold };
+
+                // 修正：改用 EditorGUI.Foldout 搭配 GetControlRect 來精準限制寬度為 85，解決沒有多載的問題
+                Rect foldoutRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight, GUILayout.Width(85));
+                isExpanded = EditorGUI.Foldout(foldoutRect, isExpanded, $"Frame #{i + 1}", true, foldoutStyle);
+
+                // --- 新增：將 Frame ID 直接整併在標題行 ---
+                GUILayout.Space(2);
+                // 修正：移除 miniBoldLabel 改為一般大小的 boldLabel，解決字體過小與偏低的問題
+                GUILayout.Label("ID:", EditorStyles.boldLabel, GUILayout.Width(20));
+
+                EditorGUI.BeginChangeCheck();
+                // 這裡將寬度從 75 拉大到 150，方便填寫更長的中文 ID
+                frame.FrameId = EditorGUILayout.TextField(frame.FrameId, GUILayout.Width(150));
+                if (EditorGUI.EndChangeCheck()) changed = true;
+
+                SetFrameExpanded(i, isExpanded);
+
+                GUILayout.FlexibleSpace();
 
                 if (i > 0 && GUILayout.Button("▲", EditorStyles.miniButtonLeft, GUILayout.Width(25)))
                 {
@@ -83,165 +136,183 @@ namespace BMC.Story.Editor
                 GUI.backgroundColor = Color.white;
                 EditorGUILayout.EndHorizontal();
 
-                // --- 主要內容設定 ---
-                EditorGUI.BeginChangeCheck();
-
-                // --- 新增：內部縮排，讓標題與內容有明顯的主從層次 ---
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Space(15); // 左側縮進 15 pixel
-                EditorGUILayout.BeginVertical();
-
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label("Frame ID", GUILayout.Width(60));
-                frame.FrameId = EditorGUILayout.TextField(frame.FrameId, GUILayout.Width(80));
-                GUILayout.Space(10);
-                GUILayout.Label("Char ID", GUILayout.Width(50));
-                frame.CharacterId = EditorGUILayout.IntField(frame.CharacterId, GUILayout.Width(60));
-                GUILayout.Space(10);
-                GUILayout.Label("Pos", GUILayout.Width(30));
-                frame.Position = (CharacterPosition)EditorGUILayout.EnumPopup(frame.Position, GUILayout.Width(80));
-                EditorGUILayout.EndHorizontal();
-
-                frame.CharacterSpriteName = EditorGUILayout.TextField("Sprite Name", frame.CharacterSpriteName);
-
-                EditorGUILayout.LabelField("Dialog Text Key:");
-                frame.Key = EditorGUILayout.TextArea(frame.Key, GUILayout.Height(45));
-
-                // 2. 文本類型與選項設定
-                EditorGUILayout.Space(3);
-                frame.FrameType = (DialogFrame.Types.FrameType)EditorGUILayout.EnumPopup("Frame Type", frame.FrameType);
-
-                if (frame.FrameType == DialogFrame.Types.FrameType.WithChoices)
+                // === 如果摺疊狀態為展開，才顯示內容 ===
+                if (isExpanded)
                 {
-                    EditorGUILayout.BeginVertical("helpbox");
-                    EditorGUILayout.LabelField("Choices", EditorStyles.miniBoldLabel);
-                    EditorGUI.indentLevel++;
+                    // --- 主要內容設定 ---
+                    EditorGUI.BeginChangeCheck();
 
-                    for (int j = 0; j < frame.Choices.Count; j++)
-                    {
-                        var choice = frame.Choices[j];
-
-                        // 2. 區分選項 (Choice) 的背景色：淡綠色
-                        GUI.backgroundColor = new Color(0.9f, 1f, 0.9f);
-                        EditorGUILayout.BeginVertical("box");
-                        GUI.backgroundColor = Color.white; // 恢復預設
-
-                        EditorGUILayout.BeginHorizontal();
-                        choice.Text = EditorGUILayout.TextField("Text", choice.Text);
-
-                        GUI.backgroundColor = StoryLineEditorWindow.Styles.ErrorColor;
-                        if (GUILayout.Button("X", EditorStyles.miniButton, GUILayout.Width(20)))
-                        {
-                            frame.Choices.RemoveAt(j);
-                            changed = true;
-                            GUI.backgroundColor = Color.white;
-                            EditorGUILayout.EndHorizontal();
-                            EditorGUILayout.EndVertical();
-                            break;
-                        }
-                        GUI.backgroundColor = Color.white;
-                        EditorGUILayout.EndHorizontal();
-
-                        // 選擇 Type
-                        EditorGUILayout.BeginHorizontal();
-                        GUILayout.Label("Action", GUILayout.Width(45));
-                        choice.Type = (DialogChoice.Types.ChoiceType)EditorGUILayout.EnumPopup(choice.Type, GUILayout.Width(110));
-                        EditorGUILayout.EndHorizontal();
-
-                        // 根據 Type 展開細節
-                        if (choice.Type == DialogChoice.Types.ChoiceType.JumpFrame)
-                        {
-                            EditorGUILayout.BeginHorizontal();
-                            GUILayout.Space(45);
-                            GUILayout.Label("Target ID:", GUILayout.Width(65));
-                            choice.TargetFrameId = EditorGUILayout.TextField(choice.TargetFrameId);
-                            EditorGUILayout.EndHorizontal();
-                        }
-                        else if (choice.Type == DialogChoice.Types.ChoiceType.MaxVariableJump)
-                        {
-                            // 3. 區分變數判定規則的背景色：淡橘色
-                            GUI.backgroundColor = new Color(1f, 0.95f, 0.85f);
-                            EditorGUILayout.BeginVertical("box");
-                            GUI.backgroundColor = Color.white; // 恢復預設
-
-                            EditorGUILayout.LabelField("Variable Rules (Jump to highest)", EditorStyles.miniBoldLabel);
-
-                            for (int k = 0; k < choice.VariableRules.Count; k++)
-                            {
-                                var rule = choice.VariableRules[k];
-                                EditorGUILayout.BeginHorizontal();
-                                rule.VariableId = EditorGUILayout.TextField(rule.VariableId, GUILayout.Width(100));
-                                GUILayout.Label("->", EditorStyles.centeredGreyMiniLabel, GUILayout.Width(20));
-                                rule.TargetFrameId = EditorGUILayout.TextField(rule.TargetFrameId);
-
-                                GUI.backgroundColor = StoryLineEditorWindow.Styles.ErrorColor;
-                                if (GUILayout.Button("X", EditorStyles.miniButton, GUILayout.Width(20)))
-                                {
-                                    choice.VariableRules.RemoveAt(k);
-                                    changed = true;
-                                    GUI.backgroundColor = Color.white;
-                                    EditorGUILayout.EndHorizontal();
-                                    break;
-                                }
-                                GUI.backgroundColor = Color.white;
-                                EditorGUILayout.EndHorizontal();
-                            }
-
-                            EditorGUILayout.BeginHorizontal();
-                            GUILayout.FlexibleSpace();
-                            if (GUILayout.Button("+ Add Rule", EditorStyles.miniButton, GUILayout.Width(80)))
-                            {
-                                choice.VariableRules.Add(new DialogChoice.Types.VariableJumpRule { VariableId = "Var_XXX", TargetFrameId = "" });
-                                changed = true;
-                            }
-                            EditorGUILayout.EndHorizontal();
-
-                            EditorGUILayout.EndVertical();
-                        }
-
-                        // 4. 區分選項附加事件列表的背景色：淡紫色
-                        EditorGUILayout.Space(5);
-                        GUI.backgroundColor = new Color(0.95f, 0.9f, 1f);
-                        EditorGUILayout.BeginVertical("helpbox");
-                        GUI.backgroundColor = Color.white; // 恢復預設
-
-                        if (window.DrawEventList("On Select Events (選擇此項時觸發)", choice.OnSelectEvents, node))
-                        {
-                            changed = true;
-                        }
-                        EditorGUILayout.EndVertical();
-
-                        EditorGUILayout.EndVertical();
-                    }
-
+                    // --- 內部縮排 ---
                     EditorGUILayout.BeginHorizontal();
-                    GUILayout.Space(15 * EditorGUI.indentLevel);
-                    if (GUILayout.Button("+ Add Choice", EditorStyles.miniButton, GUILayout.Width(100)))
+                    GUILayout.Space(15); // 左側縮進 15 pixel
+                    EditorGUILayout.BeginVertical();
+
+                    // 第一行：基本身分與表現類型 (移除了 Frame ID)
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label("Visual", GUILayout.Width(40));
+                    frame.VisualType = (DialogFrame.Types.VisualType)EditorGUILayout.EnumPopup(frame.VisualType, GUILayout.Width(75));
+                    GUILayout.Space(15);
+                    GUILayout.Label("Char ID", GUILayout.Width(50));
+                    frame.CharacterId = EditorGUILayout.IntField(frame.CharacterId, GUILayout.Width(45));
+                    GUILayout.FlexibleSpace();
+                    EditorGUILayout.EndHorizontal();
+
+                    // 第二行：根據 VisualType 切換顯示參數
+                    EditorGUILayout.BeginHorizontal();
+                    if (frame.VisualType == DialogFrame.Types.VisualType.Sprite)
                     {
-                        frame.Choices.Add(new DialogChoice
-                        {
-                            Text = "New Choice",
-                            Type = DialogChoice.Types.ChoiceType.JumpFrame
-                        });
-                        changed = true;
+                        GUILayout.Label("Pos", GUILayout.Width(30));
+                        frame.Position = (CharacterPosition)EditorGUILayout.EnumPopup(frame.Position, GUILayout.Width(70));
+                        GUILayout.Space(10);
+                        GUILayout.Label("Sprite(留空自動讀取)", GUILayout.Width(125));
+                        frame.AssetName = EditorGUILayout.TextField(frame.AssetName, GUILayout.ExpandWidth(true));
+                    }
+                    else if (frame.VisualType == DialogFrame.Types.VisualType.Video)
+                    {
+                        GUILayout.Label("Video Path", GUILayout.Width(70));
+                        frame.AssetName = EditorGUILayout.TextField(frame.AssetName, GUILayout.ExpandWidth(true));
                     }
                     EditorGUILayout.EndHorizontal();
 
-                    EditorGUI.indentLevel--;
-                    EditorGUILayout.EndVertical();
-                }
-                else if (frame.FrameType == DialogFrame.Types.FrameType.WithJumpNode)
-                {
-                    EditorGUILayout.BeginVertical("helpbox");
-                    window.DrawTargetIdSelector("Target Node ID", () => frame.TargetNodeId, (val) => frame.TargetNodeId = val, node);
-                    EditorGUILayout.EndVertical();
-                }
+                    // 第三行：文本 Key
+                    frame.Key = EditorGUILayout.TextField("Dialog Text Key", frame.Key);
 
-                if (EditorGUI.EndChangeCheck()) changed = true;
+                    // 2. 文本類型與選項設定
+                    EditorGUILayout.Space(3);
+                    frame.FrameType = (DialogFrame.Types.FrameType)EditorGUILayout.EnumPopup("Frame Type", frame.FrameType);
 
-                // --- 結束內部縮排 ---
-                EditorGUILayout.EndVertical();
-                EditorGUILayout.EndHorizontal();
+                    if (frame.FrameType == DialogFrame.Types.FrameType.WithChoices)
+                    {
+                        EditorGUILayout.BeginVertical("helpbox");
+                        EditorGUILayout.LabelField("Choices", EditorStyles.miniBoldLabel);
+                        EditorGUI.indentLevel++;
+
+                        for (int j = 0; j < frame.Choices.Count; j++)
+                        {
+                            var choice = frame.Choices[j];
+
+                            // 2. 區分選項 (Choice) 的背景色：淡綠色
+                            GUI.backgroundColor = new Color(0.9f, 1f, 0.9f);
+                            EditorGUILayout.BeginVertical("box");
+                            GUI.backgroundColor = Color.white; // 恢復預設
+
+                            EditorGUILayout.BeginHorizontal();
+                            choice.Text = EditorGUILayout.TextField("Text", choice.Text);
+
+                            GUI.backgroundColor = StoryLineEditorWindow.Styles.ErrorColor;
+                            if (GUILayout.Button("X", EditorStyles.miniButton, GUILayout.Width(20)))
+                            {
+                                frame.Choices.RemoveAt(j);
+                                changed = true;
+                                GUI.backgroundColor = Color.white;
+                                EditorGUILayout.EndHorizontal();
+                                EditorGUILayout.EndVertical();
+                                break;
+                            }
+                            GUI.backgroundColor = Color.white;
+                            EditorGUILayout.EndHorizontal();
+
+                            // 選擇 Type
+                            EditorGUILayout.BeginHorizontal();
+                            GUILayout.Label("Action", GUILayout.Width(45));
+                            choice.Type = (DialogChoice.Types.ChoiceType)EditorGUILayout.EnumPopup(choice.Type, GUILayout.Width(110));
+                            EditorGUILayout.EndHorizontal();
+
+                            // 根據 Type 展開細節
+                            if (choice.Type == DialogChoice.Types.ChoiceType.JumpFrame)
+                            {
+                                EditorGUILayout.BeginHorizontal();
+                                GUILayout.Space(45);
+                                GUILayout.Label("Target ID:", GUILayout.Width(65));
+                                choice.TargetFrameId = EditorGUILayout.TextField(choice.TargetFrameId);
+                                EditorGUILayout.EndHorizontal();
+                            }
+                            else if (choice.Type == DialogChoice.Types.ChoiceType.MaxVariableJump)
+                            {
+                                // 3. 區分變數判定規則的背景色：淡橘色
+                                GUI.backgroundColor = new Color(1f, 0.95f, 0.85f);
+                                EditorGUILayout.BeginVertical("box");
+                                GUI.backgroundColor = Color.white; // 恢復預設
+
+                                EditorGUILayout.LabelField("Variable Rules (Jump to highest)", EditorStyles.miniBoldLabel);
+
+                                for (int k = 0; k < choice.VariableRules.Count; k++)
+                                {
+                                    var rule = choice.VariableRules[k];
+                                    EditorGUILayout.BeginHorizontal();
+                                    rule.VariableId = EditorGUILayout.TextField(rule.VariableId, GUILayout.Width(100));
+                                    GUILayout.Label("->", EditorStyles.centeredGreyMiniLabel, GUILayout.Width(20));
+                                    rule.TargetFrameId = EditorGUILayout.TextField(rule.TargetFrameId);
+
+                                    GUI.backgroundColor = StoryLineEditorWindow.Styles.ErrorColor;
+                                    if (GUILayout.Button("X", EditorStyles.miniButton, GUILayout.Width(20)))
+                                    {
+                                        choice.VariableRules.RemoveAt(k);
+                                        changed = true;
+                                        GUI.backgroundColor = Color.white;
+                                        EditorGUILayout.EndHorizontal();
+                                        break;
+                                    }
+                                    GUI.backgroundColor = Color.white;
+                                    EditorGUILayout.EndHorizontal();
+                                }
+
+                                EditorGUILayout.BeginHorizontal();
+                                GUILayout.FlexibleSpace();
+                                if (GUILayout.Button("+ Add Rule", EditorStyles.miniButton, GUILayout.Width(80)))
+                                {
+                                    choice.VariableRules.Add(new DialogChoice.Types.VariableJumpRule { VariableId = "Var_XXX", TargetFrameId = "" });
+                                    changed = true;
+                                }
+                                EditorGUILayout.EndHorizontal();
+
+                                EditorGUILayout.EndVertical();
+                            }
+
+                            // 4. 區分選項附加事件列表的背景色：淡紫色
+                            EditorGUILayout.Space(5);
+                            GUI.backgroundColor = new Color(0.95f, 0.9f, 1f);
+                            EditorGUILayout.BeginVertical("helpbox");
+                            GUI.backgroundColor = Color.white; // 恢復預設
+
+                            if (window.DrawEventList("On Select Events (選擇此項時觸發)", choice.OnSelectEvents, node))
+                            {
+                                changed = true;
+                            }
+                            EditorGUILayout.EndVertical();
+
+                            EditorGUILayout.EndVertical();
+                        }
+
+                        EditorGUILayout.BeginHorizontal();
+                        GUILayout.Space(15 * EditorGUI.indentLevel);
+                        if (GUILayout.Button("+ Add Choice", EditorStyles.miniButton, GUILayout.Width(100)))
+                        {
+                            frame.Choices.Add(new DialogChoice
+                            {
+                                Text = "New Choice",
+                                Type = DialogChoice.Types.ChoiceType.JumpFrame
+                            });
+                            changed = true;
+                        }
+                        EditorGUILayout.EndHorizontal();
+
+                        EditorGUI.indentLevel--;
+                        EditorGUILayout.EndVertical();
+                    }
+                    else if (frame.FrameType == DialogFrame.Types.FrameType.WithJumpNode)
+                    {
+                        EditorGUILayout.BeginVertical("helpbox");
+                        window.DrawTargetIdSelector("Target Node ID", () => frame.TargetNodeId, (val) => frame.TargetNodeId = val, node);
+                        EditorGUILayout.EndVertical();
+                    }
+
+                    if (EditorGUI.EndChangeCheck()) changed = true;
+
+                    // --- 結束內部縮排 ---
+                    EditorGUILayout.EndVertical();
+                    EditorGUILayout.EndHorizontal();
+                }
 
                 EditorGUILayout.EndVertical();
             }

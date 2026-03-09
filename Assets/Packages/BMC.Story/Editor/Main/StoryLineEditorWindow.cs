@@ -503,8 +503,10 @@ namespace BMC.Story.Editor
             EditorGUI.BeginChangeCheck();
             node.Title = EditorGUILayout.TextField("Title", node.Title);
             node.PreviewImagePath = EditorGUILayout.TextField("Preview Image", node.PreviewImagePath);
-            EditorGUILayout.LabelField("Memo (PS):");
-            node.Ps = EditorGUILayout.TextArea(node.Ps, GUILayout.Height(35));
+
+            // 將 Memo (PS) 改為單行，並與標題同行
+            node.Ps = EditorGUILayout.TextField("Memo (PS)", node.Ps);
+
             if (EditorGUI.EndChangeCheck()) isDirty = true;
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space();
