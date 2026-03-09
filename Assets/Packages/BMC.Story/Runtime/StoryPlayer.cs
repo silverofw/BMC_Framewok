@@ -67,6 +67,8 @@ namespace BMC.Story
             {
                 foreach (var item in CrtNode.OnEnterEvents)
                 {
+                    if (item.WaitForTrigger)
+                        continue;
                     handler.Send((int)StoryEventID.NodeEventTrigger, item, CrtNode, _preNode);
                 }
             }
