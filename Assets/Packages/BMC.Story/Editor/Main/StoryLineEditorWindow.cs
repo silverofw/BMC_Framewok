@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using UnityEditor.SceneManagement; // 新增：用來監聽 Prefab Stage 事件
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,8 +53,114 @@ namespace BMC.Story.Editor
         public static void ShowWindow(StoryLinePanel target)
         {
             var window = GetWindow<StoryLineEditorWindow>("Story Editor");
-            window._targetPanel = target;
+            if (target != null) window._targetPanel = target;
             window.Show();
+        }
+
+        [MenuItem("BMC/Story/Open Story Editor", priority = 0)]
+        public static void OpenStoryEditor()
+        {
+            var window = GetWindow<StoryLineEditorWindow>("Story Editor");
+            window.Show();
+            window.TryAutoBindAndOpenPrefab();
+        }
+
+        // --- 100% 精準尋找面板的核心邏輯 ---
+        private StoryLinePanel FindPanel()
+        {
+            // 1. 優先從當前開啟的 Prefab Stage 尋找 (最準確)
+            var stage = PrefabStageUtility.GetCurrentPrefabStage();
+            if (stage != null && stage.prefabContentsRoot != null)
+            {
+                var p = stage.prefabContentsRoot.GetComponentInChildren<StoryLinePanel>(true);
+                if (p != null) return p;
+            }
+
+            // 2. 如果沒有在 Prefab Mode，則在當前場景中尋找
+            var panels = UnityEngine.Object.FindObjectsByType<StoryLinePanel>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var p in panels)
+            {
+                // 排除掉 Project 視窗中的 Prefab 檔案實體，確保只抓場景或實例化的物件
+                if (!EditorUtility.IsPersistent(p.gameObject))
+                {
+                    return p;
+                }
+            }
+            return null;
+        }
+
+        // --- 更好的做法：事件驅動與精準綁定 ---
+        private void TryAutoBindAndOpenPrefab()
+        {
+            // 1. 先嘗試在當前場景或已開啟的 Prefab 模式中尋找
+            _targetPanel = FindPanel();
+            if (_targetPanel != null)
+            {
+                Repaint();
+                return;
+            }
+
+            // 2. 找不到的話，尋找 Prefab 檔案
+            string[] guids = AssetDatabase.FindAssets("t:Prefab StoryLinePanel");
+            string targetPath = null;
+
+            if (guids.Length > 0)
+            {
+                targetPath = AssetDatabase.GUIDToAssetPath(guids[0]);
+            }
+            else
+            {
+                // 擴大搜索範圍
+                guids = AssetDatabase.FindAssets("t:Prefab");
+                foreach (var guid in guids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    GameObject prefabObj = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    if (prefabObj != null && prefabObj.GetComponentInChildren<StoryLinePanel>(true) != null)
+                    {
+                        targetPath = path;
+                        break;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(targetPath))
+            {
+                GameObject targetPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(targetPath);
+                if (targetPrefab != null)
+                {
+                    // 註冊原生事件：當 Prefab Stage 真正準備好時通知我們 (避免重複註冊)
+                    PrefabStage.prefabStageOpened -= OnPrefabStageOpened;
+                    PrefabStage.prefabStageOpened += OnPrefabStageOpened;
+
+                    // 呼叫開啟 Prefab
+                    AssetDatabase.OpenAsset(targetPrefab);
+
+                    // 雙重保險：有時候 Prefab 已經在背景開啟，不會觸發 opened 事件
+                    EditorApplication.delayCall += () =>
+                    {
+                        if (_targetPanel == null)
+                        {
+                            _targetPanel = FindPanel();
+                            Repaint();
+                        }
+                    };
+                    return;
+                }
+            }
+
+            Debug.LogWarning("[Story Editor] 找不到包含 StoryLinePanel 的 Prefab。");
+        }
+
+        // 當 Unity 完成 Prefab Mode 的讀取與畫面生成後，會自動觸發這裡
+        private void OnPrefabStageOpened(PrefabStage stage)
+        {
+            // 註銷事件，避免記憶體洩漏
+            PrefabStage.prefabStageOpened -= OnPrefabStageOpened;
+
+            // 此時尋找絕對安全，且 100% 存在於剛開啟的 Prefab 中
+            _targetPanel = FindPanel();
+            Repaint();
         }
 
         private void OnEnable()
@@ -61,6 +168,12 @@ namespace BMC.Story.Editor
             _chapterId = StoryEditorContext.CurrentChapterId;
             SceneView.duringSceneGui += OnSceneGUI;
             InitializeDrawers();
+
+            // 啟動時僅執行「一次」綁定檢查，避免 OnGUI 效能浪費
+            if (_targetPanel == null)
+            {
+                _targetPanel = FindPanel();
+            }
         }
 
         private void OnDisable() => SceneView.duringSceneGui -= OnSceneGUI;
@@ -73,6 +186,8 @@ namespace BMC.Story.Editor
                 _targetPanel.ClearOldLayout();
                 EditorUtility.SetDirty(_targetPanel.gameObject);
             }
+            // 防呆解除註冊
+            PrefabStage.prefabStageOpened -= OnPrefabStageOpened;
         }
 
         private void InitializeDrawers()
@@ -109,7 +224,6 @@ namespace BMC.Story.Editor
                 if (!nodeMap.ContainsKey(node.Id)) continue;
                 Vector3 startPos = nodeMap[node.Id].position;
 
-                // 改為呼叫 StoryLinePanel 的 public static 方法
                 var targets = StoryLinePanel.GetTargetNodeIds(node).ToList();
                 bool isSelected = (node.Id == _selectedNodeId);
 
@@ -143,14 +257,20 @@ namespace BMC.Story.Editor
 
         private void OnGUI()
         {
-            EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("Story System Editor", EditorStyles.boldLabel);
             EditorGUILayout.Space(5);
 
-            DrawTargetPanelBinding();
-            if (_targetPanel == null) return;
+            // 如果找不到 Panel，只顯示尋找按鈕並擋住後續渲染
+            if (_targetPanel == null)
+            {
+                EditorGUILayout.HelpBox("無法自動找到 StoryLinePanel。\n請點擊下方按鈕自動尋找並開啟 Prefab。", MessageType.Warning);
+                if (GUILayout.Button("Auto Find & Open Prefab", GUILayout.Height(25)))
+                {
+                    TryAutoBindAndOpenPrefab();
+                }
+                return;
+            }
 
-            DrawHorizontalLine();
+            // 成功綁定後，直接繪製主要內容，不再顯示 Prefab 參照欄位
             DrawChapterSettings();
             DrawFileOperations();
             EditorGUILayout.Space();
@@ -160,22 +280,15 @@ namespace BMC.Story.Editor
             else ShowWaitingInterface();
         }
 
-        private void DrawTargetPanelBinding()
-        {
-            EditorGUI.BeginChangeCheck();
-            _targetPanel = (StoryLinePanel)EditorGUILayout.ObjectField("UI Panel (Scene)", _targetPanel, typeof(StoryLinePanel), true);
-            if (EditorGUI.EndChangeCheck()) { }
-            if (_targetPanel == null) EditorGUILayout.HelpBox("請先將場景中的 StoryLinePanel 拖曳至此。", MessageType.Warning);
-        }
-
         private void DrawChapterSettings()
         {
             EditorGUILayout.BeginVertical("box");
-            EditorGUILayout.LabelField("Chapter Config", Styles.HeaderLabel);
+
             EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Chapter ID", EditorStyles.boldLabel, GUILayout.Width(75));
 
             EditorGUI.BeginChangeCheck();
-            _chapterId = EditorGUILayout.IntField("Chapter ID", _chapterId);
+            _chapterId = EditorGUILayout.IntField(_chapterId, GUILayout.Width(50));
             if (_chapterId < 1) _chapterId = 1;
 
             if (EditorGUI.EndChangeCheck())
@@ -186,22 +299,45 @@ namespace BMC.Story.Editor
                 SceneView.RepaintAll();
             }
 
+            GUILayout.Space(10);
+
+            UnityEngine.Object assetObj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(StoryEditorContext.CurrentFilePath);
             GUI.enabled = false;
-            EditorGUILayout.TextField(StoryEditorContext.CurrentFilePath);
+            EditorGUILayout.ObjectField(assetObj, typeof(UnityEngine.Object), false);
             GUI.enabled = true;
+
             EditorGUILayout.EndHorizontal();
 
             if (CurrentPackage != null && CurrentPackage.InitialVariables != null)
             {
-                EditorGUILayout.Space(3);
-                EditorGUILayout.LabelField($"Initial Variables ({CurrentPackage.InitialVariables.Count})", EditorStyles.miniBoldLabel);
-
+                EditorGUILayout.Space(2);
                 bool varsChanged = false;
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label($"Initial Variables ({CurrentPackage.InitialVariables.Count})", EditorStyles.miniBoldLabel, GUILayout.Width(130));
+                GUILayout.FlexibleSpace();
+                _newVarName = EditorGUILayout.TextField(_newVarName, GUILayout.Width(120));
+
+                GUI.backgroundColor = Styles.SuccessColor;
+                if (GUILayout.Button("Add Var", GUILayout.Width(65)))
+                {
+                    if (!string.IsNullOrEmpty(_newVarName) && !CurrentPackage.InitialVariables.ContainsKey(_newVarName))
+                    {
+                        CurrentPackage.InitialVariables.Add(_newVarName, 0);
+                        _newVarName = "";
+                        varsChanged = true;
+                        GUI.FocusControl(null);
+                    }
+                }
+                GUI.backgroundColor = Color.white;
+                EditorGUILayout.EndHorizontal();
+
                 var keys = CurrentPackage.InitialVariables.Keys.ToList();
 
                 foreach (var key in keys)
                 {
                     EditorGUILayout.BeginHorizontal();
+                    GUILayout.Space(10);
                     GUILayout.Label(key, GUILayout.Width(110));
 
                     EditorGUI.BeginChangeCheck();
@@ -221,22 +357,6 @@ namespace BMC.Story.Editor
                     GUI.backgroundColor = Color.white;
                     EditorGUILayout.EndHorizontal();
                 }
-
-                EditorGUILayout.BeginHorizontal();
-                _newVarName = EditorGUILayout.TextField(_newVarName);
-                GUI.backgroundColor = Styles.SuccessColor;
-                if (GUILayout.Button("Add Var", GUILayout.Width(70)))
-                {
-                    if (!string.IsNullOrEmpty(_newVarName) && !CurrentPackage.InitialVariables.ContainsKey(_newVarName))
-                    {
-                        CurrentPackage.InitialVariables.Add(_newVarName, 0);
-                        _newVarName = "";
-                        varsChanged = true;
-                        GUI.FocusControl(null);
-                    }
-                }
-                GUI.backgroundColor = Color.white;
-                EditorGUILayout.EndHorizontal();
 
                 if (varsChanged) SaveToDiskAndRefresh();
             }
@@ -292,7 +412,6 @@ namespace BMC.Story.Editor
                 return;
             }
 
-            // 初始化可拖拉列表：開啟 draggable，關閉預設的 Header / Add / Remove 按鈕
             _nodeReorderableList = new ReorderableList(CurrentPackage.Nodes, typeof(StoryNode), true, false, false, false);
 
             _nodeReorderableList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
@@ -305,7 +424,6 @@ namespace BMC.Story.Editor
 
                 string displayName = string.IsNullOrEmpty(node.Id) ? "[Empty ID]" : node.Id;
 
-                // Unity 預設在選取時會給藍底，所以字體顏色根據 isActive 切換以保持對比度
                 GUIStyle labelStyle = isActive ? EditorStyles.whiteLabel : EditorStyles.label;
                 GUI.Label(rect, displayName, labelStyle);
             };
@@ -358,7 +476,6 @@ namespace BMC.Story.Editor
 
             if (isSearching)
             {
-                // 搜尋狀態下，退回簡單的顯示清單 (不允許排序)
                 for (int i = 0; i < CurrentPackage.Nodes.Count; i++)
                 {
                     var node = CurrentPackage.Nodes[i];
@@ -381,7 +498,6 @@ namespace BMC.Story.Editor
             }
             else
             {
-                // 非搜尋狀態下，使用 Unity 內建的拖曳列表
                 if (_nodeReorderableList == null && CurrentPackage != null)
                 {
                     InitReorderableList();
@@ -389,7 +505,6 @@ namespace BMC.Story.Editor
 
                 if (_nodeReorderableList != null)
                 {
-                    // 同步外部選取狀態到拖拉列表中
                     int targetIdx = -1;
                     for (int i = 0; i < CurrentPackage.Nodes.Count; i++)
                     {
@@ -441,7 +556,6 @@ namespace BMC.Story.Editor
             HashSet<string> reachable = new HashSet<string>();
             Queue<string> queue = new Queue<string>();
 
-            // 預設從 Start 開始掃描
             var startNode = CurrentPackage.Nodes.FirstOrDefault(n => n.Id == "Start") ?? CurrentPackage.Nodes[0];
             queue.Enqueue(startNode.Id);
             reachable.Add(startNode.Id);
@@ -452,7 +566,6 @@ namespace BMC.Story.Editor
                 var node = CurrentPackage.Nodes.FirstOrDefault(n => n.Id == currId);
                 if (node == null) continue;
 
-                // 改為呼叫 StoryLinePanel 的 public static 方法
                 foreach (var targetId in StoryLinePanel.GetTargetNodeIds(node))
                 {
                     if (!string.IsNullOrEmpty(targetId) && !reachable.Contains(targetId))
@@ -504,7 +617,6 @@ namespace BMC.Story.Editor
             node.Title = EditorGUILayout.TextField("Title", node.Title);
             node.PreviewImagePath = EditorGUILayout.TextField("Preview Image", node.PreviewImagePath);
 
-            // 將 Memo (PS) 改為單行，並與標題同行
             node.Ps = EditorGUILayout.TextField("Memo (PS)", node.Ps);
 
             if (EditorGUI.EndChangeCheck()) isDirty = true;
@@ -533,7 +645,41 @@ namespace BMC.Story.Editor
         public bool DrawEventList(string headerTitle, IList<StoryEvent> events, StoryNode node)
         {
             bool isDirty = false;
-            EditorGUILayout.LabelField(headerTitle, EditorStyles.boldLabel);
+
+            EditorGUILayout.BeginHorizontal();
+            if (!string.IsNullOrEmpty(headerTitle))
+            {
+                GUILayout.Label(headerTitle, EditorStyles.boldLabel);
+            }
+            GUILayout.FlexibleSpace();
+
+            var groupedDrawers = _sortedDrawers.GroupBy(d => d.MenuPath.Contains('/') ? d.MenuPath.Split('/')[0] : "Other");
+
+            foreach (var group in groupedDrawers)
+            {
+                if (EditorGUILayout.DropdownButton(new GUIContent($"+ {group.Key}"), FocusType.Keyboard, GUILayout.Width(75), GUILayout.Height(20)))
+                {
+                    GenericMenu menu = new GenericMenu();
+                    foreach (var drawer in group)
+                    {
+                        var currentDrawer = drawer;
+
+                        string displayPath = currentDrawer.MenuPath.Contains('/')
+                            ? currentDrawer.MenuPath.Substring(currentDrawer.MenuPath.IndexOf('/') + 1)
+                            : currentDrawer.MenuPath;
+
+                        menu.AddItem(new GUIContent(displayPath), false, () => {
+                            events.Add(currentDrawer.CreateNewEvent());
+                            SaveToDiskAndRefresh();
+                            Repaint();
+                        });
+                    }
+                    menu.ShowAsContext();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(2);
 
             for (int i = 0; i < events.Count; i++)
             {
@@ -575,7 +721,6 @@ namespace BMC.Story.Editor
 
                 EditorGUI.BeginChangeCheck();
 
-                // --- 新增：將 Wait For Trigger 核取方塊加入 UI ---
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("Pre-Delay", GUILayout.Width(65));
                 evt.DelaySeconds = EditorGUILayout.DelayedFloatField(evt.DelaySeconds, GUILayout.Width(60));
@@ -597,27 +742,6 @@ namespace BMC.Story.Editor
                 EditorGUILayout.EndVertical();
                 EditorGUILayout.Space(2);
             }
-
-            EditorGUILayout.Space();
-
-            // 使用 GenericMenu (下拉式選單) 添加新事件
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            if (EditorGUILayout.DropdownButton(new GUIContent("+ Add Event"), FocusType.Keyboard, GUILayout.Width(150), GUILayout.Height(25)))
-            {
-                GenericMenu menu = new GenericMenu();
-                foreach (var drawer in _sortedDrawers)
-                {
-                    var currentDrawer = drawer; // 避免 Closure 問題
-                    menu.AddItem(new GUIContent(currentDrawer.MenuPath), false, () => {
-                        events.Add(currentDrawer.CreateNewEvent());
-                        SaveToDiskAndRefresh();
-                        Repaint(); // 強制刷新編輯器畫面
-                    });
-                }
-                menu.ShowAsContext();
-            }
-            EditorGUILayout.EndHorizontal();
 
             return isDirty;
         }

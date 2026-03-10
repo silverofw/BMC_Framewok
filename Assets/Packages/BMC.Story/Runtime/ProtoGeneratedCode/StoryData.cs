@@ -79,52 +79,53 @@ namespace BMC.Story {
             "LkJNQy5TdG9yeS5TdG9yeUV2ZW50GkAKEFZhcmlhYmxlSnVtcFJ1bGUSEwoL",
             "dmFyaWFibGVfaWQYASABKAkSFwoPdGFyZ2V0X2ZyYW1lX2lkGAIgASgJIjMK",
             "CkNob2ljZVR5cGUSDgoKSlVNUF9GUkFNRRAAEhUKEU1BWF9WQVJJQUJMRV9K",
-            "VU1QEAEimgMKC0RpYWxvZ0ZyYW1lEhQKDGNoYXJhY3Rlcl9pZBgBIAEoBRIL",
+            "VU1QEAEiyAMKC0RpYWxvZ0ZyYW1lEhQKDGNoYXJhY3Rlcl9pZBgBIAEoBRIL",
             "CgNrZXkYAiABKAkSLgoIcG9zaXRpb24YAyABKA4yHC5CTUMuU3RvcnkuQ2hh",
             "cmFjdGVyUG9zaXRpb24SEgoKYXNzZXRfbmFtZRgEIAEoCRIQCghmcmFtZV9p",
             "ZBgFIAEoCRI0CgpmcmFtZV90eXBlGAYgASgOMiAuQk1DLlN0b3J5LkRpYWxv",
             "Z0ZyYW1lLkZyYW1lVHlwZRIoCgdjaG9pY2VzGAcgAygLMhcuQk1DLlN0b3J5",
-            "LkRpYWxvZ0Nob2ljZRIWCg50YXJnZXRfbm9kZV9pZBgIIAEoCRI2Cgt2aXN1",
-            "YWxfdHlwZRgKIAEoDjIhLkJNQy5TdG9yeS5EaWFsb2dGcmFtZS5WaXN1YWxU",
-            "eXBlIj0KCUZyYW1lVHlwZRIKCgZOT1JNQUwQABIQCgxXSVRIX0NIT0lDRVMQ",
-            "ARISCg5XSVRIX0pVTVBfTk9ERRACIiMKClZpc3VhbFR5cGUSCgoGU1BSSVRF",
-            "EAASCQoFVklERU8QASJXChNQbGF5QXZnRGlhbG9nQWN0aW9uEhgKEGJhY2tn",
-            "cm91bmRfaW1hZ2UYASABKAkSJgoGZnJhbWVzGAIgAygLMhYuQk1DLlN0b3J5",
-            "LkRpYWxvZ0ZyYW1lIpYGCgpTdG9yeUV2ZW50EhUKDWRlbGF5X3NlY29uZHMY",
-            "ASABKAISGAoQd2FpdF9mb3JfdHJpZ2dlchgCIAEoCBIwCgpwbGF5X3ZpZGVv",
-            "GAogASgLMhouQk1DLlN0b3J5LlBsYXlWaWRlb0FjdGlvbkgAEjsKC3VwZGF0",
-            "ZV9zdGF0GAsgASgLMiQuQk1DLlN0b3J5LlVwZGF0ZUNoYXJhY3RlclN0YXRB",
-            "Y3Rpb25IABI0CgxzZXRfdmFyaWFibGUYDCABKAsyHC5CTUMuU3RvcnkuU2V0",
-            "VmFyaWFibGVBY3Rpb25IABI4CghwbGF5X2JnbRgNIAEoCzIkLkJNQy5TdG9y",
-            "eS5QbGF5QmFja2dyb3VuZE11c2ljQWN0aW9uSAASNAoIcGxheV9zZngYDiAB",
-            "KAsyIC5CTUMuU3RvcnkuUGxheVNvdW5kRWZmZWN0QWN0aW9uSAASMAoKcGxh",
-            "eV92b2ljZRgPIAEoCzIaLkJNQy5TdG9yeS5QbGF5Vm9pY2VBY3Rpb25IABIy",
-            "CglnYW1lX2RpY2UYECABKAsyHS5CTUMuU3RvcnkuR2FtZURpY2VSb2xsQWN0",
-            "aW9uSAASRQoVZ2FtZV9ydXNzaWFuX3JvdWxldHRlGBEgASgLMiQuQk1DLlN0",
-            "b3J5LkdhbWVSdXNzaWFuUm91bGV0dGVBY3Rpb25IABIsCghnYW1lX3F0ZRgS",
-            "IAEoCzIYLkJNQy5TdG9yeS5HYW1lUVRFQWN0aW9uSAASMgoLZ2FtZV9wdXp6",
-            "bGUYFSABKAsyGy5CTUMuU3RvcnkuR2FtZVB1enpsZUFjdGlvbkgAEjQKDHNo",
-            "b3dfY2hvaWNlcxgTIAEoCzIcLkJNQy5TdG9yeS5TaG93Q2hvaWNlc0FjdGlv",
-            "bkgAEjkKD3BsYXlfYXZnX2RpYWxvZxgUIAEoCzIeLkJNQy5TdG9yeS5QbGF5",
-            "QXZnRGlhbG9nQWN0aW9uSAASOAoOZGlzcGF0Y2hfZXZlbnQYFiABKAsyHi5C",
-            "TUMuU3RvcnkuRGlzcGF0Y2hFdmVudEFjdGlvbkgAQggKBmFjdGlvbiLWAQoG",
-            "Q2hvaWNlEgwKBHRleHQYASABKAkSFgoOdGFyZ2V0X25vZGVfaWQYAiABKAkS",
-            "LwoQb25fc2VsZWN0X2V2ZW50cxgDIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2",
-            "ZW50EjAKEnZpc2libGVfY29uZGl0aW9ucxgFIAMoCzIULkJNQy5TdG9yeS5D",
-            "b25kaXRpb24SLQoPbG9ja19jb25kaXRpb25zGAYgAygLMhQuQk1DLlN0b3J5",
-            "LkNvbmRpdGlvbhIUCgxsb2NrX21lc3NhZ2UYByABKAki4QEKCVN0b3J5Tm9k",
-            "ZRIKCgJpZBgBIAEoCRINCgV0aXRsZRgCIAEoCRIuCg9vbl9lbnRlcl9ldmVu",
-            "dHMYBCADKAsyFS5CTUMuU3RvcnkuU3RvcnlFdmVudBItCg5vbl9leGl0X2V2",
-            "ZW50cxgFIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50EhkKEWF1dG9fanVt",
-            "cF9ub2RlX2lkGAcgASgJEhcKD2F1dG9fanVtcF9kZWxheRgIIAEoAhIaChJw",
-            "cmV2aWV3X2ltYWdlX3BhdGgYCSABKAkSCgoCcHMYCiABKAkiygEKDFN0b3J5",
-            "UGFja2FnZRISCgpjaGFwdGVyX2lkGAEgASgJEiMKBW5vZGVzGAIgAygLMhQu",
-            "Qk1DLlN0b3J5LlN0b3J5Tm9kZRJIChFpbml0aWFsX3ZhcmlhYmxlcxgDIAMo",
-            "CzItLkJNQy5TdG9yeS5TdG9yeVBhY2thZ2UuSW5pdGlhbFZhcmlhYmxlc0Vu",
-            "dHJ5GjcKFUluaXRpYWxWYXJpYWJsZXNFbnRyeRILCgNrZXkYASABKAkSDQoF",
-            "dmFsdWUYAiABKAU6AjgBKi8KCFN0YXRUeXBlEggKBE5PTkUQABIHCgNTVFIQ",
-            "ARIHCgNBR0kQAhIHCgNJTlQQAyo0ChFDaGFyYWN0ZXJQb3NpdGlvbhIICgRM",
-            "RUZUEAASCgoGQ0VOVEVSEAESCQoFUklHSFQQAmIGcHJvdG8z"));
+            "LkRpYWxvZ0Nob2ljZRIWCg50YXJnZXRfbm9kZV9pZBgIIAEoCRIsCg1vbl9l",
+            "bmRfZXZlbnRzGAkgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSNgoLdmlz",
+            "dWFsX3R5cGUYCiABKA4yIS5CTUMuU3RvcnkuRGlhbG9nRnJhbWUuVmlzdWFs",
+            "VHlwZSI9CglGcmFtZVR5cGUSCgoGTk9STUFMEAASEAoMV0lUSF9DSE9JQ0VT",
+            "EAESEgoOV0lUSF9KVU1QX05PREUQAiIjCgpWaXN1YWxUeXBlEgoKBlNQUklU",
+            "RRAAEgkKBVZJREVPEAEiVwoTUGxheUF2Z0RpYWxvZ0FjdGlvbhIYChBiYWNr",
+            "Z3JvdW5kX2ltYWdlGAEgASgJEiYKBmZyYW1lcxgCIAMoCzIWLkJNQy5TdG9y",
+            "eS5EaWFsb2dGcmFtZSKWBgoKU3RvcnlFdmVudBIVCg1kZWxheV9zZWNvbmRz",
+            "GAEgASgCEhgKEHdhaXRfZm9yX3RyaWdnZXIYAiABKAgSMAoKcGxheV92aWRl",
+            "bxgKIAEoCzIaLkJNQy5TdG9yeS5QbGF5VmlkZW9BY3Rpb25IABI7Cgt1cGRh",
+            "dGVfc3RhdBgLIAEoCzIkLkJNQy5TdG9yeS5VcGRhdGVDaGFyYWN0ZXJTdGF0",
+            "QWN0aW9uSAASNAoMc2V0X3ZhcmlhYmxlGAwgASgLMhwuQk1DLlN0b3J5LlNl",
+            "dFZhcmlhYmxlQWN0aW9uSAASOAoIcGxheV9iZ20YDSABKAsyJC5CTUMuU3Rv",
+            "cnkuUGxheUJhY2tncm91bmRNdXNpY0FjdGlvbkgAEjQKCHBsYXlfc2Z4GA4g",
+            "ASgLMiAuQk1DLlN0b3J5LlBsYXlTb3VuZEVmZmVjdEFjdGlvbkgAEjAKCnBs",
+            "YXlfdm9pY2UYDyABKAsyGi5CTUMuU3RvcnkuUGxheVZvaWNlQWN0aW9uSAAS",
+            "MgoJZ2FtZV9kaWNlGBAgASgLMh0uQk1DLlN0b3J5LkdhbWVEaWNlUm9sbEFj",
+            "dGlvbkgAEkUKFWdhbWVfcnVzc2lhbl9yb3VsZXR0ZRgRIAEoCzIkLkJNQy5T",
+            "dG9yeS5HYW1lUnVzc2lhblJvdWxldHRlQWN0aW9uSAASLAoIZ2FtZV9xdGUY",
+            "EiABKAsyGC5CTUMuU3RvcnkuR2FtZVFURUFjdGlvbkgAEjIKC2dhbWVfcHV6",
+            "emxlGBUgASgLMhsuQk1DLlN0b3J5LkdhbWVQdXp6bGVBY3Rpb25IABI0Cgxz",
+            "aG93X2Nob2ljZXMYEyABKAsyHC5CTUMuU3RvcnkuU2hvd0Nob2ljZXNBY3Rp",
+            "b25IABI5Cg9wbGF5X2F2Z19kaWFsb2cYFCABKAsyHi5CTUMuU3RvcnkuUGxh",
+            "eUF2Z0RpYWxvZ0FjdGlvbkgAEjgKDmRpc3BhdGNoX2V2ZW50GBYgASgLMh4u",
+            "Qk1DLlN0b3J5LkRpc3BhdGNoRXZlbnRBY3Rpb25IAEIICgZhY3Rpb24i1gEK",
+            "BkNob2ljZRIMCgR0ZXh0GAEgASgJEhYKDnRhcmdldF9ub2RlX2lkGAIgASgJ",
+            "Ei8KEG9uX3NlbGVjdF9ldmVudHMYAyADKAsyFS5CTUMuU3RvcnkuU3RvcnlF",
+            "dmVudBIwChJ2aXNpYmxlX2NvbmRpdGlvbnMYBSADKAsyFC5CTUMuU3Rvcnku",
+            "Q29uZGl0aW9uEi0KD2xvY2tfY29uZGl0aW9ucxgGIAMoCzIULkJNQy5TdG9y",
+            "eS5Db25kaXRpb24SFAoMbG9ja19tZXNzYWdlGAcgASgJIuEBCglTdG9yeU5v",
+            "ZGUSCgoCaWQYASABKAkSDQoFdGl0bGUYAiABKAkSLgoPb25fZW50ZXJfZXZl",
+            "bnRzGAQgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSLQoOb25fZXhpdF9l",
+            "dmVudHMYBSADKAsyFS5CTUMuU3RvcnkuU3RvcnlFdmVudBIZChFhdXRvX2p1",
+            "bXBfbm9kZV9pZBgHIAEoCRIXCg9hdXRvX2p1bXBfZGVsYXkYCCABKAISGgoS",
+            "cHJldmlld19pbWFnZV9wYXRoGAkgASgJEgoKAnBzGAogASgJIsoBCgxTdG9y",
+            "eVBhY2thZ2USEgoKY2hhcHRlcl9pZBgBIAEoCRIjCgVub2RlcxgCIAMoCzIU",
+            "LkJNQy5TdG9yeS5TdG9yeU5vZGUSSAoRaW5pdGlhbF92YXJpYWJsZXMYAyAD",
+            "KAsyLS5CTUMuU3RvcnkuU3RvcnlQYWNrYWdlLkluaXRpYWxWYXJpYWJsZXNF",
+            "bnRyeRo3ChVJbml0aWFsVmFyaWFibGVzRW50cnkSCwoDa2V5GAEgASgJEg0K",
+            "BXZhbHVlGAIgASgFOgI4ASovCghTdGF0VHlwZRIICgROT05FEAASBwoDU1RS",
+            "EAESBwoDQUdJEAISBwoDSU5UEAMqNAoRQ2hhcmFjdGVyUG9zaXRpb24SCAoE",
+            "TEVGVBAAEgoKBkNFTlRFUhABEgkKBVJJR0hUEAJiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::BMC.Story.StatType), typeof(global::BMC.Story.CharacterPosition), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -142,7 +143,7 @@ namespace BMC.Story {
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.ShowChoicesAction), global::BMC.Story.ShowChoicesAction.Parser, new[]{ "Choices", "AppendMode" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DispatchEventAction), global::BMC.Story.DispatchEventAction.Parser, new[]{ "EventType", "EventParam" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice), global::BMC.Story.DialogChoice.Parser, new[]{ "Text", "Type", "TargetFrameId", "VariableRules", "OnSelectEvents" }, null, new[]{ typeof(global::BMC.Story.DialogChoice.Types.ChoiceType) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice.Types.VariableJumpRule), global::BMC.Story.DialogChoice.Types.VariableJumpRule.Parser, new[]{ "VariableId", "TargetFrameId" }, null, null, null, null)}),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame), global::BMC.Story.DialogFrame.Parser, new[]{ "CharacterId", "Key", "Position", "AssetName", "FrameId", "FrameType", "Choices", "TargetNodeId", "VisualType" }, null, new[]{ typeof(global::BMC.Story.DialogFrame.Types.FrameType), typeof(global::BMC.Story.DialogFrame.Types.VisualType) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame), global::BMC.Story.DialogFrame.Parser, new[]{ "CharacterId", "Key", "Position", "AssetName", "FrameId", "FrameType", "Choices", "TargetNodeId", "OnEndEvents", "VisualType" }, null, new[]{ typeof(global::BMC.Story.DialogFrame.Types.FrameType), typeof(global::BMC.Story.DialogFrame.Types.VisualType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayAvgDialogAction), global::BMC.Story.PlayAvgDialogAction.Parser, new[]{ "BackgroundImage", "Frames" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "WaitForTrigger", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "GamePuzzle", "ShowChoices", "PlayAvgDialog", "DispatchEvent" }, new[]{ "Action" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.Choice), global::BMC.Story.Choice.Parser, new[]{ "Text", "TargetNodeId", "OnSelectEvents", "VisibleConditions", "LockConditions", "LockMessage" }, null, null, null, null),
@@ -4178,9 +4179,6 @@ namespace BMC.Story {
 
   }
 
-  /// <summary>
-  /// [新增] 自定義發送事件 (從 DialogChoice 獨立出來，變為通用事件)
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class DispatchEventAction : pb::IMessage<DispatchEventAction>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -4492,9 +4490,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "target_frame_id" field.</summary>
     public const int TargetFrameIdFieldNumber = 3;
     private string targetFrameId_ = "";
-    /// <summary>
-    /// [JUMP_FRAME 共用] 跳轉目標 Frame ID
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string TargetFrameId {
@@ -4509,9 +4504,6 @@ namespace BMC.Story {
     private static readonly pb::FieldCodec<global::BMC.Story.DialogChoice.Types.VariableJumpRule> _repeated_variableRules_codec
         = pb::FieldCodec.ForMessage(50, global::BMC.Story.DialogChoice.Types.VariableJumpRule.Parser);
     private readonly pbc::RepeatedField<global::BMC.Story.DialogChoice.Types.VariableJumpRule> variableRules_ = new pbc::RepeatedField<global::BMC.Story.DialogChoice.Types.VariableJumpRule>();
-    /// <summary>
-    /// 保留原本編號避免反序列化錯誤
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<global::BMC.Story.DialogChoice.Types.VariableJumpRule> VariableRules {
@@ -4523,9 +4515,6 @@ namespace BMC.Story {
     private static readonly pb::FieldCodec<global::BMC.Story.StoryEvent> _repeated_onSelectEvents_codec
         = pb::FieldCodec.ForMessage(58, global::BMC.Story.StoryEvent.Parser);
     private readonly pbc::RepeatedField<global::BMC.Story.StoryEvent> onSelectEvents_ = new pbc::RepeatedField<global::BMC.Story.StoryEvent>();
-    /// <summary>
-    /// [通用] 點擊該選項後觸發的事件列表 (可在此加入 DispatchEventAction 等)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<global::BMC.Story.StoryEvent> OnSelectEvents {
@@ -4753,19 +4742,10 @@ namespace BMC.Story {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static partial class Types {
       public enum ChoiceType {
-        /// <summary>
-        /// 1. 純跳轉對話單句
-        /// </summary>
         [pbr::OriginalName("JUMP_FRAME")] JumpFrame = 0,
-        /// <summary>
-        /// 2. 通用變數判定 (多變數最高分者跳轉)
-        /// </summary>
         [pbr::OriginalName("MAX_VARIABLE_JUMP")] MaxVariableJump = 1,
       }
 
-      /// <summary>
-      /// [MAX_VARIABLE_JUMP 專用] 判定規則結構
-      /// </summary>
       [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
       public sealed partial class VariableJumpRule : pb::IMessage<VariableJumpRule>
       #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -5049,6 +5029,7 @@ namespace BMC.Story {
       frameType_ = other.frameType_;
       choices_ = other.choices_.Clone();
       targetNodeId_ = other.targetNodeId_;
+      onEndEvents_ = other.onEndEvents_.Clone();
       visualType_ = other.visualType_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -5098,9 +5079,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "asset_name" field.</summary>
     public const int AssetNameFieldNumber = 4;
     private string assetName_ = "";
-    /// <summary>
-    /// 將原本的 character_sprite_name 改為通用的 asset_name
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string AssetName {
@@ -5157,6 +5135,20 @@ namespace BMC.Story {
       }
     }
 
+    /// <summary>Field number for the "on_end_events" field.</summary>
+    public const int OnEndEventsFieldNumber = 9;
+    private static readonly pb::FieldCodec<global::BMC.Story.StoryEvent> _repeated_onEndEvents_codec
+        = pb::FieldCodec.ForMessage(74, global::BMC.Story.StoryEvent.Parser);
+    private readonly pbc::RepeatedField<global::BMC.Story.StoryEvent> onEndEvents_ = new pbc::RepeatedField<global::BMC.Story.StoryEvent>();
+    /// <summary>
+    /// [新增] 本句對話結束時觸發的事件列表
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::BMC.Story.StoryEvent> OnEndEvents {
+      get { return onEndEvents_; }
+    }
+
     /// <summary>Field number for the "visual_type" field.</summary>
     public const int VisualTypeFieldNumber = 10;
     private global::BMC.Story.DialogFrame.Types.VisualType visualType_ = global::BMC.Story.DialogFrame.Types.VisualType.Sprite;
@@ -5192,6 +5184,7 @@ namespace BMC.Story {
       if (FrameType != other.FrameType) return false;
       if(!choices_.Equals(other.choices_)) return false;
       if (TargetNodeId != other.TargetNodeId) return false;
+      if(!onEndEvents_.Equals(other.onEndEvents_)) return false;
       if (VisualType != other.VisualType) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -5208,6 +5201,7 @@ namespace BMC.Story {
       if (FrameType != global::BMC.Story.DialogFrame.Types.FrameType.Normal) hash ^= FrameType.GetHashCode();
       hash ^= choices_.GetHashCode();
       if (TargetNodeId.Length != 0) hash ^= TargetNodeId.GetHashCode();
+      hash ^= onEndEvents_.GetHashCode();
       if (VisualType != global::BMC.Story.DialogFrame.Types.VisualType.Sprite) hash ^= VisualType.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -5256,6 +5250,7 @@ namespace BMC.Story {
         output.WriteRawTag(66);
         output.WriteString(TargetNodeId);
       }
+      onEndEvents_.WriteTo(output, _repeated_onEndEvents_codec);
       if (VisualType != global::BMC.Story.DialogFrame.Types.VisualType.Sprite) {
         output.WriteRawTag(80);
         output.WriteEnum((int) VisualType);
@@ -5299,6 +5294,7 @@ namespace BMC.Story {
         output.WriteRawTag(66);
         output.WriteString(TargetNodeId);
       }
+      onEndEvents_.WriteTo(ref output, _repeated_onEndEvents_codec);
       if (VisualType != global::BMC.Story.DialogFrame.Types.VisualType.Sprite) {
         output.WriteRawTag(80);
         output.WriteEnum((int) VisualType);
@@ -5335,6 +5331,7 @@ namespace BMC.Story {
       if (TargetNodeId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(TargetNodeId);
       }
+      size += onEndEvents_.CalculateSize(_repeated_onEndEvents_codec);
       if (VisualType != global::BMC.Story.DialogFrame.Types.VisualType.Sprite) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) VisualType);
       }
@@ -5372,6 +5369,7 @@ namespace BMC.Story {
       if (other.TargetNodeId.Length != 0) {
         TargetNodeId = other.TargetNodeId;
       }
+      onEndEvents_.Add(other.onEndEvents_);
       if (other.VisualType != global::BMC.Story.DialogFrame.Types.VisualType.Sprite) {
         VisualType = other.VisualType;
       }
@@ -5424,6 +5422,10 @@ namespace BMC.Story {
           }
           case 66: {
             TargetNodeId = input.ReadString();
+            break;
+          }
+          case 74: {
+            onEndEvents_.AddEntriesFrom(input, _repeated_onEndEvents_codec);
             break;
           }
           case 80: {
@@ -5481,6 +5483,10 @@ namespace BMC.Story {
             TargetNodeId = input.ReadString();
             break;
           }
+          case 74: {
+            onEndEvents_.AddEntriesFrom(ref input, _repeated_onEndEvents_codec);
+            break;
+          }
           case 80: {
             VisualType = (global::BMC.Story.DialogFrame.Types.VisualType) input.ReadEnum();
             break;
@@ -5501,17 +5507,8 @@ namespace BMC.Story {
         [pbr::OriginalName("WITH_JUMP_NODE")] WithJumpNode = 2,
       }
 
-      /// <summary>
-      /// 新增視覺型態的 Enum (取代原本的 bool play_video)
-      /// </summary>
       public enum VisualType {
-        /// <summary>
-        /// 一般立繪
-        /// </summary>
         [pbr::OriginalName("SPRITE")] Sprite = 0,
-        /// <summary>
-        /// 影片
-        /// </summary>
         [pbr::OriginalName("VIDEO")] Video = 1,
       }
 
@@ -5847,9 +5844,6 @@ namespace BMC.Story {
     /// <summary>Field number for the "wait_for_trigger" field.</summary>
     public const int WaitForTriggerFieldNumber = 2;
     private bool waitForTrigger_;
-    /// <summary>
-    /// [新增] 是否等待手動觸發 (若為 true，則進入節點時不會自動執行，專門保留給特定系統如解謎去讀取資料用)
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public bool WaitForTrigger {
@@ -5933,9 +5927,6 @@ namespace BMC.Story {
 
     /// <summary>Field number for the "game_dice" field.</summary>
     public const int GameDiceFieldNumber = 16;
-    /// <summary>
-    /// 小遊戲區
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.GameDiceRollAction GameDice {
@@ -5984,9 +5975,6 @@ namespace BMC.Story {
 
     /// <summary>Field number for the "show_choices" field.</summary>
     public const int ShowChoicesFieldNumber = 19;
-    /// <summary>
-    /// 選項事件
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.ShowChoicesAction ShowChoices {
@@ -5999,9 +5987,6 @@ namespace BMC.Story {
 
     /// <summary>Field number for the "play_avg_dialog" field.</summary>
     public const int PlayAvgDialogFieldNumber = 20;
-    /// <summary>
-    /// AVG 對話事件
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.PlayAvgDialogAction PlayAvgDialog {
@@ -6014,9 +5999,6 @@ namespace BMC.Story {
 
     /// <summary>Field number for the "dispatch_event" field.</summary>
     public const int DispatchEventFieldNumber = 22;
-    /// <summary>
-    /// 系統/腳本控制事件
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BMC.Story.DispatchEventAction DispatchEvent {

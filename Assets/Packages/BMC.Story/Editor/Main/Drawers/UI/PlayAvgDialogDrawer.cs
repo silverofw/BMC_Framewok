@@ -79,17 +79,14 @@ namespace BMC.Story.Editor
                 bool isExpanded = IsFrameExpanded(i);
                 GUIStyle foldoutStyle = new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold };
 
-                // 修正：改用 EditorGUI.Foldout 搭配 GetControlRect 來精準限制寬度為 85，解決沒有多載的問題
                 Rect foldoutRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight, GUILayout.Width(85));
                 isExpanded = EditorGUI.Foldout(foldoutRect, isExpanded, $"Frame #{i + 1}", true, foldoutStyle);
 
                 // --- 新增：將 Frame ID 直接整併在標題行 ---
                 GUILayout.Space(2);
-                // 修正：移除 miniBoldLabel 改為一般大小的 boldLabel，解決字體過小與偏低的問題
                 GUILayout.Label("ID:", EditorStyles.boldLabel, GUILayout.Width(20));
 
                 EditorGUI.BeginChangeCheck();
-                // 這裡將寬度從 75 拉大到 150，方便填寫更長的中文 ID
                 frame.FrameId = EditorGUILayout.TextField(frame.FrameId, GUILayout.Width(150));
                 if (EditorGUI.EndChangeCheck()) changed = true;
 
@@ -147,7 +144,7 @@ namespace BMC.Story.Editor
                     GUILayout.Space(15); // 左側縮進 15 pixel
                     EditorGUILayout.BeginVertical();
 
-                    // 第一行：基本身分與表現類型 (移除了 Frame ID)
+                    // 第一行：基本身分與表現類型
                     EditorGUILayout.BeginHorizontal();
                     GUILayout.Label("Visual", GUILayout.Width(40));
                     frame.VisualType = (DialogFrame.Types.VisualType)EditorGUILayout.EnumPopup(frame.VisualType, GUILayout.Width(75));
@@ -308,6 +305,18 @@ namespace BMC.Story.Editor
                     }
 
                     if (EditorGUI.EndChangeCheck()) changed = true;
+
+                    // --- 新增：On End Events (本句結束時觸發的事件) ---
+                    EditorGUILayout.Space(5);
+                    GUI.backgroundColor = new Color(1f, 0.98f, 0.85f); // 淡黃色背景作為區分
+                    EditorGUILayout.BeginVertical("helpbox");
+                    GUI.backgroundColor = Color.white; // 恢復預設
+
+                    if (window.DrawEventList("On End Events (本句結束時觸發)", frame.OnEndEvents, node))
+                    {
+                        changed = true;
+                    }
+                    EditorGUILayout.EndVertical();
 
                     // --- 結束內部縮排 ---
                     EditorGUILayout.EndVertical();
