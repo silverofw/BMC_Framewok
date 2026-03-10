@@ -614,10 +614,17 @@ namespace BMC.Story.Editor
             EditorGUILayout.BeginVertical("helpbox");
             EditorGUILayout.LabelField("Node Properties", EditorStyles.boldLabel);
             EditorGUI.BeginChangeCheck();
-            node.Title = EditorGUILayout.TextField("Title", node.Title);
-            node.PreviewImagePath = EditorGUILayout.TextField("Preview Image", node.PreviewImagePath);
 
-            node.Ps = EditorGUILayout.TextField("Memo (PS)", node.Ps);
+            // Title 與 Preview Image 維持單行防呆
+            node.Title = EditorGUILayout.TextField("Title", node.Title)?.Replace("\n", "").Replace("\r", "");
+            node.PreviewImagePath = EditorGUILayout.TextField("Preview Image", node.PreviewImagePath)?.Replace("\n", "").Replace("\r", "");
+
+            // Memo 改為支援多行自動長高
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Memo (PS)", GUILayout.Width(EditorGUIUtility.labelWidth - 5));
+            GUIStyle multiLineStyle = new GUIStyle(EditorStyles.textArea) { wordWrap = true };
+            node.Ps = EditorGUILayout.TextArea(node.Ps, multiLineStyle);
+            EditorGUILayout.EndHorizontal();
 
             if (EditorGUI.EndChangeCheck()) isDirty = true;
             EditorGUILayout.EndVertical();

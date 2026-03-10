@@ -14,6 +14,9 @@ namespace BMC.Story.Editor
         // 用來記錄每個 Frame 的摺疊狀態 (改為依據陣列的 index)
         private Dictionary<int, bool> _frameFoldStates = new Dictionary<int, bool>();
 
+        // 記錄 On End Events 的摺疊狀態
+        private Dictionary<int, bool> _onEndFoldStates = new Dictionary<int, bool>();
+
         private bool IsFrameExpanded(int index)
         {
             if (!_frameFoldStates.TryGetValue(index, out bool expanded))
@@ -27,6 +30,21 @@ namespace BMC.Story.Editor
         private void SetFrameExpanded(int index, bool expanded)
         {
             _frameFoldStates[index] = expanded;
+        }
+
+        private bool IsOnEndExpanded(int index)
+        {
+            if (!_onEndFoldStates.TryGetValue(index, out bool expanded))
+            {
+                expanded = false; // 預設為收合，縮減為一行
+                _onEndFoldStates[index] = expanded;
+            }
+            return expanded;
+        }
+
+        private void SetOnEndExpanded(int index, bool expanded)
+        {
+            _onEndFoldStates[index] = expanded;
         }
 
         public override bool Draw(StoryNode node, StoryEvent evt, StoryLineEditorWindow window)
@@ -171,8 +189,12 @@ namespace BMC.Story.Editor
                     }
                     EditorGUILayout.EndHorizontal();
 
-                    // 第三行：文本 Key
-                    frame.Key = EditorGUILayout.TextField("Dialog Text Key", frame.Key);
+                    // 第三行：文本 Key (改為 TextArea 支援多行並自動長高)
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label("Dialog Text", GUILayout.Width(75));
+                    GUIStyle multiLineStyle = new GUIStyle(EditorStyles.textArea) { wordWrap = true };
+                    frame.Key = EditorGUILayout.TextArea(frame.Key, multiLineStyle);
+                    EditorGUILayout.EndHorizontal();
 
                     // 2. 文本類型與選項設定
                     EditorGUILayout.Space(3);
@@ -194,7 +216,8 @@ namespace BMC.Story.Editor
                             GUI.backgroundColor = Color.white; // 恢復預設
 
                             EditorGUILayout.BeginHorizontal();
-                            choice.Text = EditorGUILayout.TextField("Text", choice.Text);
+                            GUILayout.Label("Text", GUILayout.Width(35));
+                            choice.Text = EditorGUILayout.TextArea(choice.Text, multiLineStyle);
 
                             GUI.backgroundColor = StoryLineEditorWindow.Styles.ErrorColor;
                             if (GUILayout.Button("X", EditorStyles.miniButton, GUILayout.Width(20)))
@@ -306,15 +329,24 @@ namespace BMC.Story.Editor
 
                     if (EditorGUI.EndChangeCheck()) changed = true;
 
-                    // --- 新增：On End Events (本句結束時觸發的事件) ---
+                    // --- 新增：On End Events (本句結束時觸發的事件) 改為可摺疊，預設收合為一行 ---
                     EditorGUILayout.Space(5);
                     GUI.backgroundColor = new Color(1f, 0.98f, 0.85f); // 淡黃色背景作為區分
                     EditorGUILayout.BeginVertical("helpbox");
                     GUI.backgroundColor = Color.white; // 恢復預設
 
-                    if (window.DrawEventList("On End Events (本句結束時觸發)", frame.OnEndEvents, node))
+                    bool onEndExpanded = IsOnEndExpanded(i);
+                    Rect onEndFoldRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
+                    onEndExpanded = EditorGUI.Foldout(onEndFoldRect, onEndExpanded, $"On End Events (本句結束時) - 共 {frame.OnEndEvents.Count} 個事件", true, new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold });
+                    SetOnEndExpanded(i, onEndExpanded);
+
+                    // 只有展開時才呼叫 DrawEventList 繪製事件內容
+                    if (onEndExpanded)
                     {
-                        changed = true;
+                        if (window.DrawEventList("", frame.OnEndEvents, node))
+                        {
+                            changed = true;
+                        }
                     }
                     EditorGUILayout.EndVertical();
 
