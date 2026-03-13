@@ -1,12 +1,10 @@
 {
-    "name": "CodePatch",
+    "name": "BMC.AI",
     "rootNamespace": "",
     "references": [
-        "GUID:1ec077b48f799e649ae87a2b5ad81fff",
-        "GUID:0a8e6c95d4fc8764dba7a7db27942422",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
         "GUID:5452e202bca8e8f4689134e636fb9ee6",
-        "GUID:5d98e7b8b89abf74d8ce0e4e591eaab3",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+        "GUID:1ec077b48f799e649ae87a2b5ad81fff"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
