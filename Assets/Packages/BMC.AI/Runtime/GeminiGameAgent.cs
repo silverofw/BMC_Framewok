@@ -147,13 +147,13 @@ namespace BMC.AI
             try
             {
                 var errorRes = JsonConvert.DeserializeObject<ErrorResponseWrapper>(errorJson, JsonSettings);
-                if (errorRes?.Error?.Details != null)
+                if (errorRes?.error?.details != null)
                 {
-                    foreach (var detail in errorRes.Error.Details)
+                    foreach (var detail in errorRes.error.details)
                     {
-                        if (detail.Type == "type.googleapis.com/google.rpc.RetryInfo" && !string.IsNullOrEmpty(detail.RetryDelay))
+                        if (detail.type == "type.googleapis.com/google.rpc.RetryInfo" && !string.IsNullOrEmpty(detail.retryDelay))
                         {
-                            string delayStr = detail.RetryDelay.TrimEnd('s');
+                            string delayStr = detail.retryDelay.TrimEnd('s');
                             if (float.TryParse(delayStr, out float seconds)) return seconds;
                         }
                     }
@@ -164,31 +164,47 @@ namespace BMC.AI
         }
     }
 
+    #region Chat Session Architecture
+
     /// <summary>
-    /// GeminiChatSession: 可實例化的對話 Session
+    /// 抽象化的對話 Session 基底，負責封裝共同狀態與解析流程
     /// </summary>
     [Serializable]
-    public class GeminiChatSession
+    public abstract class BaseChatSession
     {
         public GeminiGameAgent.GeminiModelType ModelType = GeminiGameAgent.GeminiModelType.Flash_2_5;
         public int MaxOutputTokens = 2048;
         [Range(0f, 2f)] public float Temperature = 1.0f;
 
+        [Header("圖片設定")]
+        [Tooltip("控制傳送至 API 的最大圖片長寬 (像素)。等比例縮小可大幅節省 Token 消耗 (預設: 1024)")]
+        public int MaxImageDimension = 1024;
+
+        [Range(1, 100)]
+        [Tooltip("控制傳送至 API 的 JPG 圖片壓縮品質 (1-100)，數值越小檔案越小，有助於節省上傳頻寬")]
+        public int ImageQuality = 75;
+
         [Header("自動摘要設定")]
         public bool AutoSummarizeEnabled = true;
         public int AutoSummarizeThreshold = 5000;
 
+        [TextArea(2, 3)]
+        public string SummarizeSystemInstruction = "You are a professional summarization assistant.";
+
+        [TextArea(3, 5)]
+        public string SummarizePromptTemplate = "Based on the 'Current Summary' and the 'Recent Conversation History', create a concise 'New Summary' in Traditional Chinese.\nContent to summarize:\n{0}";
+
         [Header("內部狀態 (唯讀)")]
-        [SerializeField] private string _summary = "目前尚無摘要內容。";
-        [SerializeField] private List<Content> _rawHistory = new List<Content>();
-        [SerializeField] private List<GeminiHistoryTurn> _structuredHistory = new List<GeminiHistoryTurn>();
-        [SerializeField] private GeminiResponseData _lastResponse;
+        [SerializeField] protected string _summary = "目前尚無摘要內容。";
+        [SerializeField] protected List<Content> _rawHistory = new List<Content>();
+        [SerializeField] protected List<GeminiHistoryTurn> _structuredHistory = new List<GeminiHistoryTurn>();
+        [SerializeField] protected GeminiResponseData _lastResponse;
 
         public IReadOnlyList<GeminiHistoryTurn> History => _structuredHistory;
         public string CurrentSummary => _summary;
         public GeminiResponseData LastResponse => _lastResponse;
 
-        public GeminiChatSession(GeminiGameAgent.GeminiModelType model = GeminiGameAgent.GeminiModelType.Flash_2_5)
+        public BaseChatSession(GeminiGameAgent.GeminiModelType model)
         {
             ModelType = model;
         }
@@ -196,80 +212,33 @@ namespace BMC.AI
         public void ClearHistory() { _rawHistory.Clear(); _structuredHistory.Clear(); }
         public void ResetAll() { ClearHistory(); _summary = "目前尚無摘要內容。"; }
 
-        public async UniTask<GeminiResponseData> ChatAsync(string userPrompt, string systemInstruction = null, bool useHistory = true, CancellationToken ct = default)
+        // 新增 imageBytes 參數以支援圖片辨識
+        public abstract UniTask<GeminiResponseData> ChatAsync(string userPrompt, string systemInstruction = null, bool useHistory = true, byte[] imageBytes = null, CancellationToken ct = default);
+        public abstract UniTask SummarizeAsync(CancellationToken ct = default);
+
+        protected async UniTask<GeminiResponseData> SendAndProcessAsync(GeminiRequest payload, string userPrompt, bool useHistory, CancellationToken ct)
         {
             string modelId = GeminiGameAgent.GetModelId(ModelType);
-            bool isGemma = GeminiGameAgent.IsGemmaModel(ModelType);
-
-            // 處理 Gemma 的指令注入 (Gemma 不支援獨立 system_instruction)
-            string combinedSummary = $"[Context Summary (Canvas)]\n{_summary}";
-            string finalInstructionText = string.IsNullOrEmpty(systemInstruction) ? combinedSummary : $"{systemInstruction}\n\n{combinedSummary}";
-
-            List<Content> contents = new List<Content>();
-            SystemInstruction payloadSystemInstruction = null;
-
-            if (isGemma)
-            {
-                // Gemma 模式：將指令與 User Prompt 合併為第一條訊息
-                string gemmaInjectedPrompt = $"[SYSTEM INSTRUCTION]\n{finalInstructionText}\n\n[USER INPUT]\n{userPrompt}";
-
-                if (useHistory)
-                {
-                    if (_rawHistory.Count == 0)
-                        _rawHistory.Add(new Content { Role = "user", Parts = new List<Part> { new Part { Text = gemmaInjectedPrompt } } });
-                    else
-                        _rawHistory.Add(new Content { Role = "user", Parts = new List<Part> { new Part { Text = userPrompt } } });
-
-                    contents = new List<Content>(_rawHistory);
-                }
-                else
-                {
-                    contents.Add(new Content { Role = "user", Parts = new List<Part> { new Part { Text = gemmaInjectedPrompt } } });
-                }
-            }
-            else
-            {
-                // Gemini 模式：使用標準 system_instruction 欄位
-                payloadSystemInstruction = new SystemInstruction { Parts = new List<Part> { new Part { Text = finalInstructionText } } };
-
-                if (useHistory)
-                {
-                    _rawHistory.Add(new Content { Role = "user", Parts = new List<Part> { new Part { Text = userPrompt } } });
-                    contents = new List<Content>(_rawHistory);
-                }
-                else
-                {
-                    contents.Add(new Content { Role = "user", Parts = new List<Part> { new Part { Text = userPrompt } } });
-                }
-            }
-
-            var payload = new GeminiRequest
-            {
-                Contents = contents,
-                SystemInstruction = payloadSystemInstruction,
-                GenerationConfig = new GenerationConfig { MaxOutputTokens = MaxOutputTokens, Temperature = Temperature }
-            };
-
             var (res, time, err) = await GeminiGameAgent.PostRequestAsync(modelId, payload, ct);
 
             if (res != null)
             {
                 var data = new GeminiResponseData
                 {
-                    Text = res.Candidates[0].Content?.Parts?[0].Text,
+                    Text = res.candidates[0].content?.parts?[0].text,
                     ResponseTime = time,
-                    TotalTokens = res.UsageMetadata?.TotalTokenCount ?? 0,
-                    PromptTokens = res.UsageMetadata?.PromptTokenCount ?? 0,
-                    ResponseTokens = res.UsageMetadata?.CandidatesTokenCount ?? 0,
-                    CachedTokens = res.UsageMetadata?.CachedContentTokenCount ?? 0,
-                    FinishReason = res.Candidates[0].FinishReason
+                    TotalTokens = res.usageMetadata?.totalTokenCount ?? 0,
+                    PromptTokens = res.usageMetadata?.promptTokenCount ?? 0,
+                    ResponseTokens = res.usageMetadata?.candidatesTokenCount ?? 0,
+                    CachedTokens = res.usageMetadata?.cachedContentTokenCount ?? 0,
+                    FinishReason = res.candidates[0].finishReason
                 };
 
                 _lastResponse = data;
 
                 if (useHistory && data.IsSuccess)
                 {
-                    _rawHistory.Add(new Content { Role = "model", Parts = new List<Part> { new Part { Text = data.Text } } });
+                    _rawHistory.Add(new Content { role = "model", parts = new List<Part> { new Part { text = data.Text } } });
                     _structuredHistory.Add(new GeminiHistoryTurn { UserPrompt = userPrompt, Response = data });
 
                     if (AutoSummarizeEnabled && data.TotalTokens >= AutoSummarizeThreshold)
@@ -282,103 +251,253 @@ namespace BMC.AI
             throw new Exception(err);
         }
 
-        public async UniTask SummarizeAsync(CancellationToken ct = default)
+        protected string BuildSummarizePrompt()
         {
-            if (_rawHistory.Count == 0) return;
-
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Current Summary: {_summary}");
             sb.AppendLine("Recent Conversation History to Compress:");
-            foreach (var h in _rawHistory) sb.AppendLine($"{h.Role}: {h.Parts[0].Text}");
+            foreach (var h in _rawHistory) sb.AppendLine($"{h.role}: {h.parts[0].text}");
 
-            string prompt = "Based on the 'Current Summary' and the 'Recent Conversation History', create a concise 'New Summary' in Traditional Chinese.\n" +
-                           $"Content to summarize:\n{sb.ToString()}";
+            return string.Format(SummarizePromptTemplate, sb.ToString());
+        }
 
-            // 摘要請求通常是單次請求，Gemma 一樣需要將指令合併
-            bool isGemma = GeminiGameAgent.IsGemmaModel(ModelType);
-            GeminiRequest payload;
-
-            if (isGemma)
-            {
-                payload = new GeminiRequest
-                {
-                    Contents = new List<Content> { new Content { Role = "user", Parts = new List<Part> { new Part { Text = $"[INSTRUCTION: Summarize the following]\n{prompt}" } } } },
-                    SystemInstruction = null, // Gemma 不支援
-                    GenerationConfig = new GenerationConfig { MaxOutputTokens = 1024, Temperature = 0.5f }
-                };
-            }
-            else
-            {
-                payload = new GeminiRequest
-                {
-                    Contents = new List<Content> { new Content { Role = "user", Parts = new List<Part> { new Part { Text = prompt } } } },
-                    SystemInstruction = new SystemInstruction { Parts = new List<Part> { new Part { Text = "You are a professional summarization assistant." } } },
-                    GenerationConfig = new GenerationConfig { MaxOutputTokens = 1024, Temperature = 0.5f }
-                };
-            }
-
+        protected async UniTask SendSummarizeRequestAsync(GeminiRequest payload, CancellationToken ct)
+        {
             var (res, _, _) = await GeminiGameAgent.PostRequestAsync(GeminiGameAgent.GetModelId(ModelType), payload, ct);
-            if (res?.Candidates != null && res.Candidates.Count > 0)
+            if (res?.candidates != null && res.candidates.Count > 0)
             {
-                _summary = res.Candidates[0].Content?.Parts?[0].Text;
-                _rawHistory.Clear();
+                _summary = res.candidates[0].content?.parts?[0].text;
+                _rawHistory.Clear(); // 摘要後清空原始對話以釋放 Token
             }
         }
     }
 
+    /// <summary>
+    /// 標準的 Gemini 對話 Session，原生支援 system_instruction
+    /// </summary>
+    [Serializable]
+    public class GeminiChatSession : BaseChatSession
+    {
+        public GeminiChatSession(GeminiGameAgent.GeminiModelType model = GeminiGameAgent.GeminiModelType.Flash_2_5) : base(model) { }
+
+        public override async UniTask<GeminiResponseData> ChatAsync(string userPrompt, string systemInstruction = null, bool useHistory = true, byte[] imageBytes = null, CancellationToken ct = default)
+        {
+            string combinedSummary = $"[Context Summary (Canvas)]\n{_summary}";
+            string finalInstructionText = string.IsNullOrEmpty(systemInstruction) ? combinedSummary : $"{systemInstruction}\n\n{combinedSummary}";
+
+            var payloadSystemInstruction = new SystemInstruction { parts = new List<Part> { new Part { text = finalInstructionText } } };
+
+            // 處理 User Parts（包含可能的圖片與文字）
+            var userParts = new List<Part>();
+            if (imageBytes != null && imageBytes.Length > 0)
+            {
+                userParts.Add(new Part
+                {
+                    inlineData = new InlineData
+                    {
+                        mimeType = "image/jpeg",
+                        data = Convert.ToBase64String(imageBytes)
+                    }
+                });
+            }
+            userParts.Add(new Part { text = userPrompt });
+
+            var contents = new List<Content>();
+            if (useHistory)
+            {
+                _rawHistory.Add(new Content { role = "user", parts = userParts });
+                contents = new List<Content>(_rawHistory);
+            }
+            else
+            {
+                contents.Add(new Content { role = "user", parts = userParts });
+            }
+
+            var payload = new GeminiRequest
+            {
+                contents = contents,
+                systemInstruction = payloadSystemInstruction,
+                generationConfig = new GenerationConfig { maxOutputTokens = MaxOutputTokens, temperature = Temperature }
+            };
+
+            return await SendAndProcessAsync(payload, userPrompt, useHistory, ct);
+        }
+
+        public override async UniTask SummarizeAsync(CancellationToken ct = default)
+        {
+            if (_rawHistory.Count == 0) return;
+
+            string prompt = BuildSummarizePrompt();
+
+            var payload = new GeminiRequest
+            {
+                contents = new List<Content> { new Content { role = "user", parts = new List<Part> { new Part { text = prompt } } } },
+                systemInstruction = new SystemInstruction { parts = new List<Part> { new Part { text = SummarizeSystemInstruction } } },
+                generationConfig = new GenerationConfig { maxOutputTokens = 1024, temperature = 0.5f }
+            };
+
+            await SendSummarizeRequestAsync(payload, ct);
+        }
+    }
+
+    /// <summary>
+    /// Gemma 專用的對話 Session，將指令以文字形式注入 User Prompt
+    /// </summary>
+    [Serializable]
+    public class GemmaChatSession : BaseChatSession
+    {
+        public GemmaChatSession(GeminiGameAgent.GeminiModelType model = GeminiGameAgent.GeminiModelType.Gemma_3_27B) : base(model) { }
+
+        public override async UniTask<GeminiResponseData> ChatAsync(string userPrompt, string systemInstruction = null, bool useHistory = true, byte[] imageBytes = null, CancellationToken ct = default)
+        {
+            string combinedSummary = $"[Context Summary (Canvas)]\n{_summary}";
+            string finalInstructionText = string.IsNullOrEmpty(systemInstruction) ? combinedSummary : $"{systemInstruction}\n\n{combinedSummary}";
+
+            string gemmaInjectedPrompt = $"[SYSTEM INSTRUCTION]\n{finalInstructionText}\n\n[USER INPUT]\n{userPrompt}";
+
+            // 處理 User Parts（包含可能的圖片與文字）
+            var userParts = new List<Part>();
+            if (imageBytes != null && imageBytes.Length > 0)
+            {
+                userParts.Add(new Part
+                {
+                    inlineData = new InlineData
+                    {
+                        mimeType = "image/jpeg",
+                        data = Convert.ToBase64String(imageBytes)
+                    }
+                });
+            }
+
+            var contents = new List<Content>();
+            if (useHistory)
+            {
+                if (_rawHistory.Count == 0)
+                {
+                    userParts.Add(new Part { text = gemmaInjectedPrompt });
+                }
+                else
+                {
+                    userParts.Add(new Part { text = userPrompt });
+                }
+
+                _rawHistory.Add(new Content { role = "user", parts = userParts });
+                contents = new List<Content>(_rawHistory);
+            }
+            else
+            {
+                userParts.Add(new Part { text = gemmaInjectedPrompt });
+                contents.Add(new Content { role = "user", parts = userParts });
+            }
+
+            var payload = new GeminiRequest
+            {
+                contents = contents,
+                systemInstruction = null, // Gemma 不支援此欄位
+                generationConfig = new GenerationConfig { maxOutputTokens = MaxOutputTokens, temperature = Temperature }
+            };
+
+            return await SendAndProcessAsync(payload, userPrompt, useHistory, ct);
+        }
+
+        public override async UniTask SummarizeAsync(CancellationToken ct = default)
+        {
+            if (_rawHistory.Count == 0) return;
+
+            string prompt = BuildSummarizePrompt();
+
+            string gemmaSummarizePrompt = $"[SYSTEM INSTRUCTION]\n{SummarizeSystemInstruction}\n\n[USER INPUT]\n{prompt}";
+
+            var payload = new GeminiRequest
+            {
+                contents = new List<Content> { new Content { role = "user", parts = new List<Part> { new Part { text = gemmaSummarizePrompt } } } },
+                systemInstruction = null,
+                generationConfig = new GenerationConfig { maxOutputTokens = 1024, temperature = 0.5f }
+            };
+
+            await SendSummarizeRequestAsync(payload, ct);
+        }
+    }
+
+    #endregion
+
     #region Data Structures
     [Serializable]
-    public class ErrorResponseWrapper { [JsonProperty("error")] public ErrorDetailData Error; }
+    public class ErrorResponseWrapper { public ErrorDetailData error; }
     [Serializable]
-    public class ErrorDetailData { [JsonProperty("code")] public int Code; [JsonProperty("details")] public List<ErrorDetailItem> Details; }
+    public class ErrorDetailData { public int code; public List<ErrorDetailItem> details; }
     [Serializable]
-    public class ErrorDetailItem { [JsonProperty("@type")] public string Type; [JsonProperty("retryDelay")] public string RetryDelay; }
+    public class ErrorDetailItem { [JsonProperty("@type")] public string type; public string retryDelay; }
 
     [Serializable]
     public class GeminiRequest
     {
-        [JsonProperty("contents")] public List<Content> Contents;
-        [JsonProperty("system_instruction")] public SystemInstruction SystemInstruction;
-        [JsonProperty("generationConfig")] public GenerationConfig GenerationConfig;
+        public List<Content> contents;
+        [JsonProperty("system_instruction")] public SystemInstruction systemInstruction;
+        public GenerationConfig generationConfig;
     }
 
     [Serializable]
     public class GenerationConfig
     {
-        [JsonProperty("maxOutputTokens")] public int MaxOutputTokens;
-        [JsonProperty("temperature")] public float Temperature;
+        public int maxOutputTokens;
+        public float temperature;
     }
 
     [Serializable]
-    public class SystemInstruction { [JsonProperty("parts")] public List<Part> Parts; }
+    public class SystemInstruction { public List<Part> parts; }
 
     [Serializable]
     public class Content
     {
-        [JsonProperty("parts")] public List<Part> Parts;
-        [JsonProperty("role")] public string Role;
+        public List<Part> parts;
+        public string role;
     }
 
     [Serializable]
-    public class Part { [JsonProperty("text")] public string Text; }
+    public class Part
+    {
+        public string text;
+        public InlineData inlineData; // 新增支援圖片資料
+
+        // 阻擋 Unity Inspector 自動將 null 轉為空字串造成的 400 錯誤
+        public bool ShouldSerializetext()
+        {
+            return !string.IsNullOrEmpty(text);
+        }
+
+        // 阻擋 Unity Inspector 自動 new 空物件造成的 400 錯誤
+        public bool ShouldSerializeinlineData()
+        {
+            return inlineData != null && !string.IsNullOrEmpty(inlineData.data);
+        }
+    }
+
+    // 定義 InlineData 資料結構
+    [Serializable]
+    public class InlineData
+    {
+        public string mimeType;
+        public string data;
+    }
 
     [Serializable]
-    public class GeminiResponse { [JsonProperty("candidates")] public List<Candidate> Candidates; [JsonProperty("usageMetadata")] public UsageMetadata UsageMetadata; }
+    public class GeminiResponse { public List<Candidate> candidates; public UsageMetadata usageMetadata; }
 
     [Serializable]
     public class UsageMetadata
     {
-        [JsonProperty("totalTokenCount")] public int TotalTokenCount;
-        [JsonProperty("promptTokenCount")] public int PromptTokenCount;
-        [JsonProperty("candidatesTokenCount")] public int CandidatesTokenCount;
-        [JsonProperty("cachedContentTokenCount")] public int CachedContentTokenCount;
+        public int totalTokenCount;
+        public int promptTokenCount;
+        public int candidatesTokenCount;
+        public int cachedContentTokenCount;
     }
 
     [Serializable]
     public class Candidate
     {
-        [JsonProperty("content")] public Content Content;
-        [JsonProperty("finishReason")] public string FinishReason;
+        public Content content;
+        public string finishReason;
     }
     #endregion
 }
