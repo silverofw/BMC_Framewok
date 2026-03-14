@@ -49,10 +49,12 @@ public class AgentPanel : UIPanel
     {
         string finalKey = apiKey;
         string localPath = Path.Combine(Application.streamingAssetsPath, "apiKey.txt");
+
         if (string.IsNullOrEmpty(finalKey) && File.Exists(localPath))
         {
             finalKey = File.ReadAllText(localPath).Trim();
         }
+
         GeminiGameAgent.Initialize(finalKey);
         EnsureSessionTypeMatch();
     }
@@ -61,8 +63,10 @@ public class AgentPanel : UIPanel
     {
         cts = new CancellationTokenSource();
         sendBtn.OnClick = () => SendMessageAsync().Forget();
+
         if (infoItem != null) infoItem.gameObject.SetActive(false);
         if (contextItemPrefab != null) contextItemPrefab.gameObject.SetActive(false);
+
         RefreshContextButtons();
         SyncContextToGlobals();
         EnsureSessionTypeMatch();
@@ -123,6 +127,7 @@ public class AgentPanel : UIPanel
         string actualPrompt = inputField != null ? inputField.text : "";
         if (string.IsNullOrEmpty(actualPrompt)) return;
         inputField.text = "";
+
         CreateChatItem("You", actualPrompt);
 
         chatSession.ModelType = modelType;
@@ -137,9 +142,10 @@ public class AgentPanel : UIPanel
         string baseInstruction = promptInput != null ? promptInput.text : "";
         string finalInstruction = currentConfig.BuildFinalSystemInstruction(baseInstruction);
 
-        Debug.Log($"<color=#FFA500>[Agent] 準備發送請求...</color>\n" +
-                  $"<b>目標模型:</b> {modelType}\n" +
-                  $"<b>系統提示詞:</b>\n{finalInstruction}");
+        // --- [發送 Log] 合併資訊至第一行 ---
+        Debug.Log($"<color=#FFA500>[Agent] 準備發送請求... (模型: {modelType}, 溫度: {temperature}, 歷史: {useHistory})</color>\n" +
+                  $"<b>系統提示詞 (System Prompt):</b>\n{finalInstruction}\n" +
+                  $"<b>用戶輸入 (User Prompt):</b>\n{actualPrompt}");
 
         lastResult = "Thinking...";
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -151,24 +157,24 @@ public class AgentPanel : UIPanel
 
             if (response.IsSuccess)
             {
-                Debug.Log($"<color=#00FF00>[Agent] 收到回覆！</color>\n" +
-                          $"<b>等待時間:</b> {response.ResponseTime:F2}s\n" +
-                          $"<b>Token:</b> {response.TotalTokens}");
+                // --- [收到回覆 Log] 第一行顯示總結，細節放後面 ---
+                Debug.Log($"<color=#00FF00>[Agent] 收到回覆！ (時間: {response.ResponseTime:F2}s, Token: {response.TotalTokens}, 原因: {response.FinishReason})</color>\n" +
+                          $"<b>詳細消耗:</b> 入: {response.PromptTokens} / 出: {response.ResponseTokens} / 快取: {response.CachedTokens}\n" +
+                          $"<b>本地計時:</b> {stopwatch.Elapsed.TotalSeconds:F2}s");
 
                 lastResult = response.Text;
                 CreateChatItem(currentConfig.contextName, response.Text);
             }
             else
             {
-                // 現在 GeminiResponseData 有 Error 欄位了，這裡不會再報錯
                 Debug.LogError($"[Agent] 請求失敗: {response.Error}");
                 lastResult = "Error: " + response.Error;
             }
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[Agent] 發生例外: {ex.Message}");
-            lastResult = "Exception: " + ex.Message;
+            Debug.LogError($"[Agent] 發生例外: {(ex != null ? ex.Message : "Unknown Exception")}");
+            lastResult = "Exception: " + (ex != null ? ex.Message : "Unknown");
         }
     }
 
