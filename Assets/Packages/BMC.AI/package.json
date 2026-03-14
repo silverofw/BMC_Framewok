@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.ai",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "BMC AI",
   "description": "BMC AI系統。",
   "unity": "6000.0",
@@ -25,6 +25,6 @@
   },
   "keywords": [
     "bmc",
-    "ai",
+    "ai"
   ]
 }
