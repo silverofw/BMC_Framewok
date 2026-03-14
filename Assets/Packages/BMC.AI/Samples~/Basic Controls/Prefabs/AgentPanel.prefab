@@ -714,7 +714,7 @@ MonoBehaviour:
   mask: {fileID: 0}
   closeBtn: {fileID: 0}
   uiUtility: {fileID: 0}
-  apiKey: AIzaSyBR4xyLNJCWKa1amjdQ3EsZER3i4lrQ8Sg
+  apiKey: 
   scrollRect: {fileID: 669103122628563587}
   chatContainer: {fileID: 5877230444610085908}
   infoItem: {fileID: 1633687793123968062}

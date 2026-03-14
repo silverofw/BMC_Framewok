@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using UnityEngine;
-using UnityEngine.Networking;
-using Cysharp.Threading.Tasks;
 using Unity.Plastic.Newtonsoft.Json;
 using Unity.Plastic.Newtonsoft.Json.Serialization;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace BMC.AI
 {
@@ -16,14 +16,17 @@ namespace BMC.AI
     [Serializable]
     public class GeminiResponseData
     {
-        public string Text;
+        public string Text = string.Empty; // 預設為空字串避免 null
         public int TotalTokens;
         public int PromptTokens;
         public int ResponseTokens;
         public int CachedTokens;
         public float ResponseTime;
         public string FinishReason;
-        public bool IsSuccess => !string.IsNullOrEmpty(Text);
+        public string Error = string.Empty; // 預設為空字串避免 null
+
+        // 強化判定邏輯，確保 Text 有值且 Error 無值才算成功
+        public bool IsSuccess => !string.IsNullOrEmpty(Text) && string.IsNullOrEmpty(Error);
     }
 
     /// <summary>
@@ -39,6 +42,38 @@ namespace BMC.AI
         public GeminiHistoryTurn()
         {
             Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+    }
+
+    /// <summary>
+    /// PromptExtensionConfig: 封裝 AI 情境設定的資料結構
+    /// </summary>
+    [Serializable]
+    public class PromptExtensionConfig
+    {
+        public string contextName = "New Context";
+        public GeminiGameAgent.GeminiModelType modelType = GeminiGameAgent.GeminiModelType.Gemma_3_12B;
+        public bool useHistory = true;
+        public float temperature = 0.7f;
+
+        [TextArea(3, 10)] public string personaText;
+        [TextArea(3, 10)] public string rulesText;
+        [TextArea(3, 10)] public string cleanTextRuleText;
+        [TextArea(3, 10)] public string outputFormatText;
+        [TextArea(3, 10)] public string examplesText;
+        [TextArea(3, 10)] public string thoughtProcessText;
+
+        public string BuildFinalSystemInstruction(string baseInstruction)
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            if (!string.IsNullOrEmpty(baseInstruction)) sb.AppendLine(baseInstruction);
+            if (!string.IsNullOrEmpty(personaText)) sb.AppendLine($"[PERSONA]\n{personaText}");
+            if (!string.IsNullOrEmpty(rulesText)) sb.AppendLine($"[RULES]\n{rulesText}");
+            if (!string.IsNullOrEmpty(cleanTextRuleText)) sb.AppendLine($"[CLEAN_TEXT_RULE]\n{cleanTextRuleText}");
+            if (!string.IsNullOrEmpty(outputFormatText)) sb.AppendLine($"[OUTPUT_FORMAT]\n{outputFormatText}");
+            if (!string.IsNullOrEmpty(examplesText)) sb.AppendLine($"[EXAMPLES]\n{examplesText}");
+            if (!string.IsNullOrEmpty(thoughtProcessText)) sb.AppendLine($"[THOUGHT_PROCESS]\n{thoughtProcessText}");
+            return sb.ToString();
         }
     }
 
@@ -129,12 +164,18 @@ namespace BMC.AI
                             retryCount++;
                             continue;
                         }
-                        return (null, duration, request.downloadHandler.text);
+
+                        // 安全檢查：確保錯誤文字不為 null
+                        string errorMsg = request.downloadHandler?.text;
+                        if (string.IsNullOrEmpty(errorMsg)) errorMsg = request.error ?? "Unknown Web Error";
+                        return (null, duration, errorMsg);
                     }
                 }
                 catch (Exception ex)
                 {
-                    if (retryCount >= MaxRetries) return (null, 0, ex.Message);
+                    if (retryCount >= MaxRetries)
+                        return (null, 0, ex?.Message ?? "Unknown Exception");
+
                     retryCount++;
                     await UniTask.Delay(TimeSpan.FromSeconds(Mathf.Pow(2, retryCount)), cancellationToken: ct);
                 }
@@ -225,13 +266,14 @@ namespace BMC.AI
             {
                 var data = new GeminiResponseData
                 {
-                    Text = res.candidates[0].content?.parts?[0].text,
+                    Text = res.candidates[0].content?.parts?[0].text ?? string.Empty,
                     ResponseTime = time,
                     TotalTokens = res.usageMetadata?.totalTokenCount ?? 0,
                     PromptTokens = res.usageMetadata?.promptTokenCount ?? 0,
                     ResponseTokens = res.usageMetadata?.candidatesTokenCount ?? 0,
                     CachedTokens = res.usageMetadata?.cachedContentTokenCount ?? 0,
-                    FinishReason = res.candidates[0].finishReason
+                    FinishReason = res.candidates[0].finishReason,
+                    Error = string.Empty
                 };
 
                 _lastResponse = data;
@@ -248,7 +290,12 @@ namespace BMC.AI
                 }
                 return data;
             }
-            throw new Exception(err);
+
+            // 安全修正：確保傳回的 Error 文字不為空，防止後續 UI 判定錯誤
+            string finalError = string.IsNullOrEmpty(err) ? "Unknown AI Error" : err;
+            var errorData = new GeminiResponseData { Error = finalError, ResponseTime = time };
+            _lastResponse = errorData;
+            return errorData;
         }
 
         protected string BuildSummarizePrompt()

@@ -2,6 +2,7 @@ using Unity.Plastic.Newtonsoft.Json;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using BMC.AI;
 
 [CustomEditor(typeof(AgentPanel))]
 public class AgentPanelEditor : Editor

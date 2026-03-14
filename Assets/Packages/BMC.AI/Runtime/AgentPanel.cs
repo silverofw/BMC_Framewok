@@ -2,24 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // 使用 TMPro 命名空間
+using TMPro;
 using BMC.AI;
 using BMC.UI;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using System.IO;
 
 public class AgentPanel : UIPanel
 {
-    [Header("API 設定")]
+    [Header("API 安全設定")]
+    [Tooltip("若此處為空，將從 StreamingAssets/apiKey.txt 讀取")]
     [SerializeField] private string apiKey = "";
 
     [Header("UI 引用 - 聊天內容")]
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Transform chatContainer;
-    [SerializeField] private AgentItem infoItem; // 聊天訊息 Prefab
-    [SerializeField] private TMP_InputField inputField; // 修正：改為使用 TMP_InputField
+    [SerializeField] private AgentItem infoItem;
+    [SerializeField] private TMP_InputField inputField;
     [SerializeField] private UIButton sendBtn;
-    [SerializeField] private TMP_InputField promptInput; // 使用者輸入額外的基礎提示詞
+    [SerializeField] private TMP_InputField promptInput;
 
     [Header("UI 引用 - 情境切換")]
     [SerializeField] private AgentContextItem contextItemPrefab;
@@ -45,76 +47,51 @@ public class AgentPanel : UIPanel
 
     private void Awake()
     {
-        GeminiGameAgent.Initialize(apiKey);
+        string finalKey = apiKey;
+        string localPath = Path.Combine(Application.streamingAssetsPath, "apiKey.txt");
+        if (string.IsNullOrEmpty(finalKey) && File.Exists(localPath))
+        {
+            finalKey = File.ReadAllText(localPath).Trim();
+        }
+        GeminiGameAgent.Initialize(finalKey);
         EnsureSessionTypeMatch();
     }
-
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        // 在編輯器內變動 Index 時即時同步變數
-        SyncContextToGlobals();
-    }
-#endif
 
     private void Start()
     {
         cts = new CancellationTokenSource();
         sendBtn.OnClick = () => SendMessageAsync().Forget();
-
-        // 隱藏原始 Prefab
         if (infoItem != null) infoItem.gameObject.SetActive(false);
         if (contextItemPrefab != null) contextItemPrefab.gameObject.SetActive(false);
-
-        // 初始化情境切換按鈕
         RefreshContextButtons();
-
-        // 同步初始設定
         SyncContextToGlobals();
         EnsureSessionTypeMatch();
     }
 
-    /// <summary>
-    /// 根據當前 contextPresets 陣列重新生成切換按鈕
-    /// </summary>
     public void RefreshContextButtons()
     {
         if (contextContainer == null || contextItemPrefab == null) return;
-
-        // 清空現有按鈕 (排除 Prefab 本身)
         foreach (Transform child in contextContainer)
         {
             if (child.gameObject != contextItemPrefab.gameObject)
                 Destroy(child.gameObject);
         }
-
         if (contextPresets == null) return;
-
         for (int i = 0; i < contextPresets.Length; i++)
         {
-            int index = i; // 閉包需要
+            int index = i;
             var item = Instantiate(contextItemPrefab, contextContainer);
             item.gameObject.SetActive(true);
-
-            // 初始化按鈕文字與點擊事件
-            item.Init(contextPresets[i].contextName, () =>
-            {
-                SwitchContext(index);
-            });
+            item.Init(contextPresets[i].contextName, () => { SwitchContext(index); });
         }
     }
 
-    /// <summary>
-    /// 切換當前啟用的情境
-    /// </summary>
     public void SwitchContext(int index)
     {
         if (index < 0 || index >= contextPresets.Length) return;
-
         activeContextIndex = index;
         SyncContextToGlobals();
         EnsureSessionTypeMatch();
-
         Debug.Log($"<color=cyan>[AgentPanel]</color> 已切換至情境: {contextPresets[index].contextName}");
     }
 
@@ -132,78 +109,75 @@ public class AgentPanel : UIPanel
     private void EnsureSessionTypeMatch()
     {
         bool isGemma = GeminiGameAgent.IsGemmaModel(modelType);
-
         if (chatSession == null ||
            (isGemma && !(chatSession is GemmaChatSession)) ||
            (!isGemma && !(chatSession is GeminiChatSession)))
         {
             if (isGemma) chatSession = new GemmaChatSession(modelType);
             else chatSession = new GeminiChatSession(modelType);
-
-            Debug.Log($"<color=white>[AgentPanel]</color> 已建立新的 {chatSession.GetType().Name} ({modelType})");
         }
     }
 
     private async UniTask SendMessageAsync()
     {
-        // 修正：使用 .text 取得內容
         string actualPrompt = inputField != null ? inputField.text : "";
         if (string.IsNullOrEmpty(actualPrompt)) return;
-
-        // 修正：使用 .text 清空內容
         inputField.text = "";
-
-        // 產生玩家訊息 UI
         CreateChatItem("You", actualPrompt);
 
-        // 同步參數至 Session
         chatSession.ModelType = modelType;
         chatSession.Temperature = temperature;
         chatSession.MaxOutputTokens = maxOutputTokens;
         chatSession.AutoSummarizeThreshold = summarizeThreshold;
 
-        // 取得當前情境配置
         PromptExtensionConfig currentConfig = (contextPresets != null && contextPresets.Length > activeContextIndex)
             ? contextPresets[activeContextIndex]
             : new PromptExtensionConfig();
 
-        // 取得 promptInput 的內容作為基礎指令
         string baseInstruction = promptInput != null ? promptInput.text : "";
-
-        // 組合最終 System Instruction
         string finalInstruction = currentConfig.BuildFinalSystemInstruction(baseInstruction);
 
-        // 發送前打印完整的系統提示詞
-        Debug.Log($"<color=magenta>[System Prompt]</color>\n{finalInstruction}");
+        Debug.Log($"<color=#FFA500>[Agent] 準備發送請求...</color>\n" +
+                  $"<b>目標模型:</b> {modelType}\n" +
+                  $"<b>系統提示詞:</b>\n{finalInstruction}");
 
         lastResult = "Thinking...";
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
         try
         {
             var response = await chatSession.ChatAsync(actualPrompt, finalInstruction, useHistory, null, cts.Token);
+            stopwatch.Stop();
 
             if (response.IsSuccess)
             {
+                Debug.Log($"<color=#00FF00>[Agent] 收到回覆！</color>\n" +
+                          $"<b>等待時間:</b> {response.ResponseTime:F2}s\n" +
+                          $"<b>Token:</b> {response.TotalTokens}");
+
                 lastResult = response.Text;
                 CreateChatItem(currentConfig.contextName, response.Text);
+            }
+            else
+            {
+                // 現在 GeminiResponseData 有 Error 欄位了，這裡不會再報錯
+                Debug.LogError($"[Agent] 請求失敗: {response.Error}");
+                lastResult = "Error: " + response.Error;
             }
         }
         catch (Exception ex)
         {
-            Debug.LogError($"Chat Error: {ex.Message}");
-            lastResult = "Error: " + ex.Message;
+            Debug.LogError($"[Agent] 發生例外: {ex.Message}");
+            lastResult = "Exception: " + ex.Message;
         }
     }
 
     private void CreateChatItem(string sender, string content)
     {
         if (infoItem == null) return;
-
         var obj = Instantiate(infoItem, chatContainer);
         obj.gameObject.SetActive(true);
         obj.Init(sender, content, null);
-
-        // 自動捲動到底部
         Canvas.ForceUpdateCanvases();
         scrollRect.verticalNormalizedPosition = 0f;
     }
@@ -213,35 +187,5 @@ public class AgentPanel : UIPanel
         base.OnDestroy();
         cts?.Cancel();
         cts?.Dispose();
-    }
-}
-
-[Serializable]
-public class PromptExtensionConfig
-{
-    public string contextName = "New Context";
-    public GeminiGameAgent.GeminiModelType modelType = GeminiGameAgent.GeminiModelType.Gemma_3_12B;
-    public bool useHistory = true;
-    public float temperature = 0.7f;
-
-    [TextArea(3, 10)] public string personaText;
-    [TextArea(3, 10)] public string rulesText;
-    [TextArea(3, 10)] public string cleanTextRuleText;
-    [TextArea(3, 10)] public string outputFormatText;
-    [TextArea(3, 10)] public string examplesText;
-    [TextArea(3, 10)] public string thoughtProcessText;
-
-    public string BuildFinalSystemInstruction(string baseInstruction)
-    {
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        if (!string.IsNullOrEmpty(baseInstruction)) sb.AppendLine(baseInstruction);
-
-        if (!string.IsNullOrEmpty(personaText)) sb.AppendLine($"[PERSONA]\n{personaText}");
-        if (!string.IsNullOrEmpty(rulesText)) sb.AppendLine($"[RULES]\n{rulesText}");
-        if (!string.IsNullOrEmpty(cleanTextRuleText)) sb.AppendLine($"[CLEAN_TEXT_RULE]\n{cleanTextRuleText}");
-        if (!string.IsNullOrEmpty(outputFormatText)) sb.AppendLine($"[OUTPUT_FORMAT]\n{outputFormatText}");
-        if (!string.IsNullOrEmpty(examplesText)) sb.AppendLine($"[EXAMPLES]\n{examplesText}");
-        if (!string.IsNullOrEmpty(thoughtProcessText)) sb.AppendLine($"[THOUGHT_PROCESS]\n{thoughtProcessText}");
-        return sb.ToString();
     }
 }
