@@ -11,6 +11,7 @@ public class Entry : MonoBehaviour
         // 初始化 Debug 註冊器，確保在遊戲啟動時就註冊好 Debug 功能
         CommonDebugRegister.Init();
         AIDebugRegister.Init();
+        TestDebugRegister.Init();
 
         UIMgr.Instance.CreateSceneUIRoot("Entry").Forget();
     }

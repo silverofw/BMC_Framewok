@@ -46,6 +46,14 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
+      - CollectPath: Assets/yoo/DefaultPackage/UI
+        CollectorGUID: 3b681d2635558ae458396dd00d248cef
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
     - GroupName: DLL
       GroupDesc: 
       AssetTags: 
