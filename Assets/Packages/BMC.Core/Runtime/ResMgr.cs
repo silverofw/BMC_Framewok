@@ -39,7 +39,7 @@ namespace BMC.Core
         public async UniTask<Sprite[]> LoadSprite(string location, CancellationToken cts = default)
         {
             // 同步預先檢查
-            if (!YooAssets.CheckLocationValid(location))
+            if (!Check(location))
             {
                 Log.Warning($"[YooAsset] 資源路徑不存在 (Location is invalid): {location}");
                 return null;
@@ -52,8 +52,7 @@ namespace BMC.Core
         public async UniTask<TObject> LoadUIAssetAsync<TObject>(string location, bool instantiate = false, Transform parent = null,
             bool worldPositionStays = false, CancellationToken cts = default) where TObject : Object
         {
-            var c = YooAssets.CheckLocationValid(location);
-            if (!c)
+            if (!Check(location))
             {
                 Log.Warning($"[YooAsset] 資源路徑不存在 (Location is invalid): {location}");
                 return null;
@@ -72,8 +71,23 @@ namespace BMC.Core
             }
         }
 
+
+        public bool Check(string location)
+        {
+            return YooAssets.CheckLocationValid(location);
+        }
+        public bool Check(ResourcePackage package, string location)
+        {
+            return package.CheckLocationValid(location);
+        }
+
         public TObject LoadAsset<TObject>(string location) where TObject : Object
         {
+            if (!Check(location))
+            {
+                Log.Warning($"[YooAsset] 資源路徑不存在 (Location is invalid): {location}");
+                return null;
+            }
             //Log.Info(path);
             return YooAssets.LoadAssetSync<TObject>(location).AssetObject as TObject;
         }
@@ -109,7 +123,7 @@ namespace BMC.Core
         public async UniTask<string> LoadRawFilePathAsync(string location, CancellationToken cts = default)
         {
             var package = dic[RawPackage];
-            if (!package.CheckLocationValid(location))
+            if (!Check(package, location))
             {
                 Log.Warning($"[YooAsset] 資源路徑不存在 (Location is invalid): {location}");
                 return "";

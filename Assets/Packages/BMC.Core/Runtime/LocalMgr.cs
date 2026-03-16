@@ -34,9 +34,9 @@ namespace BMC.Core
         {
             action?.Invoke(Local(key));
         }
-        public string LocalFormat(string key, object arg0)
+        public string LocalFormat(string key, params object[] args)
         {
-            return string.Format(Local(key), arg0);
+            return string.Format(Local(key), args);
         }
     }
 

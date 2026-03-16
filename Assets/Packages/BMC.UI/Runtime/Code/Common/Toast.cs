@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using BMC.Core;
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,20 @@ namespace BMC.UI
                 p.Init(info, delayFrame);
             }).Forget();
         }
+        public static void Local(string key, float delayFrame = 3f)
+        {
+            Log.Info($"[Toast] {key}");
+            UIMgr.Instance.ShowPanel<Toast>(UICanvasType.UI_Debug, false).ContinueWith((p) => {
+                p.Init(LocalMgr.Instance.Local(key), delayFrame);
+            }).Forget();
+        }
+        public static void LocalFormat(string key, params object[] args)
+        {
+            Log.Info($"[Toast] {key}");
+            UIMgr.Instance.ShowPanel<Toast>(UICanvasType.UI_Debug, false).ContinueWith((p) => {
+                p.Init(LocalMgr.Instance.LocalFormat(key, args), 3f);
+            }).Forget();
+        }
 
         [SerializeField] private UIText text;
 
@@ -24,7 +39,7 @@ namespace BMC.UI
         }
 
         async UniTask wait(float delay)
-        { 
+        {
             await UniTask.WaitForSeconds(delay);
             ClosePanel();
         }

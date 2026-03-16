@@ -5,6 +5,8 @@ using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
 using TMPro;
 using UnityEngine;
+using UnityEngine.U2D;
+using UnityEngine.UI;
 public static class UIExtensions
 {
     public static void Local(this UIText uIText, string key)
@@ -27,6 +29,12 @@ public static class UIExtensions
         uIText.Set(LocalMgr.Instance.Local($"Item_{itemId}"));
     }
 
+    public static void LoadSprite(this Image image, string altas, string sprite, string defSprite = null)
+    {
+        var spriteAtlas = ResMgr.Instance.LoadAsset<SpriteAtlas>(altas);
+        var sp = spriteAtlas.GetSprite(sprite);
+        image.sprite = (sp != null ? sp : spriteAtlas.GetSprite(defSprite));
+    }
 
     /// <summary>
     /// FROM DG.Tweening.DOTweenModuleUI
