@@ -25,26 +25,28 @@ namespace BMC.Patch.Core
                     ("讀取紀錄 0", () => {
                         SaveMgr.Instance.EnableDebugLogs = true;
                         SaveMgr.Instance.SwitchAndLoadSlot(0);
-                    }
-            ),
+                    } ),
                     ("刪除紀錄 0", () => {
                         SaveMgr.Instance.DeleteSlot(0);
                         SceneMgr.Instance.GotoScene("Entry", false);
-                    }
-            ),
+                    } ),
                     ("測試多語言(Continue)", () => {
                         var index = SaveMgr.Instance.GetCoreInt(LocalMgr.SC_LANGUAGE, (int)SystemLanguage.English);
                         LocalMgr.Instance.Load(new ConfigLang(), (SystemLanguage)index);
                         Log.Info($"[{LocalMgr.Instance.CrtLang}] {LocalMgr.Instance.Local("Continue")}");
-                    }
-            ),
+                    } ),
                     ("重新運行遊戲", () => SceneMgr.Instance.GotoScene("Entry", false)),
                     ("離開遊戲", () => {
                         UIMgr.Instance.ShowPanel<MsgPanel>(UICanvasType.UI_Debug).ContinueWith(p => {
                             p.Initial("QUIT GAME?", "HINT", Application.Quit);
                         }).Forget();
-                    }
-            )
+                    } )
+            );
+
+            panel.AddDebugGroup(
+                "AUDIO",
+                    ("FPS", () => UIInputTrigger.ShowFPS = !UIInputTrigger.ShowFPS),
+                    ("Test", () => AudioMgr.Instance.Play("common_button_click"))
             );
             void setLang(SystemLanguage language)
             {
