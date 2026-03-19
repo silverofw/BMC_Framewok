@@ -45,8 +45,14 @@ namespace BMC.Patch.Core
 
             panel.AddDebugGroup(
                 "AUDIO",
-                    ("FPS", () => UIInputTrigger.ShowFPS = !UIInputTrigger.ShowFPS),
-                    ("Test", () => AudioMgr.Instance.Play("common_button_click"))
+                    ("PLAY SFX", () => AudioMgr.Instance.Play("common_button_click")),
+                    ("PLAY BGM", () => AudioMgr.Instance.PlayBGM("BGM_01")),
+                    ("SetSfxMute", () => AudioMgr.Instance.SetSfxMute(!AudioMgr.Instance.IsSfxMuted)),
+                    ("SetBgmMute", () => AudioMgr.Instance.SetBgmMute(!AudioMgr.Instance.IsBgmMuted)),
+                    ("SfxVolume 1", () => AudioMgr.Instance.SetSfxVolume(1f)),
+                    ("SfxVolume 0.5", () => AudioMgr.Instance.SetSfxVolume(0.5f)),
+                    ("BgmVolume 1", () => AudioMgr.Instance.SetBgmVolume(1f)),
+                    ("BgmVolume 0.5", () => AudioMgr.Instance.SetBgmVolume(0.5f))
             );
             void setLang(SystemLanguage language)
             {
