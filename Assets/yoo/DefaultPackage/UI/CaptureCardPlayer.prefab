@@ -177,6 +177,7 @@ RectTransform:
   m_Children:
   - {fileID: 2849695719428960561}
   - {fileID: 847785524165549126}
+  - {fileID: 909146545960136611}
   m_Father: {fileID: 7512032169794873196}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -238,8 +239,10 @@ MonoBehaviour:
   mask: {fileID: 0}
   closeBtn: {fileID: 0}
   uiUtility: {fileID: 0}
+  processAudioInUnity: 0
   displayImage: {fileID: 6908824066342607988}
-  targetDeviceName: 
+  targetVideoDeviceName: 
+  targetAudioDeviceName: USB3 PLUS
 --- !u!82 &4001022168457066679
 AudioSource:
   m_ObjectHideFlags: 0
@@ -337,3 +340,82 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &5603750269984908184
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 909146545960136611}
+  - component: {fileID: 3887320023210499883}
+  m_Layer: 5
+  m_Name: AI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &909146545960136611
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5603750269984908184}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 62556135492248528}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &3887320023210499883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5603750269984908184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c328b41af1d1db546b87ea389d317908, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CodePatch::PokemonAIBrain
+  engine: 0
+  eye: {fileID: 3107751953982726100}
+  geminiApiKey: AIzaSyA0ZYRwvDRJIVZ6ASIIpn_OLrNjtFMVx48
+  geminiModel: 11
+  lmStudioEndpoint: http://127.0.0.1:1234/v1/chat/completions
+  decisionIntervalMs: 3000
+  buttonPressDelayMs: 1000
+  imageQuality: 90
+  maxImageWidth: 320
+  maxHistoryCount: 5
+  stuckDifferenceThreshold: 0.05
+  autoCropGBA: 1
+  enableGridOverlay: 1
+  enableMapStitching: 1
+  loadPreviousExploration: 1
+  worldMapSize: 4096
+  saveMapInterval: 5
+  saveDebugLog: 1
+  maxDebugRecords: 100
+  promptConfigJson: {fileID: 4900000, guid: bde9bb2ca32d6a24a9e3f82d6df28ae7, type: 3}
+  promptConfig:
+    contextName: New Context
+    modelType: 12
+    useHistory: 1
+    temperature: 0.7
+    personaText: 
+    rulesText: 
+    cleanTextRuleText: 
+    outputFormatText: 
+    examplesText: 
+    thoughtProcessText: 
