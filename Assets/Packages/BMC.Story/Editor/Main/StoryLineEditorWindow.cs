@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using UnityEditor.SceneManagement; // 新增：用來監聽 Prefab Stage 事件
+using UnityEditor.SceneManagement;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,10 +65,8 @@ namespace BMC.Story.Editor
             window.TryAutoBindAndOpenPrefab();
         }
 
-        // --- 100% 精準尋找面板的核心邏輯 ---
         private StoryLinePanel FindPanel()
         {
-            // 1. 優先從當前開啟的 Prefab Stage 尋找 (最準確)
             var stage = PrefabStageUtility.GetCurrentPrefabStage();
             if (stage != null && stage.prefabContentsRoot != null)
             {
@@ -76,11 +74,9 @@ namespace BMC.Story.Editor
                 if (p != null) return p;
             }
 
-            // 2. 如果沒有在 Prefab Mode，則在當前場景中尋找
             var panels = UnityEngine.Object.FindObjectsByType<StoryLinePanel>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (var p in panels)
             {
-                // 排除掉 Project 視窗中的 Prefab 檔案實體，確保只抓場景或實例化的物件
                 if (!EditorUtility.IsPersistent(p.gameObject))
                 {
                     return p;
@@ -89,10 +85,8 @@ namespace BMC.Story.Editor
             return null;
         }
 
-        // --- 更好的做法：事件驅動與精準綁定 ---
         private void TryAutoBindAndOpenPrefab()
         {
-            // 1. 先嘗試在當前場景或已開啟的 Prefab 模式中尋找
             _targetPanel = FindPanel();
             if (_targetPanel != null)
             {
@@ -100,7 +94,6 @@ namespace BMC.Story.Editor
                 return;
             }
 
-            // 2. 找不到的話，尋找 Prefab 檔案
             string[] guids = AssetDatabase.FindAssets("t:Prefab StoryLinePanel");
             string targetPath = null;
 
@@ -110,7 +103,6 @@ namespace BMC.Story.Editor
             }
             else
             {
-                // 擴大搜索範圍
                 guids = AssetDatabase.FindAssets("t:Prefab");
                 foreach (var guid in guids)
                 {
@@ -129,14 +121,9 @@ namespace BMC.Story.Editor
                 GameObject targetPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(targetPath);
                 if (targetPrefab != null)
                 {
-                    // 註冊原生事件：當 Prefab Stage 真正準備好時通知我們 (避免重複註冊)
                     PrefabStage.prefabStageOpened -= OnPrefabStageOpened;
                     PrefabStage.prefabStageOpened += OnPrefabStageOpened;
-
-                    // 呼叫開啟 Prefab
                     AssetDatabase.OpenAsset(targetPrefab);
-
-                    // 雙重保險：有時候 Prefab 已經在背景開啟，不會觸發 opened 事件
                     EditorApplication.delayCall += () =>
                     {
                         if (_targetPanel == null)
@@ -152,13 +139,9 @@ namespace BMC.Story.Editor
             Debug.LogWarning("[Story Editor] 找不到包含 StoryLinePanel 的 Prefab。");
         }
 
-        // 當 Unity 完成 Prefab Mode 的讀取與畫面生成後，會自動觸發這裡
         private void OnPrefabStageOpened(PrefabStage stage)
         {
-            // 註銷事件，避免記憶體洩漏
             PrefabStage.prefabStageOpened -= OnPrefabStageOpened;
-
-            // 此時尋找絕對安全，且 100% 存在於剛開啟的 Prefab 中
             _targetPanel = FindPanel();
             Repaint();
         }
@@ -169,7 +152,6 @@ namespace BMC.Story.Editor
             SceneView.duringSceneGui += OnSceneGUI;
             InitializeDrawers();
 
-            // 啟動時僅執行「一次」綁定檢查，避免 OnGUI 效能浪費
             if (_targetPanel == null)
             {
                 _targetPanel = FindPanel();
@@ -186,7 +168,6 @@ namespace BMC.Story.Editor
                 _targetPanel.ClearOldLayout();
                 EditorUtility.SetDirty(_targetPanel.gameObject);
             }
-            // 防呆解除註冊
             PrefabStage.prefabStageOpened -= OnPrefabStageOpened;
         }
 
@@ -259,7 +240,6 @@ namespace BMC.Story.Editor
         {
             EditorGUILayout.Space(5);
 
-            // 如果找不到 Panel，只顯示尋找按鈕並擋住後續渲染
             if (_targetPanel == null)
             {
                 EditorGUILayout.HelpBox("無法自動找到 StoryLinePanel。\n請點擊下方按鈕自動尋找並開啟 Prefab。", MessageType.Warning);
@@ -270,7 +250,6 @@ namespace BMC.Story.Editor
                 return;
             }
 
-            // 成功綁定後，直接繪製主要內容，不再顯示 Prefab 參照欄位
             DrawChapterSettings();
             DrawFileOperations();
             EditorGUILayout.Space();
@@ -615,11 +594,9 @@ namespace BMC.Story.Editor
             EditorGUILayout.LabelField("Node Properties", EditorStyles.boldLabel);
             EditorGUI.BeginChangeCheck();
 
-            // Title 與 Preview Image 維持單行防呆
             node.Title = EditorGUILayout.TextField("Title", node.Title)?.Replace("\n", "").Replace("\r", "");
             node.PreviewImagePath = EditorGUILayout.TextField("Preview Image", node.PreviewImagePath)?.Replace("\n", "").Replace("\r", "");
 
-            // Memo 改為支援多行自動長高
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Memo (PS)", GUILayout.Width(EditorGUIUtility.labelWidth - 5));
             GUIStyle multiLineStyle = new GUIStyle(EditorStyles.textArea) { wordWrap = true };
@@ -636,7 +613,89 @@ namespace BMC.Story.Editor
             node.AutoJumpDelay = EditorGUILayout.DelayedFloatField("Delay (Seconds)", node.AutoJumpDelay);
             if (EditorGUI.EndChangeCheck()) isDirty = true;
 
-            DrawTargetIdSelector("Jump Target", () => node.AutoJumpNodeId, (val) => node.AutoJumpNodeId = val, node);
+            // --- 節點層級的好感度跳轉判定 ---
+            GUI.backgroundColor = new Color(1f, 0.9f, 0.95f);
+            EditorGUILayout.BeginVertical("box");
+            GUI.backgroundColor = Color.white;
+
+            if (DrawGenericRulesBlock(
+                "Affection Jump Rules (依序判定，符合即跳轉)",
+                node.AutoJumpAffectionRules,
+                () => new StoryNode.Types.NodeAffectionJumpRule
+                {
+                    CharacterId = 0,
+                    CompareType = Condition.Types.CompareType.GreaterEqual,
+                    TargetValue = 50,
+                    TargetNodeId = ""
+                },
+                (rule) => {
+                    bool changed = false;
+                    GUILayout.Label("Char ID:", GUILayout.Width(50));
+                    EditorGUI.BeginChangeCheck();
+                    rule.CharacterId = EditorGUILayout.IntField(rule.CharacterId, GUILayout.Width(35));
+                    rule.CompareType = (Condition.Types.CompareType)EditorGUILayout.EnumPopup(rule.CompareType, GUILayout.Width(100));
+                    rule.TargetValue = EditorGUILayout.IntField(rule.TargetValue, GUILayout.Width(40));
+                    if (EditorGUI.EndChangeCheck()) changed = true;
+
+                    float oldLabelWidth = EditorGUIUtility.labelWidth;
+                    EditorGUIUtility.labelWidth = 75;
+                    DrawTargetIdSelector("-> Jump To:", () => rule.TargetNodeId ?? "", (val) => { rule.TargetNodeId = val; changed = true; }, node);
+                    EditorGUIUtility.labelWidth = oldLabelWidth;
+
+                    return changed;
+                }))
+            {
+                isDirty = true;
+            }
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space(2);
+
+            // --- 節點層級的全域變數/SaveKey跳轉判定 (支援切換 Scope) ---
+            GUI.backgroundColor = new Color(0.9f, 0.95f, 1f);
+            EditorGUILayout.BeginVertical("box");
+            GUI.backgroundColor = Color.white;
+
+            if (DrawGenericRulesBlock(
+                "Variable Jump Rules (字串比對，相同即自動跳轉)",
+                node.AutoJumpVariableRules,
+                () => new StoryNode.Types.NodeVariableJumpRule
+                {
+                    Scope = VariableScope.SaveKey,
+                    ConditionKey = "MyKey",
+                    ConditionValue = "True",
+                    TargetNodeId = ""
+                },
+                (rule) => {
+                    bool changed = false;
+                    EditorGUI.BeginChangeCheck();
+
+                    // 新增的 VariableScope 選擇器
+                    rule.Scope = (VariableScope)EditorGUILayout.EnumPopup(rule.Scope, GUILayout.Width(80));
+
+                    GUILayout.Label("Key:", GUILayout.Width(30));
+                    rule.ConditionKey = EditorGUILayout.TextField(rule.ConditionKey, GUILayout.Width(80));
+
+                    GUILayout.Label("==", EditorStyles.boldLabel, GUILayout.Width(20));
+
+                    GUILayout.Label("Value:", GUILayout.Width(40));
+                    rule.ConditionValue = EditorGUILayout.TextField(rule.ConditionValue, GUILayout.Width(70));
+                    if (EditorGUI.EndChangeCheck()) changed = true;
+
+                    float oldLabelWidth = EditorGUIUtility.labelWidth;
+                    EditorGUIUtility.labelWidth = 75;
+                    DrawTargetIdSelector("-> Jump To:", () => rule.TargetNodeId ?? "", (val) => { rule.TargetNodeId = val; changed = true; }, node);
+                    EditorGUIUtility.labelWidth = oldLabelWidth;
+
+                    return changed;
+                }))
+            {
+                isDirty = true;
+            }
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space(2);
+
+            // 防呆預設跳轉
+            DrawTargetIdSelector("Fallback Target (皆不符合時)", () => node.AutoJumpNodeId, (val) => node.AutoJumpNodeId = val, node);
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space();
@@ -647,6 +706,53 @@ namespace BMC.Story.Editor
             }
 
             if (isDirty) SaveToDiskAndRefresh();
+        }
+
+        /// <summary>
+        /// 共用的 UI 輔助方法：用來繪製泛型的規則列表 (例如好感度、變數跳轉)。
+        /// </summary>
+        public bool DrawGenericRulesBlock<T>(
+            string title,
+            IList<T> rules,
+            Func<T> createNewRule,
+            Func<T, bool> drawRuleInner)
+        {
+            bool changed = false;
+            EditorGUILayout.LabelField(title, EditorStyles.miniBoldLabel);
+
+            for (int r = 0; r < rules.Count; r++)
+            {
+                var rule = rules[r];
+                EditorGUILayout.BeginHorizontal();
+
+                if (drawRuleInner(rule))
+                {
+                    changed = true;
+                }
+
+                GUI.backgroundColor = Styles.ErrorColor;
+                if (GUILayout.Button("X", EditorStyles.miniButton, GUILayout.Width(20)))
+                {
+                    rules.RemoveAt(r);
+                    changed = true;
+                    GUI.backgroundColor = Color.white;
+                    EditorGUILayout.EndHorizontal();
+                    break;
+                }
+                GUI.backgroundColor = Color.white;
+                EditorGUILayout.EndHorizontal();
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("+ Add Rule", EditorStyles.miniButton, GUILayout.Width(80)))
+            {
+                rules.Add(createNewRule());
+                changed = true;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            return changed;
         }
 
         public bool DrawEventList(string headerTitle, IList<StoryEvent> events, StoryNode node)
@@ -858,7 +964,8 @@ namespace BMC.Story.Editor
                 switch (cond.TargetType)
                 {
                     case Condition.Types.TargetType.GlobalVariable:
-                        DrawConditionVariableSelector(cond);
+                    case Condition.Types.TargetType.SaveVariable: // 兩者都支援純文字輸入 Key
+                        cond.VariableId = EditorGUILayout.TextField(cond.VariableId, GUILayout.Width(80));
                         break;
                     case Condition.Types.TargetType.CharacterStat:
                         cond.CharacterId = EditorGUILayout.IntField(cond.CharacterId, GUILayout.Width(50));
@@ -891,39 +998,6 @@ namespace BMC.Story.Editor
 
             EditorGUILayout.EndVertical();
             return changed;
-        }
-
-        private void DrawConditionVariableSelector(Condition cond)
-        {
-            List<string> options = new List<string> { "Custom..." };
-            string[] defaultVars = { "Player_Money", "Global_Morality" };
-            options.AddRange(defaultVars);
-
-            if (CurrentPackage != null && CurrentPackage.InitialVariables != null)
-            {
-                foreach (var key in CurrentPackage.InitialVariables.Keys)
-                {
-                    if (!options.Contains(key)) options.Add(key);
-                }
-            }
-
-            if (cond.VariableId == null) cond.VariableId = "";
-
-            int currentIndex = options.IndexOf(cond.VariableId);
-            bool isCustom = currentIndex == -1 || currentIndex == 0;
-            if (currentIndex == -1) currentIndex = 0;
-
-            int newIndex = EditorGUILayout.Popup(currentIndex, options.ToArray(), GUILayout.Width(80));
-            if (newIndex != currentIndex)
-            {
-                cond.VariableId = (newIndex == 0) ? "" : options[newIndex];
-                isCustom = (newIndex == 0);
-            }
-
-            if (isCustom)
-            {
-                cond.VariableId = EditorGUILayout.TextField(cond.VariableId, GUILayout.Width(70));
-            }
         }
 
         public void SaveToDiskAndRefresh()

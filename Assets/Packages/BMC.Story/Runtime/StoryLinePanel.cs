@@ -218,13 +218,25 @@ namespace BMC.Story
 
         /// <summary>
         /// 核心輔助方法：遞歸獲取節點中所有可能跳轉的目標 ID
-        /// (包含 AutoJump, ShowChoices, GameDice, GameRoulette, GameQTE)
+        /// (包含 AutoJump, AffectionJumpRules, ShowChoices, GameDice, GameRoulette, GameQTE)
         /// 改為 public static 提供 Editor 使用
         /// </summary>
         public static IEnumerable<string> GetTargetNodeIds(StoryNode node)
         {
-            // 1. 自動跳轉
+            // 1. 自動跳轉 (Fallback)
             if (!string.IsNullOrEmpty(node.AutoJumpNodeId)) yield return node.AutoJumpNodeId;
+
+            // 1.5 新增：節點級別的好感度判定跳轉
+            if (node.AutoJumpAffectionRules != null)
+            {
+                foreach (var rule in node.AutoJumpAffectionRules)
+                {
+                    if (!string.IsNullOrEmpty(rule.TargetNodeId))
+                    {
+                        yield return rule.TargetNodeId;
+                    }
+                }
+            }
 
             // 2. OnEnterEvents
             if (node.OnEnterEvents != null)
