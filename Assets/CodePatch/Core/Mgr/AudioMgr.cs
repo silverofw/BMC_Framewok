@@ -2,8 +2,9 @@
 using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using BMC.Core;
 
-namespace BMC.Core
+namespace BMC.Patch.Core
 {
     public class AudioMgr : Singleton<AudioMgr>
     {
@@ -22,6 +23,9 @@ namespace BMC.Core
         // BGM 漸變專用的取消權杖，用於中斷上一次的漸變動畫
         private CancellationTokenSource bgmFadeCts;
 
+        // 新增：明確標記當前是否正在進行 BGM 漸變，解決 bgmFadeCts 未清空導致音量設定無效的問題
+        private bool isBgmFading = false;
+
         // --- 設定參數 ---
         private const int InitialPoolSize = 5; // 預熱的物件池大小
 
@@ -30,6 +34,7 @@ namespace BMC.Core
         public float BgmVolume { get; private set; } = 1.0f;
         public bool IsSfxMuted { get; private set; } = false;
         public bool IsBgmMuted { get; private set; } = false;
+        public bool IsGlobalMuted { get; private set; } = false;
 
         protected override void Init()
         {
@@ -95,7 +100,7 @@ namespace BMC.Core
             source.gameObject.name = $"[{clipName}]"; // 方便在 Hierarchy 中辨識
             source.clip = clip;
             source.volume = SfxVolume;
-            source.mute = IsSfxMuted;
+            source.mute = IsGlobalMuted || IsSfxMuted;
 
             // 套用音高與隨機偏移
             source.pitch = pitch + Random.Range(-randomPitchRange, randomPitchRange);
@@ -187,15 +192,48 @@ namespace BMC.Core
 
             if (fadeDuration > 0)
             {
+                isBgmFading = true; // 標記開始漸變
                 FadeBGMAsync(clip, fadeDuration, linkedCts.Token).Forget();
             }
             else
             {
                 // 無漸變，直接切換
+                isBgmFading = false;
                 bgmSource.clip = clip;
                 bgmSource.volume = BgmVolume;
-                bgmSource.mute = IsBgmMuted;
+                bgmSource.mute = IsGlobalMuted || IsBgmMuted;
                 bgmSource.Play();
+            }
+        }
+
+        /// <summary>
+        /// 停止背景音樂 (BGM)
+        /// </summary>
+        /// <param name="fadeDuration">淡出過渡時間 (秒)，若設定為 0 則立即停止</param>
+        public void StopBGM(float fadeDuration = 1.0f)
+        {
+            if (bgmSource == null || !bgmSource.isPlaying) return;
+
+            // 取消上一次還沒完成的漸變協程（例如原本還在淡入中，突然被要求停止）
+            bgmFadeCts?.Cancel();
+            bgmFadeCts?.Dispose();
+            bgmFadeCts = new CancellationTokenSource();
+
+            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
+                bgmFadeCts.Token, root.gameObject.GetCancellationTokenOnDestroy());
+
+            if (fadeDuration > 0)
+            {
+                isBgmFading = true; // 標記開始漸變
+                StopBGMFadeAsync(fadeDuration, linkedCts.Token).Forget();
+            }
+            else
+            {
+                // 無漸變，直接停止
+                isBgmFading = false;
+                bgmSource.Stop();
+                bgmSource.clip = null;
+                bgmSource.volume = BgmVolume;
             }
         }
 
@@ -223,24 +261,50 @@ namespace BMC.Core
 
             // 2. 替換音樂片段並設定靜音狀態
             bgmSource.clip = nextClip;
-            bgmSource.mute = IsBgmMuted;
+            bgmSource.mute = IsGlobalMuted || IsBgmMuted;
             bgmSource.Play();
 
             // 3. 執行淡入
-            float targetVol = BgmVolume;
             float inTime = 0;
             while (inTime < duration && !token.IsCancellationRequested)
             {
                 inTime += Time.deltaTime;
-                // 將音量從 0 逐漸升到目標設定音量
-                bgmSource.volume = Mathf.Lerp(0f, targetVol, inTime / duration);
+                // 優化：這裡不再使用固定的 targetVol，而是直接讀取最新的 BgmVolume
+                // 這樣一來如果在漸變中途玩家調整了音量設定，漸變過程也能動態追蹤並平滑反映
+                bgmSource.volume = Mathf.Lerp(0f, BgmVolume, inTime / duration);
                 await UniTask.Yield(PlayerLoopTiming.Update, token);
             }
 
-            // 確保最後音量精確
+            // 確保最後音量精確，並結束漸變狀態
             if (!token.IsCancellationRequested)
             {
-                bgmSource.volume = targetVol;
+                bgmSource.volume = BgmVolume;
+                isBgmFading = false;
+            }
+        }
+
+        /// <summary>
+        /// 處理 BGM 的淡出並停止
+        /// </summary>
+        private async UniTaskVoid StopBGMFadeAsync(float duration, CancellationToken token)
+        {
+            float startVol = bgmSource.volume;
+            float time = 0;
+
+            while (time < duration && !token.IsCancellationRequested)
+            {
+                time += Time.deltaTime;
+                // 將當前音量逐漸降到 0
+                bgmSource.volume = Mathf.Lerp(startVol, 0f, time / duration);
+                await UniTask.Yield(PlayerLoopTiming.Update, token);
+            }
+
+            if (!token.IsCancellationRequested)
+            {
+                bgmSource.Stop();
+                bgmSource.clip = null;
+                bgmSource.volume = BgmVolume; // 停止後恢復原本音量設定
+                isBgmFading = false; // 結束漸變狀態
             }
         }
 
@@ -262,7 +326,7 @@ namespace BMC.Core
             IsSfxMuted = isMuted;
             for (int i = 0; i < audioSourcePool.Count; i++)
             {
-                if (audioSourcePool[i] != null) audioSourcePool[i].mute = IsSfxMuted;
+                if (audioSourcePool[i] != null) audioSourcePool[i].mute = IsGlobalMuted || IsSfxMuted;
             }
         }
 
@@ -270,9 +334,9 @@ namespace BMC.Core
         {
             BgmVolume = Mathf.Clamp01(volume);
 
-            // 如果目前正在漸變切換中，不要干涉其音量運算，漸變結束後會自動套用新音量
-            // 如果沒在漸變，則立即套用
-            if (bgmSource != null && (bgmFadeCts == null || bgmFadeCts.IsCancellationRequested))
+            // 只有在非漸變狀態下，才立即套用音量。
+            // (如果在漸變中，FadeBGMAsync 內部的 Lerp 已經會動態讀取最新的 BgmVolume)
+            if (bgmSource != null && !isBgmFading)
             {
                 bgmSource.volume = BgmVolume;
             }
@@ -281,7 +345,24 @@ namespace BMC.Core
         public void SetBgmMute(bool isMuted)
         {
             IsBgmMuted = isMuted;
-            if (bgmSource != null) bgmSource.mute = IsBgmMuted;
+            if (bgmSource != null) bgmSource.mute = IsGlobalMuted || IsBgmMuted;
+        }
+
+        /// <summary>
+        /// 設定全局靜音 (同時影響 BGM 與 SFX，但不覆蓋各自獨立的靜音狀態)
+        /// </summary>
+        public void SetGlobalMute(bool isMuted)
+        {
+            IsGlobalMuted = isMuted;
+
+            // 更新所有 SFX
+            for (int i = 0; i < audioSourcePool.Count; i++)
+            {
+                if (audioSourcePool[i] != null) audioSourcePool[i].mute = IsGlobalMuted || IsSfxMuted;
+            }
+
+            // 更新 BGM
+            if (bgmSource != null) bgmSource.mute = IsGlobalMuted || IsBgmMuted;
         }
 
         /// <summary>

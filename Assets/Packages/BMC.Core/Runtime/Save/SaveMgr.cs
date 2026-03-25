@@ -22,6 +22,9 @@ namespace BMC.Core
         [Tooltip("是否顯示存檔/讀檔耗時等偵錯日誌")]
         public bool EnableDebugLogs = false;
 
+        [Tooltip("是否啟用檔案內容混淆 (XOR 與 噪音注入)")]
+        public bool EnableObfuscation = true;
+
         // --- 混亂命名設定 ---
         private const string DATA_PREFIX = "pkg_";
         private const string DATA_EXT = ".dat";
@@ -106,8 +109,19 @@ namespace BMC.Core
         public int GetCoreInt(string key, int defaultValue = 0) =>
             int.TryParse(GetCore(key), out int result) ? result : defaultValue;
 
+        public bool GetCoreBool(string key, bool defaultValue = false)
+        {
+            string val = GetCore(key);
+            if (string.IsNullOrEmpty(val)) return defaultValue;
+            // 同時支援 "1" 以及舊版的 "True"
+            return val == "1" || val.Equals("true", StringComparison.OrdinalIgnoreCase);
+        }
+
         public void SetCore(string key, object value) =>
             _currentSaveData.CoreData[key] = value.ToString();
+
+        public void SetCoreBool(string key, bool value) =>
+            _currentSaveData.CoreData[key] = value ? "1" : "0";
 
         /// <summary>
         /// 流程：從 CoreData 中取得時間 Ticks 字串並轉換為 DateTime 格式
@@ -168,7 +182,15 @@ namespace BMC.Core
 
         public string GetProgress(string key, string defaultValue = "") => _currentSaveData.Progress.TryGetValue(key, out var v) ? v : defaultValue;
         public void SetProgress(string key, object value) => _currentSaveData.Progress[key] = value.ToString();
-        public bool GetProgressBool(string key, bool defaultValue = false) => bool.TryParse(GetProgress(key), out bool result) ? result : defaultValue;
+
+        public bool GetProgressBool(string key, bool defaultValue = false)
+        {
+            string val = GetProgress(key);
+            if (string.IsNullOrEmpty(val)) return defaultValue;
+            return val == "1" || val.Equals("true", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public void SetProgressBool(string key, bool value) => _currentSaveData.Progress[key] = value ? "1" : "0";
 
         #endregion
 
@@ -179,7 +201,7 @@ namespace BMC.Core
         /// 1. 啟動計時器 (若開啟 EnableDebugLogs)
         /// 2. 取得檔案路徑並讀取校驗檔（Metadata）
         /// 3. 解密校驗檔取得 JunkSize 與原始雜湊
-        /// 4. 讀取主存檔並進行 XOR 反混淆，使其恢復為 [Junk + Proto] 格式
+        /// 4. 讀取主存檔並根據標記決定是否進行 XOR 反混淆
         /// 5. 跳過 Junk 位移提取 Protobuf，進行雜湊校驗
         /// 6. 更新記憶體中的 _isTampered 狀態供遊戲後續判定
         /// 7. 停止計時並打印耗時
@@ -214,15 +236,25 @@ namespace BMC.Core
                     long dataSize = BitConverter.ToInt64(decryptedMeta, 32);
                     int junkSize = decryptedMeta[45];
 
-                    // 2. 讀取主檔案並執行 XOR 還原
-                    byte[] obfuscatedData = File.ReadAllBytes(path);
-                    ApplyXorInPlace(obfuscatedData);
+                    // 判斷該存檔當初是否有開啟混淆 (相容舊版存檔，舊版只有 46 bytes，預設為 true)
+                    bool isObfuscated = true;
+                    if (decryptedMeta.Length >= 47)
+                    {
+                        isObfuscated = decryptedMeta[46] == 1;
+                    }
 
-                    if (obfuscatedData.Length < junkSize + dataSize) throw new Exception("Data Size Error");
+                    // 2. 讀取主檔案並根據標記決定是否執行 XOR 還原
+                    byte[] fileData = File.ReadAllBytes(path);
+                    if (isObfuscated)
+                    {
+                        ApplyXorInPlace(fileData);
+                    }
+
+                    if (fileData.Length < junkSize + dataSize) throw new Exception("Data Size Error");
 
                     // 3. 提取真正的 Protobuf 資料
                     byte[] rawData = new byte[dataSize];
-                    Buffer.BlockCopy(obfuscatedData, junkSize, rawData, 0, (int)dataSize);
+                    Buffer.BlockCopy(fileData, junkSize, rawData, 0, (int)dataSize);
 
                     _currentSaveData = PlayerSave.Parser.ParseFrom(rawData);
 
@@ -252,10 +284,10 @@ namespace BMC.Core
         /// <summary>
         /// 儲存流程：
         /// 1. 啟動計時器 (若開啟 EnableDebugLogs)
-        /// 2. 序列化資料並生成隨機 Junk 噪音
+        /// 2. 序列化資料並根據開關決定是否生成 Junk 噪音
         /// 3. 計算雜湊並加密儲存在獨立的校驗檔中
-        /// 4. 合併 [Junk + Data] 並執行 XOR 混淆處理
-        /// 5. 寫入主檔案，使其內容在記事本中完全無法辨識
+        /// 4. 合併 [Junk + Data] 並根據開關決定是否執行 XOR 混淆處理
+        /// 5. 寫入主檔案
         /// 6. 停止計時並打印耗時
         /// </summary>
         public void SaveCurrentSlot()
@@ -277,17 +309,22 @@ namespace BMC.Core
                 SetCore(KEY_LAST_SAVE_AT, DateTime.Now.Ticks.ToString());
                 byte[] rawData = _currentSaveData.ToByteArray();
 
-                int junkSize = UnityEngine.Random.Range(10, 50);
+                // 根據開關決定是否注入 Junk 噪音
+                int junkSize = EnableObfuscation ? UnityEngine.Random.Range(10, 50) : 0;
                 byte[] junkData = new byte[junkSize];
-                new System.Random().NextBytes(junkData);
+                if (junkSize > 0)
+                {
+                    new System.Random().NextBytes(junkData);
+                }
 
                 byte[] hash = SHA256.Create().ComputeHash(rawData);
-                byte[] meta = new byte[46];
+                byte[] meta = new byte[47]; // 擴充為 47 bytes，第 47 byte 記錄是否混淆
                 Buffer.BlockCopy(hash, 0, meta, 0, 32);
                 Buffer.BlockCopy(BitConverter.GetBytes((long)rawData.Length), 0, meta, 32, 8);
                 Buffer.BlockCopy(BitConverter.GetBytes(newCount), 0, meta, 40, 4);
                 meta[44] = (byte)(_isTampered ? 1 : 0);
                 meta[45] = (byte)junkSize;
+                meta[46] = (byte)(EnableObfuscation ? 1 : 0); // 存入混淆狀態
 
                 byte[] encryptedSig = EncryptSignature(meta, key);
 
@@ -295,7 +332,11 @@ namespace BMC.Core
                 Buffer.BlockCopy(junkData, 0, finalPayload, 0, junkData.Length);
                 Buffer.BlockCopy(rawData, 0, finalPayload, junkData.Length, rawData.Length);
 
-                ApplyXorInPlace(finalPayload);
+                // 只有在開啟混淆時，才對主要資料進行 XOR 處理
+                if (EnableObfuscation)
+                {
+                    ApplyXorInPlace(finalPayload);
+                }
 
                 string path = GetPath(CurrentSlot);
                 File.WriteAllBytes(path + ".tmp", finalPayload);
