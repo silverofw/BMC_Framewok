@@ -253,7 +253,7 @@ namespace BMC.UI
                 Log.Error($"[{typeof(T)}] load error");
                 return null;
             }
-            var panel = go.GetComponent<UIPanel>();
+            var panel = go.GetComponent<T>();
             uiMaskControlCount += panel.maskControl ? 1 : 0;
             if (uiMaskControlCount == 1)
             {
