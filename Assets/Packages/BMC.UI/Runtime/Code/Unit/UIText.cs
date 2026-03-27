@@ -27,7 +27,7 @@ namespace BMC.UI
         {
             if (string.IsNullOrEmpty(key))
             {
-                Log.Info("key is null");
+                //Log.Info("key is null");
                 return;
             }
 

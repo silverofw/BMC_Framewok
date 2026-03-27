@@ -30,11 +30,14 @@ namespace BMC.Story
 
         [Header("Layout Settings")]
         [SerializeField] private float itemWidth = 300f;
-        [SerializeField] private float depthSpacing = 400f;
+        [SerializeField] private float depthSpacing = 500f;
+
 
         [Header("UI References - Chapter Selection")]
+        [SerializeField] private UIText chapterText;
         [SerializeField] private UIButton chapterBtn;
         [SerializeField] private UIButton chapterCloseBtn;
+        [SerializeField] private GameObject chapterRoot;
         [SerializeField] private Transform chapterListRoot;
         [SerializeField] private GameObject chapterButtonPrefab;
 
@@ -47,6 +50,8 @@ namespace BMC.Story
         // [新增] 追蹤當前預覽與實際遊玩的章節狀態
         private string activePlayingChapterId;       // StoryPlayer 正在跑的章節 ID
         private ChapterData currentlyDisplayingChapter; // UI 畫面上正在預覽的章節
+
+        private bool isInitChapter;
 
         void Awake()
         {
@@ -85,30 +90,44 @@ namespace BMC.Story
             ChapterData startChapter = null;
             foreach (var chapter in chapters)
             {
-                if (chapter.GetChapterBytes == null) continue;
-
-                var btnObj = Instantiate(chapterButtonPrefab, chapterListRoot);
-                btnObj.SetActive(true);
-
-                var btnText = btnObj.GetComponentInChildren<UIText>();
-                if (btnText != null) btnText.Set(chapter.ChapterName);
-
-                var btn = btnObj.GetComponent<UIButton>();
-                if (btn != null)
-                {
-                    btn.OnClick = ()=> PreviewChapter(chapter);
-                }
-
                 if (chapter.ChapterId == currentChapterId)
                 {
                     startChapter = chapter;
                 }
             }
 
-            chapterBtn.OnClick = () => { chapterListRoot.gameObject.SetActive(true); };
-            chapterCloseBtn.OnClick = () => { chapterListRoot.gameObject.SetActive(false); };
+            chapterBtn.OnClick = () => {
+                chapterRoot.SetActive(true);
+                if (!isInitChapter)
+                {
+                    isInitChapter = true;
+                    foreach (var chapter in chapters)
+                    {
+                        if (chapter.GetChapterBytes == null) continue;
 
+                        var btnObj = Instantiate(chapterButtonPrefab, chapterListRoot);
+                        btnObj.SetActive(true);
 
+                        var btnText = btnObj.GetComponentInChildren<UIText>();
+                        if (btnText != null) btnText.Set(chapter.ChapterName);
+
+                        var btn = btnObj.GetComponent<UIButton>();
+                        if (btn != null)
+                        {
+                            btn.OnClick = () => {
+                                PreviewChapter(chapter);
+                                closeChapter();
+                            };
+                        }
+                    }
+                }
+            };
+            chapterCloseBtn.OnClick = closeChapter;
+
+            void closeChapter()
+            {
+                chapterRoot.SetActive(false);
+            }
 
             // 3. 預設顯示當前正在遊玩的章節 (若找不到就顯示第一個)
             if (startChapter != null)
@@ -131,27 +150,11 @@ namespace BMC.Story
             if (bytes == null) return;
 
             // 僅在 UI 層面解析暫時的 Package 用於排版
+            chapterText.Set(chapter.ChapterName);
+
             StoryPackage tempPackage = StoryPackage.Parser.ParseFrom(bytes);
 
-            // 找出 StartNode (對齊 StoryPlayer 預設找 "Start" 的邏輯)
-            StoryNode startNode = null;
-            foreach (var node in tempPackage.Nodes)
-            {
-                if (node.Id == "Start")
-                {
-                    startNode = node;
-                    break;
-                }
-            }
-
-            if (startNode != null)
-            {
-                RefreshStoryLayout(startNode, tempPackage);
-            }
-            else
-            {
-                Debug.LogWarning($"[StoryLinePanel] 章節 {chapter.ChapterId} 找不到 'Start' 節點！");
-            }
+            RefreshStoryLayout(tempPackage.Nodes[0], tempPackage);
         }
 
         public void RefreshStoryLayout(StoryNode startNode, StoryPackage package)
