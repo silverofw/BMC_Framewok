@@ -300,7 +300,7 @@ namespace BMC.Story
             }
         }
 
-        private async UniTask ScrollToNode(StoryNode targetNode)
+        public async UniTask ScrollToNode(StoryNode targetNode)
         {
             if (targetNode == null || !nodeDepthMap.ContainsKey(targetNode)) return;
 

@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.story",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "displayName": "BMC Story System",
   "description": "BMC 劇情與對話節點系統。",
   "unity": "6000.0",
