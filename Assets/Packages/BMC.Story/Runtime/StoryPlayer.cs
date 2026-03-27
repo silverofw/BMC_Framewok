@@ -25,11 +25,11 @@ namespace BMC.Story
         public EventHandler handler = new EventHandler();
         private Dictionary<string, StoryNode> _nodeMap = new Dictionary<string, StoryNode>();
         private StoryNode _preNode;
+        private StoryNode _startNode => _currentPackage.Nodes[0];
 
         public void LoadStory(byte[] bytes)
         {
             _nodeMap.Clear();
-            handler = new EventHandler();
             _currentPackage = StoryPackage.Parser.ParseFrom(bytes);
 
             foreach (var node in _currentPackage.Nodes)
@@ -40,7 +40,7 @@ namespace BMC.Story
 
         public void StartStory()
         {
-            PlayNode("Start");
+            PlayNode(_startNode.Id);
         }
 
         public void Play()
@@ -76,7 +76,7 @@ namespace BMC.Story
 
         public bool IsCrtNode(StoryNode node)
         {
-            return CrtNode != null && CrtNode == node;
+            return CrtNode != null && CrtNode.Id == node.Id;
         }
     }
 }
