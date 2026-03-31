@@ -199,14 +199,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5711513288911621813}
     m_Modifications:
-    - target: {fileID: 1698023892701216648, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1698023892701216648, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2924526065695288262, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
       propertyPath: m_Name
       value: UIButton
@@ -293,19 +285,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6473887311788144530, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
       propertyPath: m_fontSize
-      value: 28.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6473887311788144530, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
-      propertyPath: m_VerticalAlignment
-      value: 1024
+      value: 17.25
       objectReference: {fileID: 0}
     - target: {fileID: 6530917296549698306, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: -40
       objectReference: {fileID: 0}
     - target: {fileID: 6530917296549698306, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
       propertyPath: m_SizeDelta.y
-      value: -20
+      value: -40
       objectReference: {fileID: 0}
     - target: {fileID: 6530917296549698306, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -313,7 +301,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6530917296549698306, guid: 0b85cde402cd332499e650b09b20739a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 10
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -1,5 +1,6 @@
 ﻿using BMC.UI;
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,9 +8,18 @@ using UnityEngine.UI;
 
 namespace BMC.Story
 {
+    // [新增] 供外部傳入的章節資料結構
+    public class ChapterData
+    {
+        public string ChapterId;
+        public string ChapterName;
+        // 參數化：由外部定義如何取得該章節的 byte[] (例如從 Addressables 或記憶體快取)
+        public Func<byte[]> GetChapterBytes;
+    }
+
     public class StoryLinePanel : UIPanel
     {
-        [Header("UI References")]
+        [Header("UI References - Node Layout")]
         [SerializeField] private Transform contentRoot;
         [SerializeField] private ConnectionDrawer connectionDrawer;
         [SerializeField] private ScrollRect scrollRect;
@@ -20,21 +30,33 @@ namespace BMC.Story
 
         [Header("Layout Settings")]
         [SerializeField] private float itemWidth = 300f;
-        [SerializeField] private float depthSpacing = 400f; // 深度之間的距離 (Stride)
+        [SerializeField] private float depthSpacing = 500f;
+
+
+        [Header("UI References - Chapter Selection")]
+        [SerializeField] private UIText chapterText;
+        [SerializeField] private UIButton chapterBtn;
+        [SerializeField] private UIButton chapterCloseBtn;
+        [SerializeField] private GameObject chapterRoot;
+        [SerializeField] private Transform chapterListRoot;
+        [SerializeField] private GameObject chapterButtonPrefab;
 
         // --- 內部狀態 ---
         private Dictionary<int, Transform> depthColumns = new Dictionary<int, Transform>();
-
-        // 用來記錄 Node 物件對應到的 UI RectTransform (畫線與定位用)
         private Dictionary<StoryNode, RectTransform> nodeToRectMap = new Dictionary<StoryNode, RectTransform>();
-
-        // 記錄每個 Node 的深度資料
         private Dictionary<StoryNode, int> nodeDepthMap = new Dictionary<StoryNode, int>();
-        private int currentMaxDepth = 0; // [新增] 記錄當前最大深度
+        private int currentMaxDepth = 0;
+
+        // [新增] 追蹤當前預覽與實際遊玩的章節狀態
+        private string activePlayingChapterId;       // StoryPlayer 正在跑的章節 ID
+        private ChapterData currentlyDisplayingChapter; // UI 畫面上正在預覽的章節
+
+        private bool isInitChapter;
 
         void Awake()
         {
             if (storyItemPrefab) storyItemPrefab.SetActive(false);
+            if (chapterButtonPrefab) chapterButtonPrefab.SetActive(false);
         }
 
         void Start()
@@ -48,18 +70,100 @@ namespace BMC.Story
             StoryPlayer.Instance.Play();
         }
 
-        // --- 核心入口 ---
+        /// <summary>
+        /// [新增] 外部呼叫入口：初始化面板與章節清單
+        /// </summary>
+        /// <param name="chapters">所有可選的章節清單</param>
+        /// <param name="currentChapterId">StoryPlayer 目前正在遊玩的章節 ID</param>
+        public void InitializePanel(List<ChapterData> chapters, string currentChapterId)
+        {
+            activePlayingChapterId = currentChapterId;
+
+            // 1. 清理舊的章節按鈕
+            foreach (Transform child in chapterListRoot)
+            {
+                if (child.gameObject != chapterButtonPrefab)
+                    Destroy(child.gameObject);
+            }
+
+            // 2. 生成新的章節按鈕
+            ChapterData startChapter = null;
+            foreach (var chapter in chapters)
+            {
+                if (chapter.ChapterId == currentChapterId)
+                {
+                    startChapter = chapter;
+                }
+            }
+
+            chapterBtn.OnClick = () => {
+                chapterRoot.SetActive(true);
+                if (!isInitChapter)
+                {
+                    isInitChapter = true;
+                    foreach (var chapter in chapters)
+                    {
+                        if (chapter.GetChapterBytes == null) continue;
+
+                        var btnObj = Instantiate(chapterButtonPrefab, chapterListRoot);
+                        btnObj.SetActive(true);
+
+                        var btnText = btnObj.GetComponentInChildren<UIText>();
+                        if (btnText != null) btnText.Set(chapter.ChapterName);
+
+                        var btn = btnObj.GetComponent<UIButton>();
+                        if (btn != null)
+                        {
+                            btn.OnClick = () => {
+                                PreviewChapter(chapter);
+                                closeChapter();
+                            };
+                        }
+                    }
+                }
+            };
+            chapterCloseBtn.OnClick = closeChapter;
+
+            void closeChapter()
+            {
+                chapterRoot.SetActive(false);
+            }
+
+            // 3. 預設顯示當前正在遊玩的章節 (若找不到就顯示第一個)
+            if (startChapter != null)
+            {
+                PreviewChapter(startChapter);
+            }
+            else if (chapters.Count > 0)
+            {
+                PreviewChapter(chapters[0]);
+            }
+        }
+
+        /// <summary>
+        /// [新增] 預覽章節：只更新 UI，不影響 StoryPlayer 內部資料
+        /// </summary>
+        private void PreviewChapter(ChapterData chapter)
+        {
+            currentlyDisplayingChapter = chapter;
+            byte[] bytes = chapter.GetChapterBytes?.Invoke();
+            if (bytes == null) return;
+
+            // 僅在 UI 層面解析暫時的 Package 用於排版
+            chapterText.Set(chapter.ChapterName);
+
+            StoryPackage tempPackage = StoryPackage.Parser.ParseFrom(bytes);
+
+            RefreshStoryLayout(tempPackage.Nodes[0], tempPackage);
+        }
+
         public void RefreshStoryLayout(StoryNode startNode, StoryPackage package)
         {
             if (startNode == null || package == null) return;
 
-            // 1. 清理舊畫面
             ClearOldLayout();
-
-            // 2. 設定 Layout Group 參數
             SetupLayoutGroup();
 
-            // 3. 建立速查表
             Dictionary<string, StoryNode> idLookup = new Dictionary<string, StoryNode>();
             foreach (var node in package.Nodes)
             {
@@ -69,23 +173,24 @@ namespace BMC.Story
                 }
             }
 
-            // 4. 開始排版
             GenerateNodesBFS(startNode, idLookup);
-
-            // 5. 強制刷新 Layout
             Canvas.ForceUpdateCanvases();
-
-            // 6. 畫線
             DrawConnections(idLookup);
 
-            // 7. 自動捲動到 StartNode
-            ScrollToNode(StoryPlayer.Instance.CrtNode).Forget();
+            // [修改] 判斷預覽的章節是否為當前遊玩的章節，來決定要捲動到當前進度還是開頭
+            if (currentlyDisplayingChapter != null && currentlyDisplayingChapter.ChapterId == activePlayingChapterId && StoryPlayer.Instance.CrtNode != null)
+            {
+                ScrollToNode(StoryPlayer.Instance.CrtNode).Forget();
+            }
+            else
+            {
+                ScrollToNode(startNode).Forget();
+            }
         }
 
         private void SetupLayoutGroup()
-        {
+        { /* 保持原樣不變 */
             if (contentRoot == null) return;
-
             HorizontalLayoutGroup hGroup = contentRoot.GetComponent<HorizontalLayoutGroup>();
             if (hGroup != null)
             {
@@ -97,7 +202,7 @@ namespace BMC.Story
         }
 
         private void GenerateNodesBFS(StoryNode startNode, Dictionary<string, StoryNode> idLookup)
-        {
+        { /* 保持原樣不變 */
             Queue<(StoryNode node, int depth)> queue = new Queue<(StoryNode, int)>();
             HashSet<StoryNode> visited = new HashSet<StoryNode>();
 
@@ -112,7 +217,6 @@ namespace BMC.Story
 
                 CreateNodeUI(currentNode, currentDepth);
 
-                // 使用新的通用方法獲取所有目標 ID
                 foreach (string targetId in GetTargetNodeIds(currentNode))
                 {
                     if (string.IsNullOrEmpty(targetId)) continue;
@@ -124,14 +228,9 @@ namespace BMC.Story
                             queue.Enqueue((nextNode, currentDepth + 1));
                             visited.Add(nextNode);
 
-                            // 更新深度表與最大深度
                             nodeDepthMap[nextNode] = currentDepth + 1;
                             currentMaxDepth = Mathf.Max(currentMaxDepth, currentDepth + 1);
                         }
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[Layout Error] Node '{currentNode.Id}' 指向了不存在的 ID: '{targetId}'");
                     }
                 }
             }
@@ -146,8 +245,8 @@ namespace BMC.Story
             if (uiComponent != null)
             {
                 uiComponent.Init(node, () => {
-                    StoryPlayer.Instance.PlayNode(node.Id);
-                    ClosePanel();
+                    // [新增] 點擊節點時的跳轉邏輯
+                    HandleNodeClicked(node);
                 });
             }
             itemObj.SetActive(true);
@@ -161,8 +260,30 @@ namespace BMC.Story
             nodeToRectMap[node] = itemRect;
         }
 
-        private Transform GetColumnForDepth(int depth)
+        /// <summary>
+        /// [新增] 處理玩家確認點擊某個節點的行為
+        /// </summary>
+        private void HandleNodeClicked(StoryNode node)
         {
+            // 檢查玩家點擊的節點，是否屬於另一個尚未載入 StoryPlayer 的章節
+            if (currentlyDisplayingChapter.ChapterId != activePlayingChapterId)
+            {
+                // 若是不同章節，才呼叫 StoryPlayer.LoadStory 進行實際資料替換
+                byte[] chapterBytes = currentlyDisplayingChapter.GetChapterBytes?.Invoke();
+                if (chapterBytes != null)
+                {
+                    StoryPlayer.Instance.LoadStory(chapterBytes);
+                    activePlayingChapterId = currentlyDisplayingChapter.ChapterId;
+                }
+            }
+
+            // 播放指定節點並關閉面板
+            StoryPlayer.Instance.PlayNode(node.Id);
+            ClosePanel();
+        }
+
+        private Transform GetColumnForDepth(int depth)
+        { /* 保持原樣不變 */
             if (depthColumns.ContainsKey(depth)) return depthColumns[depth];
 
             GameObject newCol = Instantiate(columnPrefab, contentRoot);
@@ -171,10 +292,7 @@ namespace BMC.Story
             newCol.gameObject.SetActive(true);
 
             RectTransform colRect = newCol.GetComponent<RectTransform>();
-            if (colRect != null)
-            {
-                colRect.sizeDelta = new Vector2(itemWidth, colRect.sizeDelta.y);
-            }
+            if (colRect != null) colRect.sizeDelta = new Vector2(itemWidth, colRect.sizeDelta.y);
 
             LayoutElement layoutElem = newCol.GetComponent<LayoutElement>();
             if (layoutElem == null) layoutElem = newCol.AddComponent<LayoutElement>();
@@ -187,14 +305,13 @@ namespace BMC.Story
         }
 
         private void DrawConnections(Dictionary<string, StoryNode> idLookup)
-        {
+        { /* 保持原樣不變 */
             List<ConnectionDrawer.Connection> links = new List<ConnectionDrawer.Connection>();
             foreach (var kvp in nodeToRectMap)
             {
                 StoryNode parentNode = kvp.Key;
                 RectTransform parentRect = kvp.Value;
 
-                // 使用新的通用方法獲取所有連線目標
                 foreach (string targetId in GetTargetNodeIds(parentNode))
                 {
                     if (string.IsNullOrEmpty(targetId)) continue;
@@ -203,11 +320,7 @@ namespace BMC.Story
                     {
                         if (nodeToRectMap.TryGetValue(childNode, out RectTransform childRect))
                         {
-                            links.Add(new ConnectionDrawer.Connection
-                            {
-                                start = parentRect,
-                                end = childRect
-                            });
+                            links.Add(new ConnectionDrawer.Connection { start = parentRect, end = childRect });
                         }
                     }
                 }
@@ -216,56 +329,27 @@ namespace BMC.Story
             connectionDrawer.SetAllDirty();
         }
 
-        /// <summary>
-        /// 核心輔助方法：遞歸獲取節點中所有可能跳轉的目標 ID
-        /// (包含 AutoJump, AffectionJumpRules, ShowChoices, GameDice, GameRoulette, GameQTE)
-        /// 改為 public static 提供 Editor 使用
-        /// </summary>
         public static IEnumerable<string> GetTargetNodeIds(StoryNode node)
-        {
-            // 1. 自動跳轉 (Fallback)
+        { /* 保持原樣不變 */
             if (!string.IsNullOrEmpty(node.AutoJumpNodeId)) yield return node.AutoJumpNodeId;
-
-            // 1.5 新增：節點級別的好感度判定跳轉
             if (node.AutoJumpAffectionRules != null)
-            {
                 foreach (var rule in node.AutoJumpAffectionRules)
-                {
-                    if (!string.IsNullOrEmpty(rule.TargetNodeId))
-                    {
-                        yield return rule.TargetNodeId;
-                    }
-                }
-            }
-
-            // 2. OnEnterEvents
+                    if (!string.IsNullOrEmpty(rule.TargetNodeId)) yield return rule.TargetNodeId;
             if (node.OnEnterEvents != null)
-            {
                 foreach (var evt in node.OnEnterEvents)
-                {
                     foreach (var id in GetTargetsFromEvent(evt)) yield return id;
-                }
-            }
-
-            // 3. OnExitEvents
             if (node.OnExitEvents != null)
-            {
                 foreach (var evt in node.OnExitEvents)
-                {
                     foreach (var id in GetTargetsFromEvent(evt)) yield return id;
-                }
-            }
         }
 
         public static IEnumerable<string> GetTargetsFromEvent(StoryEvent evt)
-        {
+        { /* 保持原樣不變 */
             switch (evt.ActionCase)
             {
                 case StoryEvent.ActionOneofCase.ShowChoices:
                     foreach (var c in evt.ShowChoices.Choices)
-                    {
                         if (!string.IsNullOrEmpty(c.TargetNodeId)) yield return c.TargetNodeId;
-                    }
                     break;
                 case StoryEvent.ActionOneofCase.GameDice:
                     if (!string.IsNullOrEmpty(evt.GameDice.SuccessNodeId)) yield return evt.GameDice.SuccessNodeId;
@@ -284,24 +368,16 @@ namespace BMC.Story
                     if (!string.IsNullOrEmpty(evt.GamePuzzle.FailNodeId)) yield return evt.GamePuzzle.FailNodeId;
                     break;
                 case StoryEvent.ActionOneofCase.PlayAvgDialog:
-                    // 掃描 AVG 對話列表中的每一句話，若為跳轉節點類型則抓取目標
                     if (evt.PlayAvgDialog.Frames != null)
-                    {
                         foreach (var frame in evt.PlayAvgDialog.Frames)
-                        {
-                            if (frame.FrameType == DialogFrame.Types.FrameType.WithJumpNode &&
-                                !string.IsNullOrEmpty(frame.TargetNodeId))
-                            {
+                            if (frame.FrameType == DialogFrame.Types.FrameType.WithJumpNode && !string.IsNullOrEmpty(frame.TargetNodeId))
                                 yield return frame.TargetNodeId;
-                            }
-                        }
-                    }
                     break;
             }
         }
 
-        private async UniTask ScrollToNode(StoryNode targetNode)
-        {
+        public async UniTask ScrollToNode(StoryNode targetNode)
+        { /* 保持原樣不變 */
             if (targetNode == null || !nodeDepthMap.ContainsKey(targetNode)) return;
 
             await UniTask.WaitForEndOfFrame();
@@ -321,7 +397,7 @@ namespace BMC.Story
         }
 
         public void ClearOldLayout()
-        {
+        { /* 保持原樣不變 */
             StopAllCoroutines();
 
             List<GameObject> toDestroy = new List<GameObject>();
