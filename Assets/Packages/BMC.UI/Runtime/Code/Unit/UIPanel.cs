@@ -27,6 +27,7 @@ namespace BMC.UI
         private List<UIPanel> subPanels = new List<UIPanel>();
 
         public Action hideCallback = null;
+        public bool IsHide => !rootPanel?.activeSelf ?? false;
 
         // 用於追蹤所有 UniTask 的 cancellation token
         private CancellationTokenSource cts = new CancellationTokenSource();
@@ -44,11 +45,11 @@ namespace BMC.UI
             if (closeBtn)
                 closeBtn.OnClick = () => { ClosePanel(); };
         }
-        protected virtual void UnHidePanel()
+        public virtual void UnHidePanel()
         {
             rootPanel?.SetActive(true);
         }
-        protected virtual void HidePanel()
+        public virtual void HidePanel()
         {
             rootPanel?.SetActive(false);
         }
