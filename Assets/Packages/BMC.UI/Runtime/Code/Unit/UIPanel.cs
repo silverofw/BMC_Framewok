@@ -34,6 +34,8 @@ namespace BMC.UI
         private CancellationTokenSource cts = new CancellationTokenSource();
         private bool isCloseing = false;
 
+        public bool IsHide => !rootPanel?.activeSelf ?? false;
+
         public void Init(UICanvasType uICanvasType = UICanvasType.SCENE_UI_1)
         {
             crtCanvasType = uICanvasType;
