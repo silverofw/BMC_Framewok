@@ -194,7 +194,6 @@ MonoBehaviour:
   rootPanel: {fileID: 0}
   mask: {fileID: 3623962932829543337}
   closeBtn: {fileID: 0}
-  uiUtility: {fileID: 3060905775417603307}
   gridWidth: 0
   joypadItems:
   - {fileID: 3666693850115125455}
@@ -211,11 +210,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1321739597920024835, guid: 22e3fcc8f010f6e45a8c746304208a17, type: 3}
       propertyPath: m_text
-      value: 'WWWWWWWWWWWWWWWWWWWWWWW
-
-        WWWW
-
-        WWW'
+      value: WWWWWW
       objectReference: {fileID: 0}
     - target: {fileID: 1321739597920024835, guid: 22e3fcc8f010f6e45a8c746304208a17, type: 3}
       propertyPath: m_fontSize
@@ -572,27 +567,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9129970719955700205, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
       propertyPath: m_Pivot.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9129970719955700205, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9129970719955700205, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9129970719955700205, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9129970719955700205, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9129970719955700205, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 750
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 9129970719955700205, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
       propertyPath: m_SizeDelta.y
@@ -604,7 +599,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9129970719955700205, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -250
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -620,17 +615,6 @@ PrefabInstance:
       addedObject: {fileID: 1138443167785963139}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
---- !u!114 &3060905775417603307 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 802544928273861418, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}
-  m_PrefabInstance: {fileID: 2403149556020363201}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b3315aeed3e49244a2f0c9ce7f581dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3623962932829543337 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1374535631635997800, guid: 830a4bfd8edc70d4cba2d3138cde9eed, type: 3}

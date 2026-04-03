@@ -252,7 +252,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a23f3262314c48f498b7b9048f6d4384, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rootPanel: {fileID: 0}
+  rootPanel: {fileID: 2606309891981434456}
   mask: {fileID: 0}
   closeBtn: {fileID: 0}
   text: {fileID: 534364462817902776}
