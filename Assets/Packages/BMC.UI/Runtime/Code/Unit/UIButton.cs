@@ -1,15 +1,12 @@
-﻿using Cysharp.Threading.Tasks;
-using DG.Tweening;
+﻿using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Scripting.APIUpdating;
 
 namespace BMC.UI
 {
-    [MovedFrom(true, "Assembly-CSharp", null, null)]
     public class UIButton : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler,
         IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
     {
@@ -18,29 +15,33 @@ namespace BMC.UI
         [SerializeField] private RectTransform[] targets;
         [SerializeField] private float scale = 0.9f;
         [SerializeField] private float during = 0.1f;
+
+        [Header("點擊判定")]
+        [SerializeField, Tooltip("移動距離超過此像素值則取消 Click 觸發")]
+        private float clickTolerance = 10f;
+
         [SerializeField, Header("音效(空為靜音)")] private AudioClip clickAudio;
 
         private bool isPressing;
         private bool isDrag;
         private bool isDragV;
         private bool isDragH;
+        private Vector2 pressPos; // 記錄按下的座標
+
         private List<Tween> tweens = new List<Tween>();
         private CancellationTokenSource cts = new CancellationTokenSource();
 
         public Action OnClick;
         public Action OnEnter;
         public Action OnExit;
-        public Action BeginDrag;
-        public Action Drag;
-        public Action EndDrag;
+
+        public Action<Vector2> BeginDrag;
+        public Action<Vector2> Drag;
+        public Action<Vector2> EndDrag;
 
         private void OnDisable()
         {
-            foreach (var tween in tweens)
-            {
-                tween.Kill();
-            }
-            tweens.Clear();
+            ClearTweens();
         }
 
         private void OnDestroy()
@@ -51,132 +52,134 @@ namespace BMC.UI
                 cts.Dispose();
                 cts = new CancellationTokenSource();
             }
+            ClearTweens();
+        }
+
+        private void ClearTweens()
+        {
+            foreach (var tween in tweens)
+            {
+                if (tween != null && tween.IsActive())
+                    tween.Kill();
+            }
+            tweens.Clear();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            OnEnter?.Invoke();
             if (!isPressing)
                 return;
             Anima(scale);
         }
+
         public void OnPointerExit(PointerEventData eventData)
         {
-            //Debug.Log("Pointer exit!");
+            OnExit?.Invoke();
             Anima();
         }
+
         public void OnPointerDown(PointerEventData eventData)
         {
-            //Debug.Log("Pointer down!");
             isPressing = true;
             isDrag = false;
             isDragV = false;
             isDragH = false;
+            pressPos = eventData.position; // 紀錄按下時的座標
             Anima(scale);
         }
+
         public void OnPointerUp(PointerEventData eventData)
         {
-            //Debug.Log("Pointer up!"); 
             isPressing = false;
-            if (!isDrag)
+
+            // 計算放開時與按下時的距離
+            float dist = Vector2.Distance(pressPos, eventData.position);
+
+            // 只有在非拖拽狀態 且 移動距離小於容忍值時才觸發 OnClick
+            if (!isDrag && dist <= clickTolerance)
             {
-                //Toast.Show("CHICK");
                 OnClick?.Invoke();
                 playClickAudio();
             }
+
             Anima();
         }
 
         void Anima(float scale = 1)
         {
+            ClearTweens();
             foreach (var item in targets)
             {
                 if (item == null)
-                {
-                    Debug.LogWarning($"[BreatheButton][{name}] null ref");
                     continue;
-                }
-                tweens.Add(item.DOScale(scale, during));
+                tweens.Add(item.DOScale(scale, during).SetEase(Ease.OutQuad));
             }
         }
 
         public void playClickAudio()
         {
-            UIMgr.Instance.eventHandler.Send((int)UIEvent.AUDIO_BUTTON_CLICK);
+            if (UIMgr.Instance != null)
+                UIMgr.Instance.eventHandler.Send((int)UIEvent.AUDIO_BUTTON_CLICK);
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             isDrag = true;
+            BeginDrag?.Invoke(eventData.position);
 
-            // 傳遞 PointerEventData
             if (sendObjs != null)
             {
                 foreach (var obj in sendObjs)
-                {
                     ExecuteEvents.Execute(obj, eventData, ExecuteEvents.beginDragHandler);
-                }
             }
 
             if (sendHObjs != null)
             {
                 foreach (var obj in sendHObjs)
-                {
                     ExecuteEvents.Execute(obj, eventData, ExecuteEvents.beginDragHandler);
-                }
             }
         }
+
         public void OnDrag(PointerEventData eventData)
         {
+            Drag?.Invoke(eventData.position);
+
             if (!isDragH && !isDragV)
             {
                 if (Mathf.Abs(eventData.delta.x) > Mathf.Abs(eventData.delta.y))
-                {
                     isDragH = true;
-                }
                 else
-                {
                     isDragV = true;
-                }
             }
 
-            if (isDragV)
+            if (isDragV && sendObjs != null)
             {
-                // 傳遞 PointerEventData
-                if (sendObjs == null)
-                    return;
                 foreach (var obj in sendObjs)
-                {
                     ExecuteEvents.Execute(obj, eventData, ExecuteEvents.dragHandler);
-                }
             }
-            if (isDragH)
+
+            if (isDragH && sendHObjs != null)
             {
-                // 傳遞 PointerEventData
-                if (sendHObjs == null)
-                    return;
                 foreach (var obj in sendHObjs)
-                {
                     ExecuteEvents.Execute(obj, eventData, ExecuteEvents.dragHandler);
-                }
             }
         }
+
         public void OnEndDrag(PointerEventData eventData)
         {
-            // 傳遞 PointerEventData
+            EndDrag?.Invoke(eventData.position);
+
             if (sendObjs != null)
             {
                 foreach (var obj in sendObjs)
-                {
                     ExecuteEvents.Execute(obj, eventData, ExecuteEvents.endDragHandler);
-                }
             }
 
             if (sendHObjs != null)
             {
                 foreach (var obj in sendHObjs)
-                {
                     ExecuteEvents.Execute(obj, eventData, ExecuteEvents.endDragHandler);
-                }
             }
         }
     }
