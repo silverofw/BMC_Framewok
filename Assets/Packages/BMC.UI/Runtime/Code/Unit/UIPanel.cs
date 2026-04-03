@@ -51,8 +51,8 @@ namespace BMC.UI
                 closeBtn.OnClick = () => { ClosePanel(); };
         }
 
-        protected virtual void UnHidePanel() => rootPanel?.SetActive(true);
-        protected virtual void HidePanel() => rootPanel?.SetActive(false);
+        public virtual void UnHidePanel() => rootPanel?.SetActive(true);
+        public virtual void HidePanel() => rootPanel?.SetActive(false);
 
         public virtual void close()
         {
