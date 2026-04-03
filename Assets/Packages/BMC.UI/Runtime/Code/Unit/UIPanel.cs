@@ -1,62 +1,59 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.UI;
 
 namespace BMC.UI
 {
-    [MovedFrom(true, "Assembly-CSharp", null, null)]
+    public interface IUIPanelAnimator
+    {
+        // 播放開啟動畫
+        void PlayOpen();
+
+        // 播放關閉動畫，並等待完成
+        UniTask PlayCloseAsync(CancellationToken token);
+    }
+
     public class UIPanel : MonoBehaviour
     {
-        /// <summary>
-        /// 開啟介面時停用腳色控制
-        /// </summary>
         public virtual bool maskControl => false;
 
         [SerializeField] private GameObject rootPanel;
         [SerializeField] private Button mask;
         [SerializeField] private UIButton closeBtn;
-        [SerializeField] private UIPanelAnimaTool uiUtility;
+
+        // 解耦核心：改用介面
+        private IUIPanelAnimator _animator;
 
         protected UICanvasType crtCanvasType = UICanvasType.SCENE_UI_1;
         private List<UIPanel> subPanels = new List<UIPanel>();
 
         public Action hideCallback = null;
-
-        // 用於追蹤所有 UniTask 的 cancellation token
         private CancellationTokenSource cts = new CancellationTokenSource();
         private bool isCloseing = false;
 
         public void Init(UICanvasType uICanvasType = UICanvasType.SCENE_UI_1)
         {
             crtCanvasType = uICanvasType;
+            // 初始化時取得動畫組件
+            _animator = GetComponent<IUIPanelAnimator>();
             Show();
         }
 
         protected virtual void Show()
         {
-            mask?.onClick.AddListener(() => { onMaskClick(); });
+            _animator?.PlayOpen(); // 執行開啟動畫
+
+            mask?.onClick.AddListener(onMaskClick);
             if (closeBtn)
                 closeBtn.OnClick = () => { ClosePanel(); };
         }
-        protected virtual void UnHidePanel()
-        {
-            rootPanel?.SetActive(true);
-        }
-        protected virtual void HidePanel()
-        {
-            rootPanel?.SetActive(false);
-        }
 
-        /// <summary>
-        /// 限定 UIMgr 呼叫
-        /// 同時關閉所有子panel
-        /// </summary>
+        protected virtual void UnHidePanel() => rootPanel?.SetActive(true);
+        protected virtual void HidePanel() => rootPanel?.SetActive(false);
+
         public virtual void close()
         {
             hideCallback?.Invoke();
@@ -67,22 +64,25 @@ namespace BMC.UI
             }
             subPanels.Clear();
         }
+
         /// <summary>
-        /// 關閉介面+動畫
+        /// 關閉介面：現在使用 async 流程處理動畫等待
         /// </summary>
-        public virtual void ClosePanel(Action callBack = null)
+        public virtual async void ClosePanel(Action callBack = null)
         {
-            if (isCloseing)
-            {
-                return;
-            }
+            if (isCloseing) return;
             isCloseing = true;
 
-            if (uiUtility != null)
+            try
             {
-                uiUtility.DOPlayBackwards(() => { UIMgr.Instance.closePanel(this, false, callBack); });
+                if (_animator != null)
+                {
+                    // 等待動畫播放完畢
+                    await _animator.PlayCloseAsync(cts.Token);
+                }
             }
-            else
+            catch (OperationCanceledException) { /* 忽略取消 */ }
+            finally
             {
                 UIMgr.Instance.closePanel(this, false, callBack);
             }
@@ -90,11 +90,9 @@ namespace BMC.UI
 
         protected virtual void OnDestroy()
         {
-            // 取消所有 UniTask
             cts.Cancel();
             cts.Dispose();
             StopAllCoroutines();
-
             UIMgr.Instance.RemovePanel(this);
         }
 
@@ -112,37 +110,6 @@ namespace BMC.UI
             return panel;
         }
 
-        protected virtual void onMaskClick()
-        {
-            ClosePanel();
-        }
-
-        protected void delayCall(float delay, Action callback)
-        {
-            delayCallAsync(delay, callback).Forget();
-        }
-
-        async UniTask WaitForSecondsAsync(float seconds)
-        {
-            float startTime = Time.time;
-            while (Time.time < startTime + seconds)
-            {
-                await Task.Yield(); // 每幀回到主執行緒
-                cts.Token.ThrowIfCancellationRequested(); // 檢查是否被取消
-            }
-        }
-
-        async UniTask delayCallAsync(float delay, Action action)
-        {
-            try
-            {
-                await WaitForSecondsAsync(delay).AttachExternalCancellation(cts.Token);
-                action?.Invoke();
-            }
-            catch (OperationCanceledException)
-            {
-                // 當被取消時不執行 action
-            }
-        }
+        protected virtual void onMaskClick() => ClosePanel();
     }
 }

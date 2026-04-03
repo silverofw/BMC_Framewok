@@ -15,8 +15,6 @@ namespace BMC.UI
     {
         [SerializeField] private GameObject[] sendObjs;
         [SerializeField] private GameObject[] sendHObjs;
-        //
-        //[SerializeField] private GameEvent inputEvent;
         [SerializeField] private RectTransform[] targets;
         [SerializeField] private float scale = 0.9f;
         [SerializeField] private float during = 0.1f;
@@ -30,22 +28,14 @@ namespace BMC.UI
         private CancellationTokenSource cts = new CancellationTokenSource();
 
         public Action OnClick;
-
-        private void OnEnable()
-        {
-            /*if (inputEvent != GameEvent.NONE)
-            {
-                UIPanel.eventHandler.Register((int)inputEvent, graphicClick);
-            }*/
-        }
+        public Action OnEnter;
+        public Action OnExit;
+        public Action BeginDrag;
+        public Action Drag;
+        public Action EndDrag;
 
         private void OnDisable()
         {
-            /*
-            if (inputEvent != GameEvent.NONE)
-            {
-                UIPanel.eventHandler.UnRegister((int)inputEvent, graphicClick);
-            }*/
             foreach (var tween in tweens)
             {
                 tween.Kill();
@@ -55,10 +45,6 @@ namespace BMC.UI
 
         private void OnDestroy()
         {
-            /*if (inputEvent != GameEvent.NONE)
-            {
-                UIPanel.eventHandler.UnRegister((int)inputEvent, graphicClick);
-            }*/
             if (cts != null)
             {
                 cts.Cancel();
@@ -100,28 +86,6 @@ namespace BMC.UI
             Anima();
         }
 
-        public void graphicClick()
-        {
-            graphicClickAsync().Forget();
-        }
-
-        /// <summary>
-        /// 手把表現，純視覺
-        /// </summary>
-        async UniTask graphicClickAsync()
-        {
-            if (cts != null)
-            {
-                cts.Cancel();
-                cts.Dispose();
-                cts = new CancellationTokenSource();
-            }
-            playClickAudio();
-            Anima(scale);
-            await UniTask.Delay((int)(during * 1000), cancellationToken: cts.Token);
-            Anima();
-        }
-
         void Anima(float scale = 1)
         {
             foreach (var item in targets)
@@ -137,10 +101,7 @@ namespace BMC.UI
 
         public void playClickAudio()
         {
-            if (clickAudio != null)
-            {
-                //AudioMgr.Instance.Play(clickAudio);
-            }
+            UIMgr.Instance.eventHandler.Send((int)UIEvent.AUDIO_BUTTON_CLICK);
         }
 
         public void OnBeginDrag(PointerEventData eventData)

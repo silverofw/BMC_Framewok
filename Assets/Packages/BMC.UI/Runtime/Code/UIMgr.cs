@@ -43,26 +43,7 @@ namespace BMC.UI
         INPUT_START,
         INPUT_SELECT,
 
-        // 之前不可改順序
-        /// <summary>
-        /// 
-        /// </summary>
-        UI_MASK_CONTROL = 10000,
-
-        UI_ROGUE_ADD_CHESS,
-        UI_UPDATE_BATTLE_TEAM_FIELD,
-        UI_HIDE_NORMAL_PANEL,
-        UI_SHOW_NORMAL_PANEL,
-
-        MAP_CLICK_POS,
-        MAP_CHECK_POS,
-
-        STORY_START,
-        STORY_FINISH,
-
-        ATOM_VIEW_SHOW,
-        ATOM_VIEW_HIDE,
-        ATOM_VIEW_REBUILD,
+        AUDIO_BUTTON_CLICK,
     }
     public enum UICanvasType
     {
@@ -253,7 +234,7 @@ namespace BMC.UI
                 Log.Error($"[{typeof(T)}] load error");
                 return null;
             }
-            var panel = go.GetComponent<T>();
+            var panel = go.GetComponent<UIPanel>();
             uiMaskControlCount += panel.maskControl ? 1 : 0;
             if (uiMaskControlCount == 1)
             {
@@ -300,7 +281,7 @@ namespace BMC.UI
             }
             else
             {
-                uiMaskControlCount -= panel.maskControl ? 1 : 0;                
+                uiMaskControlCount -= panel.maskControl ? 1 : 0;
                 if (uiMaskControlCount == 0)
                 {
                     UIMaskControl?.Invoke(false);

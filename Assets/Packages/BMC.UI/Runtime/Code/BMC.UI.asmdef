@@ -4,7 +4,6 @@
     "references": [
         "BMC.Core",
         "UniTask",
-        "DOTweenPro.Scripts",
         "DOTween.Modules",
         "Unity.TextMeshPro",
         "Unity.InputSystem",
