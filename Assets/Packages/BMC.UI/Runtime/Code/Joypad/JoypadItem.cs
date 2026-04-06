@@ -4,13 +4,13 @@ namespace BMC.UI
 {
     public class JoypadItem : MonoBehaviour
     {
-        [SerializeField] protected TMP_Text info;
+        [SerializeField] protected UIText info;
         [SerializeField] private UIButton breatheButton;
         [SerializeField] private GameObject selectObj;
 
         public void Init(string title, System.Action callback)
         {
-            info.text = title;
+            info.Set(title);
             breatheButton.OnClick = callback;
         }
         public void Init(System.Action callback)

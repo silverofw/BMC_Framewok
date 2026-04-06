@@ -38,14 +38,6 @@ MonoBehaviour:
         FilterRuleName: CollectPrefab
         AssetTags: 
         UserData: 
-      - CollectPath: Assets/Packages/BMC.AI/Samples/Basic Controls/Prefabs
-        CollectorGUID: 1a3986a09b745ec4cafb35928a97fa09
-        CollectorType: 0
-        AddressRuleName: AddressByFileName
-        PackRuleName: PackDirectory
-        FilterRuleName: CollectAll
-        AssetTags: 
-        UserData: 
       - CollectPath: Assets/yoo/DefaultPackage/UI
         CollectorGUID: 3b681d2635558ae458396dd00d248cef
         CollectorType: 0
