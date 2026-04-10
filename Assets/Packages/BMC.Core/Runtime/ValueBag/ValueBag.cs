@@ -8,7 +8,7 @@ namespace BMC.Core
     public class ValueBag
     {
         public Dictionary<int, ValueInst> Dic = new();
-        public void add(int index, long value)
+        public void Add(int index, long value)
         {
             if (Dic.TryGetValue(index, out var inst))
             {
@@ -33,7 +33,7 @@ namespace BMC.Core
             }
         }
 
-        public bool getBool(int index)
+        public bool GetB(int index)
         {
             if (Dic.TryGetValue(index, out var inst))
             {
@@ -49,7 +49,7 @@ namespace BMC.Core
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public long getValue(int index)
+        public long GetV(int index)
         {
             if (Dic.TryGetValue(index, out var inst))
             {
@@ -61,12 +61,12 @@ namespace BMC.Core
             }
         }
 
-        public long getV(ValueType valueType)
+        public long GetV(ValueType valueType)
         {
-            return getValue((int)valueType);
+            return GetV((int)valueType);
         }
 
-        public void setValue(int index, long value)
+        public void SetV(int index, long value)
         {
             if(value == 0)
             {
@@ -80,13 +80,13 @@ namespace BMC.Core
             }
             else
             {
-                add(index, value);
+                Add(index, value);
             }
         }
 
-        public void setValue(ValueType valueType, long value)
+        public void SetV(ValueType valueType, long value)
         {
-            setValue((int)valueType, value);
+            SetV((int)valueType, value);
         }
     }
 }
