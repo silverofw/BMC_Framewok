@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -114,6 +115,34 @@ namespace BMC.UI
                 selectedPageIndex = 0;
             selectedItemIndex = 0;
             updateUI();
+        }
+
+        // ==========================================
+        // 封裝的輔助方法 (Helper Methods)
+        // ==========================================
+
+        /// <summary>
+        /// 創建基礎的 Joypad 按鈕綁定委派
+        /// </summary>
+        protected System.Action<GameObject, int> CreateJoypadAction(string name, System.Action onClick)
+        {
+            return (go, i) => go.GetComponent<JoypadItem>().Init(name, onClick);
+        }
+
+        /// <summary>
+        /// 創建開啟標準 UI Panel 的按鈕綁定委派
+        /// </summary>
+        protected System.Action<GameObject, int> CreatePanelAction<T>(string name = null) where T : UIPanel
+        {
+            return CreateJoypadAction(name ?? typeof(T).Name, () => UIMgr.Instance.ShowPanel<T>().Forget());
+        }
+
+        /// <summary>
+        /// 創建開啟 SubPanel 的按鈕綁定委派
+        /// </summary>
+        protected System.Action<GameObject, int> CreateSubPanelAction<T>(string name = null) where T : UIPanel
+        {
+            return CreateJoypadAction(name ?? typeof(T).Name, () => OpenSubPanel<T>().Forget());
         }
     }
 }
