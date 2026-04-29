@@ -71,6 +71,9 @@ namespace BMC.UI
                             p.Initial("Hello", "MSG");
                         }).Forget();
                     }),
+                    ("PreviewPanel", () => {
+                        UIMgr.Instance.ShowPanel<PreviewPanel>().Forget();
+                    }),
                     ("Loading", () => {
                         UIMgr.Instance.closePanel(UIMgr.Instance.GetPanel<DebugPanel>(), true, () => {
                             LoadPanel.Show(async () => {

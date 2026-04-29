@@ -5,7 +5,6 @@ using UnityEngine.Scripting.APIUpdating;
 
 namespace BMC.UI
 {
-    [MovedFrom(true, "Assembly-CSharp", null, null)]
     public class UIText : MonoBehaviour
     {
         [SerializeField] private TMP_Text text;
