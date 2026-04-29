@@ -71,10 +71,14 @@ namespace BMC.Core
             }
         }
 
-
         public bool Check(string location)
         {
-            return YooAssets.CheckLocationValid(location);
+            foreach (var item in dic)
+            {
+                if (Check(item.Value, location))
+                    return true;
+            }
+            return false;
         }
         public bool Check(ResourcePackage package, string location)
         {
