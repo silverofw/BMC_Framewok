@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.ui",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "displayName": "BMC UI System",
   "description": "BMC 通用介面系統。",
   "unity": "6000.0",

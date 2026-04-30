@@ -95,7 +95,7 @@ namespace BMC.UI
         /// UI屏蔽控制
         /// </summary>
         public Action<bool> UIMaskControl;
-        public int uiMaskControlCount = 0;
+        public List<UIPanel> uiMaskControlCount = new List<UIPanel>();
 
         protected override void Init()
         {
@@ -137,6 +137,13 @@ namespace BMC.UI
 
         public void RemovePanel(UIPanel panel)
         {
+            Log.Info($"[RemovePanel][JoypadPanel: {joypadPanels.Count}] {panel}");
+            uiMaskControlCount.Remove(panel);
+            if (uiMaskControlCount.Count == 0)
+                UIMaskControl?.Invoke(false);
+
+            if (joypadPanels.Count > 0 && joypadPanels.Peek() == panel)
+                joypadPanels.Pop();
             panels.Remove(panel);
         }
 
@@ -235,8 +242,11 @@ namespace BMC.UI
                 return null;
             }
             var panel = go.GetComponent<T>();
-            uiMaskControlCount += panel.maskControl ? 1 : 0;
-            if (uiMaskControlCount == 1)
+            if (panel.maskControl)
+            {
+                uiMaskControlCount.Add(panel);
+            }
+            if (uiMaskControlCount.Count == 1)
             {
                 UIMaskControl?.Invoke(true);
             }
@@ -281,17 +291,8 @@ namespace BMC.UI
             }
             else
             {
-                uiMaskControlCount -= panel.maskControl ? 1 : 0;
-                if (uiMaskControlCount == 0)
-                {
-                    UIMaskControl?.Invoke(false);
-                }
-                if (uiMaskControlCount < 0)
-                    Log.Error($"[ERROR] {uiMaskControlCount}");
-                if (joypadPanels.Count > 0 && joypadPanels.Peek() == panel)
-                    joypadPanels.Pop();
+                RemovePanel(panel);
                 panel.close();
-                panels.Remove(panel);
                 if (panel.gameObject != null)
                     GameObject.Destroy(panel.gameObject);
                 callback?.Invoke();
