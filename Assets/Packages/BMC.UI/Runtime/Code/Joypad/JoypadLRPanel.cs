@@ -22,10 +22,28 @@ namespace BMC.UI
         {
             if (item != null)
                 item.gameObject.SetActive(false);
+            if (pageItem != null)
+                pageItem.gameObject.SetActive(false);
 
             base.Show();
             UIMgr.Instance.eventHandler.Register((int)UIEvent.INPUT_SHOULDER_L, onLeft);
             UIMgr.Instance.eventHandler.Register((int)UIEvent.INPUT_SHOULDER_R, onRight);
+
+            InitDic();
+        }
+        public void InitDic(List<(string, List<Action<GameObject, int>>)> dic)
+        {
+            actionDic = dic;
+            InitDic();
+        }
+        public void InitDic()
+        {
+            // 清除舊的頁面
+            foreach (var go in pages)
+            {
+                GameObject.Destroy(go.gameObject);
+            }
+            pages.Clear();
 
             for (int i = 0; i < actionDic.Count; i++)
             {
@@ -42,8 +60,6 @@ namespace BMC.UI
                 });
                 go.SetActive(true);
             }
-            if (pageItem != null)
-                pageItem.gameObject.SetActive(false);
 
             updateUI();
         }

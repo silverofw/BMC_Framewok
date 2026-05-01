@@ -51,7 +51,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: view::JoypadItem
   info: {fileID: 1386529818318149776}
-  breatheButton: {fileID: 1822225891940800397}
+  btn: {fileID: 1822225891940800397}
   selectObj: {fileID: 6691108273643322497}
 --- !u!1 &6691108273643322497
 GameObject:
