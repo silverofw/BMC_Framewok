@@ -97,8 +97,8 @@ namespace BMC.UI
         public Action<bool> UIMaskControl;
         public List<UIPanel> uiMaskControlCount = new List<UIPanel>();
 
-        // 用來快取匿名函式，以供正確地解註冊
-        private Dictionary<int, Action> globalJoypadActions = new Dictionary<int, Action>();
+        // 用來快取匿名函式，以供正確地解註冊 (改為 Delegate 以支援不同參數)
+        private Dictionary<int, Delegate> globalJoypadActions = new Dictionary<int, Delegate>();
 
         protected override void Init()
         {
@@ -118,45 +118,50 @@ namespace BMC.UI
             // 防護機制：若已經註冊過，就不重複註冊
             if (globalJoypadActions.Count > 0) return;
 
-            globalJoypadActions[(int)UIEvent.INPUT_UP] = () => TopPanelAction(p => p.OnInputUp());
-            globalJoypadActions[(int)UIEvent.INPUT_DOWN] = () => TopPanelAction(p => p.OnInputDown());
-            globalJoypadActions[(int)UIEvent.INPUT_LEFT] = () => TopPanelAction(p => p.OnInputLeft());
-            globalJoypadActions[(int)UIEvent.INPUT_RIGHT] = () => TopPanelAction(p => p.OnInputRight());
+            globalJoypadActions[(int)UIEvent.INPUT_UP] = new Action(() => TopPanelAction(p => p.OnInputUp()));
+            globalJoypadActions[(int)UIEvent.INPUT_DOWN] = new Action(() => TopPanelAction(p => p.OnInputDown()));
+            globalJoypadActions[(int)UIEvent.INPUT_LEFT] = new Action(() => TopPanelAction(p => p.OnInputLeft()));
+            globalJoypadActions[(int)UIEvent.INPUT_RIGHT] = new Action(() => TopPanelAction(p => p.OnInputRight()));
 
-            globalJoypadActions[(int)UIEvent.INPUT_A] = () => TopPanelAction(p => p.OnInputA());
+            globalJoypadActions[(int)UIEvent.INPUT_A] = new Action(() => TopPanelAction(p => p.OnInputA()));
 
             // B鍵原本有綁定 closeJoypadPanel，現在改成先觸發面板的 OnInputB，
             // 也可以保留預設關閉行為，或是讓面板自己決定要不要關閉。
             // 這裡保留預設行為：如果面板沒有攔截 B 鍵，就關閉它。
-            globalJoypadActions[(int)UIEvent.INPUT_B] = () => {
+            globalJoypadActions[(int)UIEvent.INPUT_B] = new Action(() => {
                 var top = GetTopJoypadPanel();
                 if (top != null)
                 {
                     top.OnInputB();
                     closeJoypadPanel(); // 預設的 B 鍵關閉行為
                 }
-            };
+            });
 
-            globalJoypadActions[(int)UIEvent.INPUT_X] = () => TopPanelAction(p => p.OnInputX());
-            globalJoypadActions[(int)UIEvent.INPUT_Y] = () => TopPanelAction(p => p.OnInputY());
+            globalJoypadActions[(int)UIEvent.INPUT_X] = new Action(() => TopPanelAction(p => p.OnInputX()));
+            globalJoypadActions[(int)UIEvent.INPUT_Y] = new Action(() => TopPanelAction(p => p.OnInputY()));
 
-            globalJoypadActions[(int)UIEvent.INPUT_SHOULDER_L] = () => TopPanelAction(p => p.OnInputShoulderLeft());
-            globalJoypadActions[(int)UIEvent.INPUT_SHOULDER_R] = () => TopPanelAction(p => p.OnInputShoulderRight());
-            globalJoypadActions[(int)UIEvent.INPUT_TRIGGER_L] = () => TopPanelAction(p => p.OnInputTriggerLeft());
-            globalJoypadActions[(int)UIEvent.INPUT_TRIGGER_R] = () => TopPanelAction(p => p.OnInputTriggerRight());
+            globalJoypadActions[(int)UIEvent.INPUT_SHOULDER_L] = new Action(() => TopPanelAction(p => p.OnInputShoulderLeft()));
+            globalJoypadActions[(int)UIEvent.INPUT_SHOULDER_R] = new Action(() => TopPanelAction(p => p.OnInputShoulderRight()));
+            globalJoypadActions[(int)UIEvent.INPUT_TRIGGER_L] = new Action(() => TopPanelAction(p => p.OnInputTriggerLeft()));
+            globalJoypadActions[(int)UIEvent.INPUT_TRIGGER_R] = new Action(() => TopPanelAction(p => p.OnInputTriggerRight()));
 
-            globalJoypadActions[(int)UIEvent.INPUT_START] = () => TopPanelAction(p => p.OnInputStart());
-            globalJoypadActions[(int)UIEvent.INPUT_SELECT] = () => TopPanelAction(p => p.OnInputSystemSelect());
+            globalJoypadActions[(int)UIEvent.INPUT_START] = new Action(() => TopPanelAction(p => p.OnInputStart()));
+            globalJoypadActions[(int)UIEvent.INPUT_SELECT] = new Action(() => TopPanelAction(p => p.OnInputSystemSelect()));
 
-            globalJoypadActions[(int)UIEvent.INPUT_STICK_R] = () => TopPanelAction(p => p.OnInputStickR());
-            globalJoypadActions[(int)UIEvent.INPUT_STICK_R_UP] = () => TopPanelAction(p => p.OnInputStickRUp());
-            globalJoypadActions[(int)UIEvent.INPUT_STICK_R_DOWN] = () => TopPanelAction(p => p.OnInputStickRDown());
-            globalJoypadActions[(int)UIEvent.INPUT_STICK_R_LEFT] = () => TopPanelAction(p => p.OnInputStickRLeft());
-            globalJoypadActions[(int)UIEvent.INPUT_STICK_R_RIGHT] = () => TopPanelAction(p => p.OnInputStickRRight());
+            // 修改這行：INPUT_STICK_R 改為接收 Vector2 參數
+            globalJoypadActions[(int)UIEvent.INPUT_STICK_R] = new Action<Vector2>((v) => TopPanelAction(p => p.OnInputStickR(v)));
+
+            globalJoypadActions[(int)UIEvent.INPUT_STICK_R_UP] = new Action(() => TopPanelAction(p => p.OnInputStickRUp()));
+            globalJoypadActions[(int)UIEvent.INPUT_STICK_R_DOWN] = new Action(() => TopPanelAction(p => p.OnInputStickRDown()));
+            globalJoypadActions[(int)UIEvent.INPUT_STICK_R_LEFT] = new Action(() => TopPanelAction(p => p.OnInputStickRLeft()));
+            globalJoypadActions[(int)UIEvent.INPUT_STICK_R_RIGHT] = new Action(() => TopPanelAction(p => p.OnInputStickRRight()));
 
             foreach (var kvp in globalJoypadActions)
             {
-                eventHandler.Register(kvp.Key, kvp.Value);
+                if (kvp.Value is Action act)
+                    eventHandler.Register(kvp.Key, act);
+                else if (kvp.Value is Action<Vector2> actV2)
+                    eventHandler.Register(kvp.Key, actV2);
             }
         }
 
@@ -164,7 +169,10 @@ namespace BMC.UI
         {
             foreach (var kvp in globalJoypadActions)
             {
-                eventHandler.UnRegister(kvp.Key, kvp.Value);
+                if (kvp.Value is Action act)
+                    eventHandler.UnRegister(kvp.Key, act);
+                else if (kvp.Value is Action<Vector2> actV2)
+                    eventHandler.UnRegister(kvp.Key, actV2);
             }
             globalJoypadActions.Clear();
         }

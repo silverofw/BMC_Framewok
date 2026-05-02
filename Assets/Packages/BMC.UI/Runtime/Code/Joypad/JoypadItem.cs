@@ -54,7 +54,7 @@ namespace BMC.UI
         public virtual bool OnX() { return false; }
         public virtual bool OnY() { return false; }
 
-        public virtual bool OnStickR() { return false; }
+        public virtual bool OnStickR(Vector2 v) { return false; }
         public virtual bool OnStickRUp() { return false; }
         public virtual bool OnStickRDown() { return false; }
         public virtual bool OnStickRLeft() { return false; }

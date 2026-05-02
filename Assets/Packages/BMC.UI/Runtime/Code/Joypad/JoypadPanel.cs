@@ -144,7 +144,7 @@ namespace BMC.UI
         // ==========================================
         // 其餘擴充指令，由子類別根據需求 override，並優先傳遞給選取的 Item
         // ==========================================
-        public virtual void OnInputStickR() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickR(); }
+        public virtual void OnInputStickR(Vector2 v) { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickR(v); }
         public virtual void OnInputStickRUp() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickRUp(); }
         public virtual void OnInputStickRDown() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickRDown(); }
         public virtual void OnInputStickRLeft() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickRLeft(); }
