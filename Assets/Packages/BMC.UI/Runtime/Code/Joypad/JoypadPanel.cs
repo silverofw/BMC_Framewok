@@ -23,14 +23,7 @@ namespace BMC.UI
         protected override void Show()
         {
             base.Show();
-            UIMgr.Instance.joypadPanels.Push(this);
-            //Log.Info($"[JoypadPanel][{joypadPanels.Count}] Show Panel {this.GetType().Name}");
-
-            UIMgr.Instance.eventHandler.Register((int)UIEvent.INPUT_UP, onUp);
-            UIMgr.Instance.eventHandler.Register((int)UIEvent.INPUT_DOWN, onDown);
-            UIMgr.Instance.eventHandler.Register((int)UIEvent.INPUT_LEFT, onLeft);
-            UIMgr.Instance.eventHandler.Register((int)UIEvent.INPUT_RIGHT, onRight);
-            UIMgr.Instance.eventHandler.Register((int)UIEvent.INPUT_A, select);
+            UIMgr.Instance.PushJoypadPanel(this); // 改由 UIMgr 來負責 Push 和註冊事件
 
             updateJoyItems();
         }
@@ -38,12 +31,7 @@ namespace BMC.UI
         public override void close()
         {
             base.close();
-
-            UIMgr.Instance.eventHandler.UnRegister((int)UIEvent.INPUT_UP, onUp);
-            UIMgr.Instance.eventHandler.UnRegister((int)UIEvent.INPUT_DOWN, onDown);
-            UIMgr.Instance.eventHandler.UnRegister((int)UIEvent.INPUT_LEFT, onLeft);
-            UIMgr.Instance.eventHandler.UnRegister((int)UIEvent.INPUT_RIGHT, onRight);
-            UIMgr.Instance.eventHandler.UnRegister((int)UIEvent.INPUT_A, select);
+            // 反註冊與 Pop 動作也交由 UIMgr 的 RemovePanel 或 closeJoypadPanel 處理
         }
 
         public void CloseTopPanel()
@@ -61,10 +49,25 @@ namespace BMC.UI
             }
         }
 
-        void onUp()
+        // ==========================================
+        // 取得當前選取的 JoypadItem
+        // ==========================================
+        protected JoypadItem GetSelectedJoypadItem()
         {
-            if (!UIMgr.Instance.IsTopPanel(this))
-                return;
+            if (joypadItems != null && selectedItemIndex >= 0 && selectedItemIndex < joypadItems.Count)
+            {
+                return joypadItems[selectedItemIndex];
+            }
+            return null;
+        }
+
+        // ==========================================
+        // 接收 UIMgr 傳遞過來的輸入指令 (這部分原本是 Action，現在變成 public 給 UIMgr 呼叫)
+        // ==========================================
+        public virtual void OnInputUp()
+        {
+            var item = GetSelectedJoypadItem();
+            if (item != null && item.OnUp()) return; // 若 Item 攔截了事件，則不往下執行
 
             if (selectedItemIndex >= gridWidth)
             {
@@ -77,10 +80,10 @@ namespace BMC.UI
             }
         }
 
-        void onDown()
+        public virtual void OnInputDown()
         {
-            if (!UIMgr.Instance.IsTopPanel(this))
-                return;
+            var item = GetSelectedJoypadItem();
+            if (item != null && item.OnDown()) return;
 
             if (selectedItemIndex + gridWidth < joypadItems.Count)
             {
@@ -93,10 +96,10 @@ namespace BMC.UI
             }
         }
 
-        void onLeft()
+        public virtual void OnInputLeft()
         {
-            if (!UIMgr.Instance.IsTopPanel(this))
-                return;
+            var item = GetSelectedJoypadItem();
+            if (item != null && item.OnLeft()) return;
 
             if (selectedItemIndex > 0)
             {
@@ -109,10 +112,10 @@ namespace BMC.UI
             }
         }
 
-        void onRight()
+        public virtual void OnInputRight()
         {
-            if (!UIMgr.Instance.IsTopPanel(this))
-                return;
+            var item = GetSelectedJoypadItem();
+            if (item != null && item.OnRight()) return;
 
             if (selectedItemIndex < joypadItems.Count - 1)
             {
@@ -125,10 +128,11 @@ namespace BMC.UI
             }
         }
 
-        void select()
+        public virtual void OnInputA()
         {
-            if (!UIMgr.Instance.IsTopPanel(this))
-                return;
+            var item = GetSelectedJoypadItem();
+            if (item != null && item.OnA()) return; // A鍵等同於原本的 Select 邏輯
+
             if (joypadItems.Count <= selectedItemIndex)
             {
                 Log.Warning("NO ITEM");
@@ -136,5 +140,26 @@ namespace BMC.UI
             }
             joypadItems[selectedItemIndex].Excute();
         }
+
+        // ==========================================
+        // 其餘擴充指令，由子類別根據需求 override，並優先傳遞給選取的 Item
+        // ==========================================
+        public virtual void OnInputStickR() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickR(); }
+        public virtual void OnInputStickRUp() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickRUp(); }
+        public virtual void OnInputStickRDown() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickRDown(); }
+        public virtual void OnInputStickRLeft() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickRLeft(); }
+        public virtual void OnInputStickRRight() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStickRRight(); }
+
+        public virtual void OnInputB() { var item = GetSelectedJoypadItem(); if (item != null) item.OnB(); }
+        public virtual void OnInputX() { var item = GetSelectedJoypadItem(); if (item != null) item.OnX(); }
+        public virtual void OnInputY() { var item = GetSelectedJoypadItem(); if (item != null) item.OnY(); }
+
+        public virtual void OnInputShoulderLeft() { var item = GetSelectedJoypadItem(); if (item != null) item.OnShoulderLeft(); }
+        public virtual void OnInputShoulderRight() { var item = GetSelectedJoypadItem(); if (item != null) item.OnShoulderRight(); }
+        public virtual void OnInputTriggerLeft() { var item = GetSelectedJoypadItem(); if (item != null) item.OnTriggerLeft(); }
+        public virtual void OnInputTriggerRight() { var item = GetSelectedJoypadItem(); if (item != null) item.OnTriggerRight(); }
+
+        public virtual void OnInputStart() { var item = GetSelectedJoypadItem(); if (item != null) item.OnStart(); }
+        public virtual void OnInputSystemSelect() { var item = GetSelectedJoypadItem(); if (item != null) item.OnSelect(); }
     }
 }

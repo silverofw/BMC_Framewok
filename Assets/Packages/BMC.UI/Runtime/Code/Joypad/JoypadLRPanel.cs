@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+
 namespace BMC.UI
 {
     public class JoypadLRPanel : JoypadPanel
@@ -25,17 +26,18 @@ namespace BMC.UI
             if (pageItem != null)
                 pageItem.gameObject.SetActive(false);
 
+            // 呼叫基底 Show 時，就會自動幫我們註冊所有的輸入事件
             base.Show();
-            UIMgr.Instance.eventHandler.Register((int)UIEvent.INPUT_SHOULDER_L, onLeft);
-            UIMgr.Instance.eventHandler.Register((int)UIEvent.INPUT_SHOULDER_R, onRight);
 
             InitDic();
         }
+
         public void InitDic(List<(string, List<Action<GameObject, int>>)> dic)
         {
             actionDic = dic;
             InitDic();
         }
+
         public void InitDic()
         {
             // 清除舊的頁面
@@ -66,9 +68,8 @@ namespace BMC.UI
 
         public override void close()
         {
+            // 呼叫基底 close 時，就會自動幫我們反註冊所有的輸入事件
             base.close();
-            UIMgr.Instance.eventHandler.UnRegister((int)UIEvent.INPUT_SHOULDER_L, onLeft);
-            UIMgr.Instance.eventHandler.UnRegister((int)UIEvent.INPUT_SHOULDER_R, onRight);
         }
 
         protected virtual void updateUI()
@@ -92,7 +93,6 @@ namespace BMC.UI
             }
             updateJoyItems();
 
-
             for (int i = 0; i < pages.Count; i++)
             {
                 pages[i].SetSelected(i == selectedPageIndex);
@@ -110,22 +110,21 @@ namespace BMC.UI
             go.SetActive(true);
         }
 
-        void onLeft()
+        // ==========================================
+        // 透過 Override 複寫基底方法，不再需要手動註冊
+        // 已經更新為最新的命名：OnInputShoulderLeft / OnInputShoulderRight
+        // ==========================================
+        public override void OnInputShoulderLeft()
         {
-            if (!UIMgr.Instance.IsTopPanel(this))
-                return;
-
             selectedPageIndex--;
             if (selectedPageIndex < 0)
                 selectedPageIndex = actionDic.Count - 1;
             selectedItemIndex = 0;
             updateUI();
         }
-        void onRight()
-        {
-            if (!UIMgr.Instance.IsTopPanel(this))
-                return;
 
+        public override void OnInputShoulderRight()
+        {
             selectedPageIndex++;
             if (selectedPageIndex >= actionDic.Count)
                 selectedPageIndex = 0;
