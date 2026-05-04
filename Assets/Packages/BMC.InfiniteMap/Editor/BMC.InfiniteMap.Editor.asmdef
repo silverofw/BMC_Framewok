@@ -1,0 +1,17 @@
+{
+    "name": "BMC.InfiniteMap.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d554e6bdd6f8ff34fae4d374f25703b3",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

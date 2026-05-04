@@ -1,0 +1,22 @@
+{
+  "name": "com.bmc.infinitemap",
+  "version": "1.0.0",
+  "displayName": "BMC Infinite Map",
+  "description": "BMC 無限地圖。",
+  "unity": "6000.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/silverofw/BMC_Framewok.git"
+  },
+  "dependencies": {
+    "com.bmc.core": "1.0.0"
+  },
+  "author": {
+    "name": "BMC Studio",
+    "url": "https://github.com/silverofw"
+  },
+  "keywords": [
+    "bmc",
+    "map"
+  ]
+}
