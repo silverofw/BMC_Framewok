@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks; // 替換為 UniTask
 
 namespace InfiniteMap
 {
@@ -16,9 +16,9 @@ namespace InfiniteMap
         private Dictionary<CPos, Chunk> activeChunks;
         private CPos lastUpdateCPos = new CPos(int.MaxValue, int.MaxValue);
 
-        // 外部依賴介面 (您可以實作這兩個委派來串接 Proto 檔案的讀寫)
-        public Func<CPos, Task<Chunk>> OnLoadChunkAsync;
-        public Func<Chunk, Task> OnSaveChunkAsync;
+        // 外部依賴介面 (現在使用 UniTask 徹底避免 GC)
+        public Func<CPos, UniTask<Chunk>> OnLoadChunkAsync;
+        public Func<Chunk, UniTask> OnSaveChunkAsync;
 
         public World(int chunkSize = 16, int loadRadius = 1)
         {
@@ -30,7 +30,7 @@ namespace InfiniteMap
         /// <summary>
         /// 根據焦點(例如玩家位置)更新區塊
         /// </summary>
-        public async Task UpdateFocusAsync(Pos3 focusPos)
+        public async UniTask UpdateFocusAsync(Pos3 focusPos)
         {
             CPos currentCPos = focusPos.ToCPos(ChunkSize);
 

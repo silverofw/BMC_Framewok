@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.infinitemap",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "BMC Infinite Map",
   "description": "BMC 無限地圖。",
   "unity": "6000.0",

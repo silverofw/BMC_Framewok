@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.IO;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks; // 引入 UniTask 進行效能優化
 using InfiniteMap.Proto;
 
 namespace InfiniteMap.Unity
@@ -100,7 +101,7 @@ namespace InfiniteMap.Unity
                 return;
             }
 
-            // 1. 【關鍵更改】透過 GuidFactory 取得正確規範的 ID
+            // 1. 透過 GuidFactory 取得正確規範的 ID
             long newGuid = isStatic ? EntityGuidFactory.GetNextStaticGuid() : EntityGuidFactory.GetNextDynamicGuid();
 
             // 2. 將 Unity 座標轉為地圖框架的 Pos3
@@ -141,34 +142,30 @@ namespace InfiniteMap.Unity
 
         // --- 框架事件接聽 ---
 
-        /// <summary>
-        /// 當玩家靠近，區塊載入時觸發：把存檔中的實體生出來
-        /// </summary>
         private void HandleEntitySpawn(EntityProto proto, long lastSaveTimeUnix)
         {
             Pos3 pos = new Pos3(proto.Pos.X, proto.Pos.Y, proto.Pos.H);
             CreateTestGameObject(proto.Guid, pos);
 
+            // 載入時，利用反向解析來判定讀出來的物件是什麼屬性
             string typeName = "未知";
-            if (EntityGuidFactory.IsStaticGuid(proto.Guid)) typeName = "靜態(預設)";
-            else if (EntityGuidFactory.IsDynamicGuid(proto.Guid)) typeName = "動態(玩家)";
-
-            // 計算距離上次卸載經過了多久
-            string offlineLog = "";
-            if (lastSaveTimeUnix > 0)
+            if (EntityGuidFactory.IsStaticGuid(proto.Guid))
             {
-                // 將 Unix 時間戳轉回 DateTimeOffset
-                System.DateTimeOffset lastSaveTime = System.DateTimeOffset.FromUnixTimeSeconds(lastSaveTimeUnix);
-                System.TimeSpan offlineDuration = System.DateTimeOffset.UtcNow - lastSaveTime;
-
-                // 【修改此處】改為使用 TotalSeconds，並轉型為整數 (或使用 :F0) 來顯示總秒數
-                int totalOfflineSeconds = (int)offlineDuration.TotalSeconds;
-
-                // 實務上，您就是把這個 totalOfflineSeconds 傳給 ECS 的組件去扣除/增加數值
-                offlineLog = $" (離線 {totalOfflineSeconds} 秒)";
+                typeName = "靜態(預設)";
+            }
+            else if (EntityGuidFactory.IsDynamicGuid(proto.Guid))
+            {
+                typeName = "動態(玩家)";
+                // 如果是動態的，還可以印出它當初被創建的時間！
+                var creationTime = EntityGuidFactory.GetCreationTime(proto.Guid);
+                if (creationTime.HasValue)
+                {
+                    // 加入 yyyy/MM/dd 顯示完整年月日
+                    typeName += $" [建於 {creationTime.Value:yyyy/MM/dd HH:mm:ss}]";
+                }
             }
 
-            Debug.Log($"[Test] 從存檔還原 {typeName} 實體。GUID: {proto.Guid}{offlineLog}");
+            Debug.Log($"[Test] 從存檔還原 {typeName} 實體。GUID: {proto.Guid}，區塊上次卸載時間戳: {lastSaveTimeUnix}");
         }
 
         private EntityProto HandleEntitySerialize(long guid)
@@ -198,7 +195,7 @@ namespace InfiniteMap.Unity
         {
             if (_activeTestEntities.TryGetValue(guid, out GameObject go))
             {
-                // 【修正】判斷當前是否還在遊戲模式
+                // 判斷當前是否還在遊戲模式
                 // 應對 OnApplicationQuit 時因為非同步延遲，導致切換回編輯模式的錯誤
                 if (Application.isPlaying)
                 {
@@ -215,15 +212,21 @@ namespace InfiniteMap.Unity
         }
 
         // =========================================================
-        // 開放給遊戲流程呼叫的便利接口
+        // 開放給遊戲流程呼叫的便利接口 (全面升級 UniTaskVoid)
         // =========================================================
 
-        public async void SaveGame()
+        /// <summary>
+        /// 主動儲存遊戲 (使用 UniTaskVoid 確保最佳效能且無 GC)
+        /// </summary>
+        public async UniTaskVoid SaveGame()
         {
             if (Controller != null) await Controller.ForceSaveAllAsync();
         }
 
-        public async void SwitchToZone(int newZoneId, Vector3 newSpawnPosition)
+        /// <summary>
+        /// 切換世界 Zone (非同步執行，外部呼叫即走後台，不卡頓)
+        /// </summary>
+        public async UniTaskVoid SwitchToZone(int newZoneId, Vector3 newSpawnPosition)
         {
             if (Controller != null)
             {
@@ -235,7 +238,13 @@ namespace InfiniteMap.Unity
 
         private void OnApplicationQuit()
         {
-            if (Controller != null) Controller.SwitchZoneAsync(worldId).Wait(1000);
+            // 離開遊戲時強制存檔
+            // 因為 OnApplicationQuit 無法等待 async，所以將 UniTask 轉為 Task 以便使用 Wait() 阻塞主執行緒
+            if (Controller != null)
+            {
+                // 修正：離開程式時只需要將目前活躍區塊存檔，不需要重新 SwitchZone
+                Controller.ForceSaveAllAsync().AsTask().Wait(1000);
+            }
         }
 
         private void OnDrawGizmos()
