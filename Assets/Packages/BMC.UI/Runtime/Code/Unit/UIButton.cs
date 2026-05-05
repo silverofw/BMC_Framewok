@@ -16,11 +16,12 @@ namespace BMC.UI
         [SerializeField] private float scale = 0.9f;
         [SerializeField] private float during = 0.1f;
 
+        [SerializeField] private GameObject[] OnEnterActive;
+        [SerializeField] private GameObject[] OnEnterDisActive;
+
         [Header("點擊判定")]
         [SerializeField, Tooltip("移動距離超過此像素值則取消 Click 觸發")]
         private float clickTolerance = 10f;
-
-        [SerializeField, Header("音效(空為靜音)")] private AudioClip clickAudio;
 
         private bool isPressing;
         private bool isDrag;
@@ -38,6 +39,11 @@ namespace BMC.UI
         public Action<Vector2> BeginDrag;
         public Action<Vector2> Drag;
         public Action<Vector2> EndDrag;
+
+        void Awake()
+        {
+            ToggleEnterObjects(false);
+        }
 
         private void OnDisable()
         {
@@ -68,6 +74,8 @@ namespace BMC.UI
         public void OnPointerEnter(PointerEventData eventData)
         {
             OnEnter?.Invoke();
+            ToggleEnterObjects(true);
+
             if (!isPressing)
                 return;
             Anima(scale);
@@ -76,6 +84,8 @@ namespace BMC.UI
         public void OnPointerExit(PointerEventData eventData)
         {
             OnExit?.Invoke();
+            ToggleEnterObjects(false);
+
             Anima();
         }
 
@@ -180,6 +190,32 @@ namespace BMC.UI
             {
                 foreach (var obj in sendHObjs)
                     ExecuteEvents.Execute(obj, eventData, ExecuteEvents.endDragHandler);
+            }
+        }
+
+        /// <summary>
+        /// 處理游標進入與離開時的物件啟用/停用邏輯
+        /// </summary>
+        /// <param name="isEnter">是否為游標進入狀態</param>
+        private void ToggleEnterObjects(bool isEnter)
+        {
+            // 處理需要啟用的物件
+            if (OnEnterActive != null)
+            {
+                foreach (var obj in OnEnterActive)
+                {
+                    if (obj != null) obj.SetActive(isEnter);
+                }
+            }
+
+            // 處理需要停用的物件
+            if (OnEnterDisActive != null)
+            {
+                foreach (var obj in OnEnterDisActive)
+                {
+                    // 狀態與 isEnter 相反
+                    if (obj != null) obj.SetActive(!isEnter); 
+                }
             }
         }
     }
