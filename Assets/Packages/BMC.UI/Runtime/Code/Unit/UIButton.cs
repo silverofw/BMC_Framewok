@@ -91,8 +91,12 @@ namespace BMC.UI
             // 處理進入時的物件顯示
             ToggleEnterObjects(true);
 
+            // 如果沒有按住，就不執行後續的按壓動畫與狀態
             if (!isPressing)
                 return;
+
+            // 如果是在按住的狀態下拖回按鈕範圍內，重新開啟按壓狀態的視覺
+            TogglePressObjects(true);
             Anima(scale);
         }
 
@@ -100,9 +104,16 @@ namespace BMC.UI
         {
             OnExit?.Invoke();
 
-            // 離開時隱藏物件
+            // 離開時隱藏進入物件
             ToggleEnterObjects(false);
 
+            // 如果在按住的狀態下拉出按鈕範圍，關閉按壓狀態的視覺
+            if (isPressing)
+            {
+                TogglePressObjects(false);
+            }
+
+            // 還原動畫
             Anima();
         }
 
