@@ -16,12 +16,15 @@ namespace BMC.UI
         [SerializeField] private float scale = 0.9f;
         [SerializeField] private float during = 0.1f;
 
+        [Header("狀態切換物件")]
         [SerializeField] private GameObject[] OnEnterActive;
-        [SerializeField] private GameObject[] OnEnterDisActive;
+        [SerializeField] private GameObject[] OnPressActive;
 
         [Header("點擊判定")]
         [SerializeField, Tooltip("移動距離超過此像素值則取消 Click 觸發")]
         private float clickTolerance = 10f;
+
+        [SerializeField, Header("音效(空為靜音)")] private AudioClip clickAudio;
 
         private bool isPressing;
         private bool isDrag;
@@ -40,9 +43,19 @@ namespace BMC.UI
         public Action<Vector2> Drag;
         public Action<Vector2> EndDrag;
 
-        void Awake()
+        private void OnEnable()
         {
+            // 當 UI 啟用時，還原所有狀態
+            isPressing = false;
+            isDrag = false;
+            isDragV = false;
+            isDragH = false;
+
             ToggleEnterObjects(false);
+            TogglePressObjects(false);
+
+            // 還原縮放動畫
+            Anima();
         }
 
         private void OnDisable()
@@ -74,6 +87,8 @@ namespace BMC.UI
         public void OnPointerEnter(PointerEventData eventData)
         {
             OnEnter?.Invoke();
+
+            // 處理進入時的物件顯示
             ToggleEnterObjects(true);
 
             if (!isPressing)
@@ -84,6 +99,8 @@ namespace BMC.UI
         public void OnPointerExit(PointerEventData eventData)
         {
             OnExit?.Invoke();
+
+            // 離開時隱藏物件
             ToggleEnterObjects(false);
 
             Anima();
@@ -95,7 +112,11 @@ namespace BMC.UI
             isDrag = false;
             isDragV = false;
             isDragH = false;
-            pressPos = eventData.position; // 紀錄按下時的座標
+            pressPos = eventData.position;
+
+            // 處理按住時的物件顯示
+            TogglePressObjects(true);
+
             Anima(scale);
         }
 
@@ -103,10 +124,11 @@ namespace BMC.UI
         {
             isPressing = false;
 
-            // 計算放開時與按下時的距離
+            // 放開時隱藏物件
+            TogglePressObjects(false);
+
             float dist = Vector2.Distance(pressPos, eventData.position);
 
-            // 只有在非拖拽狀態 且 移動距離小於容忍值時才觸發 OnClick
             if (!isDrag && dist <= clickTolerance)
             {
                 OnClick?.Invoke();
@@ -114,6 +136,24 @@ namespace BMC.UI
             }
 
             Anima();
+        }
+
+        private void ToggleEnterObjects(bool isVisible)
+        {
+            if (OnEnterActive == null) return;
+            foreach (var obj in OnEnterActive)
+            {
+                if (obj != null) obj.SetActive(isVisible);
+            }
+        }
+
+        private void TogglePressObjects(bool isVisible)
+        {
+            if (OnPressActive == null) return;
+            foreach (var obj in OnPressActive)
+            {
+                if (obj != null) obj.SetActive(isVisible);
+            }
         }
 
         void Anima(float scale = 1)
@@ -190,32 +230,6 @@ namespace BMC.UI
             {
                 foreach (var obj in sendHObjs)
                     ExecuteEvents.Execute(obj, eventData, ExecuteEvents.endDragHandler);
-            }
-        }
-
-        /// <summary>
-        /// 處理游標進入與離開時的物件啟用/停用邏輯
-        /// </summary>
-        /// <param name="isEnter">是否為游標進入狀態</param>
-        private void ToggleEnterObjects(bool isEnter)
-        {
-            // 處理需要啟用的物件
-            if (OnEnterActive != null)
-            {
-                foreach (var obj in OnEnterActive)
-                {
-                    if (obj != null) obj.SetActive(isEnter);
-                }
-            }
-
-            // 處理需要停用的物件
-            if (OnEnterDisActive != null)
-            {
-                foreach (var obj in OnEnterDisActive)
-                {
-                    // 狀態與 isEnter 相反
-                    if (obj != null) obj.SetActive(!isEnter); 
-                }
             }
         }
     }
