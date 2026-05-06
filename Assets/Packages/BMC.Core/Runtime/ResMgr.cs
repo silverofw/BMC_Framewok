@@ -31,6 +31,7 @@ namespace BMC.Core
             var gamePackage = dic[DefaultPackage];
             YooAssets.SetDefaultPackage(gamePackage);
 
+            SpriteAtlasManager.atlasRequested -= OnAtlasRequested; // 預防重複註冊
             SpriteAtlasManager.atlasRequested += OnAtlasRequested;
         }
 
