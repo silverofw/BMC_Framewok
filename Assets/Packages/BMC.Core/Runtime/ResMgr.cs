@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.U2D;
 using YooAsset;
 namespace BMC.Core
 {
@@ -29,6 +30,13 @@ namespace BMC.Core
             // 设置默认的资源包
             var gamePackage = dic[DefaultPackage];
             YooAssets.SetDefaultPackage(gamePackage);
+
+            SpriteAtlasManager.atlasRequested += OnAtlasRequested;
+        }
+
+        void Clear()
+        {
+            SpriteAtlasManager.atlasRequested -= OnAtlasRequested;
         }
 
         public async UniTask LoadSceneAsync(string path)
@@ -146,6 +154,32 @@ namespace BMC.Core
             {
                 Debug.LogError($"[ResMgr] 資源加載失敗: {location} \nError: {handle.LastError}");
                 return "";
+            }
+        }
+
+        /// <summary>
+        /// yooasset 圖集加載回調，當 UI 顯示時發現缺少圖集，會觸發此方法
+        /// </summary>
+        /// <param name="atlasName"></param>
+        /// <param name="callback"></param>
+        private void OnAtlasRequested(string atlasName, System.Action<SpriteAtlas> callback)
+        {
+            // 當 UI 顯示時發現缺少圖集，會觸發此方法
+            // atlasName 會是 "AltasLobby" (您的圖集名稱)
+
+            // 使用 YooAsset 同步或非同步加載該圖集
+            // 這裡以同步加載為例（實際專案中若圖集較大，建議先預加載或使用非同步）
+            AssetHandle handle = YooAssets.LoadAssetSync<SpriteAtlas>(atlasName);
+            SpriteAtlas atlas = handle.AssetObject as SpriteAtlas;
+
+            if (atlas != null)
+            {
+                // 將加載到的圖集透過 callback 交還給 Unity 系統
+                callback(atlas);
+            }
+            else
+            {
+                Debug.LogError($"無法從 YooAsset 加載圖集: {atlasName}");
             }
         }
     }
