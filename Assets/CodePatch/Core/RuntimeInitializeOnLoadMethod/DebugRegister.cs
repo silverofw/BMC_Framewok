@@ -31,7 +31,7 @@ namespace BMC.Patch.Core
                         SceneMgr.Instance.GotoScene("Entry", false);
                     } ),
                     ("測試多語言(Continue)", () => {
-                        var index = SaveMgr.Instance.GetCoreInt(LocalMgr.SC_LANGUAGE, (int)SystemLanguage.English);
+                        var index = SaveMgr.Instance.Get(LocalMgr.SC_LANGUAGE, (int)SystemLanguage.English);
                         LocalMgr.Instance.Load(new ConfigLang(), (SystemLanguage)index);
                         Log.Info($"[{LocalMgr.Instance.CrtLang}] {LocalMgr.Instance.Local("Continue")}");
                     } ),
@@ -56,7 +56,7 @@ namespace BMC.Patch.Core
             );
             void setLang(SystemLanguage language)
             {
-                SaveMgr.Instance.SetCore(LocalMgr.SC_LANGUAGE, $"{(int)language}");
+                SaveMgr.Instance.Set(LocalMgr.SC_LANGUAGE, language);
                 SaveMgr.Instance.SaveCurrentSlot();
                 LocalMgr.Instance.Set(language);
             }

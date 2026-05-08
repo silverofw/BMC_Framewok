@@ -1,12 +1,11 @@
-﻿using System;
-using System.IO;
+﻿using Google.Protobuf;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Diagnostics;
-using Google.Protobuf;
 using UnityEngine;
-using Debug = UnityEngine.Debug; // 確保使用 Unity 的 Debug
 
 namespace BMC.Core
 {
@@ -102,50 +101,87 @@ namespace BMC.Core
         #endregion
 
         #region 核心存取接口
-
-        public string GetCore(string key, string defaultValue = "") =>
+        // 1. 底層統一出口
+        private string GetRawString(string key, string defaultValue = "") =>
             _currentSaveData.CoreData.TryGetValue(key, out var v) ? v : defaultValue;
 
-        public int GetCoreInt(string key, int defaultValue = 0) =>
-            int.TryParse(GetCore(key), out int result) ? result : defaultValue;
-
-        public bool GetCoreBool(string key, bool defaultValue = false)
+        public T Get<T>(string key, T defaultValue = default)
         {
-            string val = GetCore(key);
+            string val = GetRawString(key);
             if (string.IsNullOrEmpty(val)) return defaultValue;
-            // 同時支援 "1" 以及舊版的 "True"
-            return val == "1" || val.Equals("true", StringComparison.OrdinalIgnoreCase);
+
+            Type targetType = typeof(T);
+
+            try
+            {
+                if (targetType == typeof(DateTime))
+                {
+                    return long.TryParse(val, out long ticks) ? (T)(object)new DateTime(ticks) : (T)(object)DateTime.MinValue;
+                }
+
+                if (targetType == typeof(bool))
+                {
+                    return (T)(object)(val == "1");
+                }
+
+                if (targetType.IsEnum) return (T)Enum.Parse(targetType, val);
+
+                // 使用 InvariantCulture 確保浮點數解析一致
+                return (T)Convert.ChangeType(val, targetType, CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                if (EnableDebugLogs) Debug.LogWarning($"[SaveMgr] Get Error: {key} - {e.Message}");
+                return defaultValue;
+            }
         }
 
-        public void SetCore(string key, object value) =>
-            _currentSaveData.CoreData[key] = value.ToString();
-
-        public void SetCoreBool(string key, bool value) =>
-            _currentSaveData.CoreData[key] = value ? "1" : "0";
-
-        /// <summary>
-        /// 流程：從 CoreData 中取得時間 Ticks 字串並轉換為 DateTime 格式
-        /// </summary>
-        public DateTime GetCoreDatetime(string key)
+        public void Set<T>(string key, T value)
         {
-            string ticksStr = GetCore(key);
-            return long.TryParse(ticksStr, out long ticks) ? new DateTime(ticks) : DateTime.MinValue;
+            // 防止傳入 null
+            if (value == null)
+            {
+                _currentSaveData.CoreData.Remove(key);
+                return;
+            }
+
+            string stringValue;
+
+            if (value is bool b)
+            {
+                stringValue = b ? "1" : "0";
+            }
+            else if (value is DateTime dt)
+            {
+                stringValue = dt.Ticks.ToString();
+            }
+            else if (value is IFormattable formattable)
+            {
+                // 確保數字格式統一 (例如 float 1.5 不會變成 1,5)
+                stringValue = formattable.ToString(null, CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                stringValue = value.ToString();
+            }
+
+            _currentSaveData.CoreData[key] = stringValue;
         }
 
         /// <summary>
         /// 流程：取得存檔最初建立的時間
         /// </summary>
-        public DateTime GetCreatedAt() => GetCoreDatetime(KEY_CREATED_AT);
+        public DateTime GetCreatedAt() => Get<DateTime>(KEY_CREATED_AT);
 
         /// <summary>
         /// 流程：取得最後一次紀錄的時間
         /// </summary>
-        public DateTime GetLastSaveAt() => GetCoreDatetime(KEY_LAST_SAVE_AT);
+        public DateTime GetLastSaveAt() => Get<DateTime>(KEY_LAST_SAVE_AT);
 
         /// <summary>
         /// 流程：取得此存檔累計的儲存次數
         /// </summary>
-        public int GetSaveCount() => GetCoreInt(KEY_SAVE_COUNT, 0);
+        public int GetSaveCount() => Get(KEY_SAVE_COUNT, 0);
 
         /// <summary>
         /// 流程：直接回傳記憶體中記錄的竄改標記，此標記在載入時由校驗邏輯決定
@@ -212,10 +248,10 @@ namespace BMC.Core
             string path = GetPath(slot);
             string sigPath = GetSigPath(slot);
 
-            Stopwatch sw = null;
+            System.Diagnostics.Stopwatch sw = null;
             if (EnableDebugLogs)
             {
-                sw = new Stopwatch();
+                sw = new System.Diagnostics.Stopwatch();
                 sw.Start();
             }
 
@@ -295,18 +331,18 @@ namespace BMC.Core
             string key = GetActiveKey();
             if (string.IsNullOrEmpty(key)) return;
 
-            Stopwatch sw = null;
+            System.Diagnostics.Stopwatch sw = null;
             if (EnableDebugLogs)
             {
-                sw = new Stopwatch();
+                sw = new System.Diagnostics.Stopwatch();
                 sw.Start();
             }
 
             try
             {
                 int newCount = GetSaveCount() + 1;
-                SetCore(KEY_SAVE_COUNT, newCount);
-                SetCore(KEY_LAST_SAVE_AT, DateTime.Now.Ticks.ToString());
+                Set(KEY_SAVE_COUNT, newCount);
+                Set(KEY_LAST_SAVE_AT, DateTime.Now);
                 byte[] rawData = _currentSaveData.ToByteArray();
 
                 // 根據開關決定是否注入 Junk 噪音
@@ -367,10 +403,10 @@ namespace BMC.Core
         {
             _currentSaveData = new PlayerSave();
             _isTampered = false;
-            string now = DateTime.Now.Ticks.ToString();
-            SetCore(KEY_CREATED_AT, now);
-            SetCore(KEY_LAST_SAVE_AT, now);
-            SetCore(KEY_SAVE_COUNT, 0);
+            var now = DateTime.Now;
+            Set(KEY_CREATED_AT, now);
+            Set(KEY_LAST_SAVE_AT, now);
+            Set(KEY_SAVE_COUNT, 0);
         }
 
         /// <summary>
