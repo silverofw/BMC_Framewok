@@ -18,6 +18,7 @@ namespace BMC.UI
 
         [Header("狀態切換物件")]
         [SerializeField] private GameObject[] OnEnterActive;
+        [SerializeField] private GameObject[] OnEnterDisActive;
         [SerializeField] private GameObject[] OnPressActive;
 
         [Header("點擊判定")]
@@ -151,10 +152,20 @@ namespace BMC.UI
 
         private void ToggleEnterObjects(bool isVisible)
         {
-            if (OnEnterActive == null) return;
-            foreach (var obj in OnEnterActive)
+            if (OnEnterActive != null)
             {
-                if (obj != null) obj.SetActive(isVisible);
+                foreach (var obj in OnEnterActive)
+                {
+                    if (obj != null) obj.SetActive(isVisible);
+                }
+            }
+
+            if (OnEnterDisActive != null)
+            {
+                foreach (var obj in OnEnterDisActive)
+                {
+                    if (obj != null) obj.SetActive(!isVisible);
+                }
             }
         }
 
