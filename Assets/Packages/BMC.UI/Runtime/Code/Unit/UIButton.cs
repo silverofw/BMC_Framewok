@@ -29,6 +29,7 @@ namespace BMC.UI
         [SerializeField, Header("音效(空為靜音)")] private AudioClip clickAudio;
 
         private bool isPressing;
+        private bool isHover;
         private bool isDrag;
         private bool isDragV;
         private bool isDragH;
@@ -90,6 +91,8 @@ namespace BMC.UI
         {
             OnEnter?.Invoke();
 
+            isHover = true;
+
             // 處理進入時的物件顯示
             ToggleEnterObjects(true);
 
@@ -105,6 +108,8 @@ namespace BMC.UI
         public void OnPointerExit(PointerEventData eventData)
         {
             OnExit?.Invoke();
+
+            isHover = false;
 
             // 離開時隱藏進入物件
             ToggleEnterObjects(false);
@@ -183,7 +188,7 @@ namespace BMC.UI
             {
                 foreach (var obj in OnPressDdisActive)
                 {
-                    if (obj != null) obj.SetActive(!isVisible);
+                    if (obj != null) obj.SetActive(!isVisible && isHover);
                 }
             }
         }
