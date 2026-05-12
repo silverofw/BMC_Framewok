@@ -20,6 +20,7 @@ namespace BMC.UI
         [SerializeField] private GameObject[] OnEnterActive;
         [SerializeField] private GameObject[] OnEnterDisActive;
         [SerializeField] private GameObject[] OnPressActive;
+        [SerializeField] private GameObject[] OnPressDdisActive;
 
         [Header("點擊判定")]
         [SerializeField, Tooltip("移動距離超過此像素值則取消 Click 觸發")]
@@ -171,10 +172,19 @@ namespace BMC.UI
 
         private void TogglePressObjects(bool isVisible)
         {
-            if (OnPressActive == null) return;
-            foreach (var obj in OnPressActive)
+            if (OnPressActive != null)
             {
-                if (obj != null) obj.SetActive(isVisible);
+                foreach (var obj in OnPressActive)
+                {
+                    if (obj != null) obj.SetActive(isVisible);
+                }
+            }
+            if (OnPressDdisActive != null)
+            {
+                foreach (var obj in OnPressDdisActive)
+                {
+                    if (obj != null) obj.SetActive(!isVisible);
+                }
             }
         }
 
