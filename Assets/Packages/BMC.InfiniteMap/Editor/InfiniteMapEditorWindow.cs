@@ -3,41 +3,80 @@ using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
 using InfiniteMap;
+using Cysharp.Threading.Tasks;
+using InfiniteMap.Proto;
+using Google.Protobuf;
+using InfiniteMap.Unity; // 加入以使用 EntityGuidFactory
 
 namespace InfiniteMap.Unity.Editor
 {
     /// <summary>
-    /// 獨立的地圖編輯器視窗，後續可用於視覺化編輯 Chunk 資料
+    /// 獨立的地圖編輯器基底視窗，處理 Chunk 的基礎設定與存檔管理。
+    /// 作為 Base Class，允許其他專案繼承並擴充功能。
     /// </summary>
     public class InfiniteMapEditorWindow : EditorWindow
     {
-        private int worldId = 0;
-        private int preGenerateRadius = 2;
+        // 改為 protected 讓子類別可以存取或連動專案的 MapId
+        protected int worldId = 0;
+        protected int preGenerateRadius = 2;
 
-        // 在上方工具列加入開啟此視窗的選單
-        [MenuItem("BMC/Infinite Map Editor (無邊際地圖編輯器)", false, 1)]
-        public static void ShowWindow()
+        // =========================================================
+        // 資料提供介面：供子類別覆寫以接入專案特定的資料源 (例如 Game.Instance)
+        // =========================================================
+        protected virtual int CurrentChunkSize => 16;
+        protected virtual float CurrentTileSize => 1f;
+        protected virtual int CurrentLoadRadius => 2;
+        protected virtual InfiniteWorldController ActiveController => null;
+        protected virtual Vector3 CurrentFocusPosition => Vector3.zero;
+        protected virtual bool IsShowChunkGizmos => true;
+
+        protected virtual void OnEnable()
         {
-            // 建立並顯示視窗
-            GetWindow<InfiniteMapEditorWindow>("地圖編輯器");
+            // 訂閱場景繪製事件，這樣即使沒有特定的 MonoBehavior 也能在 Scene 視窗畫東西
+            SceneView.duringSceneGui += OnSceneGUI;
         }
 
-        private void OnGUI()
+        protected virtual void OnDisable()
         {
-            GUILayout.Label("無邊際世界 - 地圖編輯器", EditorStyles.boldLabel);
+            SceneView.duringSceneGui -= OnSceneGUI;
+        }
+
+        // 改為 protected virtual 讓子類別可以 override 整個視窗的繪製邏輯
+        protected virtual void OnGUI()
+        {
+            GUILayout.Label("無邊際世界 - 基礎地圖編輯器", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
-            // === 基礎設定區塊 ===
-            EditorGUILayout.LabelField("世界設定", EditorStyles.boldLabel);
+            DrawInfiniteMapBaseSettings();
+            EditorGUILayout.Space(15);
+
+            DrawInfiniteMapSaveTools();
+            EditorGUILayout.Space(20);
+
+            EditorGUILayout.LabelField("地圖編輯功能 (請在子類別中實作)", EditorStyles.boldLabel);
+        }
+
+        /// <summary>
+        /// 提供給子類別呼叫：繪製世界基礎設定 (Zone ID, 半徑等)
+        /// </summary>
+        protected void DrawInfiniteMapBaseSettings()
+        {
+            EditorGUILayout.BeginVertical("helpbox");
+            EditorGUILayout.LabelField("無邊際世界設定 (Base)", EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
             worldId = EditorGUILayout.IntField("世界編號 (Zone ID)", worldId);
             preGenerateRadius = EditorGUILayout.IntField("預生成半徑", preGenerateRadius);
             EditorGUI.indentLevel--;
+            EditorGUILayout.EndVertical();
+        }
 
-            EditorGUILayout.Space(15);
-
-            // === 存檔管理區塊 ===
-            EditorGUILayout.LabelField("存檔管理工具", EditorStyles.boldLabel);
+        /// <summary>
+        /// 提供給子類別呼叫：繪製存檔管理工具 (生成、開啟資料夾)
+        /// </summary>
+        protected void DrawInfiniteMapSaveTools()
+        {
+            EditorGUILayout.BeginVertical("helpbox");
+            EditorGUILayout.LabelField("底層存檔管理工具 (Base)", EditorStyles.boldLabel);
 
             GUI.backgroundColor = new Color(0.7f, 1f, 0.7f);
             if (GUILayout.Button($"建立/重置測試世界資料 (Zone_{worldId})", GUILayout.Height(30)))
@@ -46,53 +85,71 @@ namespace InfiniteMap.Unity.Editor
             }
             GUI.backgroundColor = Color.white;
 
-            EditorGUILayout.Space();
+            EditorGUILayout.Space(5);
 
             if (GUILayout.Button("開啟存檔資料夾", GUILayout.Height(25)))
             {
                 OpenSaveFolder();
             }
-
-            EditorGUILayout.Space(20);
-
-            // === 未來地圖編輯區 ===
-            EditorGUILayout.LabelField("地圖編輯功能 (開發中...)", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox("未來可以在這裡加入畫筆工具、地塊類型選擇，並直接點擊 Scene 視窗來修改特定 Chunk 的資料。", MessageType.Info);
+            EditorGUILayout.EndVertical();
         }
 
-        private void GenerateEditorWorld()
+        protected virtual void GenerateEditorWorld()
         {
-            // 將輸出路徑改為 Assets/yoo/DefaultPackage/Proto/InfiniteMap/Zone_{worldId}
             string baseDir = Path.Combine(Application.dataPath, "yoo", "DefaultPackage", "Proto", "InfiniteMap");
             string dir = Path.Combine(baseDir, $"Zone_{worldId}");
 
-            if (!Directory.Exists(dir))
+            try
             {
-                Directory.CreateDirectory(dir);
-            }
-
-            // 預先生成玩家周圍的空白/基礎 Chunk 資料
-            for (int cx = -preGenerateRadius; cx <= preGenerateRadius; cx++)
-            {
-                for (int cy = -preGenerateRadius; cy <= preGenerateRadius; cy++)
+                if (!Directory.Exists(dir))
                 {
-                    // 在檔案名稱加上 worldId 確保 YooAsset 資源名稱唯一
-                    string filePath = Path.Combine(dir, $"chunk_{worldId}_{cx}_{cy}.bytes");
+                    Directory.CreateDirectory(dir);
+                    Debug.Log($"[MapEditor] 成功建立目錄: {dir}");
+                }
 
-                    // TODO: 未來這裡可替換成您建立 Proto 物件並 ToByteArray() 的實際預設地形邏輯
-                    byte[] mockData = new byte[16];
+                int successCount = 0;
+                int totalCount = (preGenerateRadius * 2 + 1) * (preGenerateRadius * 2 + 1);
 
-                    File.WriteAllBytes(filePath, mockData);
+                for (int cx = -preGenerateRadius; cx <= preGenerateRadius; cx++)
+                {
+                    for (int cy = -preGenerateRadius; cy <= preGenerateRadius; cy++)
+                    {
+                        string filePath = Path.Combine(dir, $"chunk_{worldId}_{cx}_{cy}.bytes");
+
+                        try
+                        {
+                            ChunkProto proto = new ChunkProto
+                            {
+                                Cx = cx,
+                                Cy = cy,
+                                LastTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                            };
+
+                            byte[] mockData = proto.ToByteArray();
+                            File.WriteAllBytes(filePath, mockData);
+                            successCount++;
+                        }
+                        catch (System.Exception writeEx)
+                        {
+                            Debug.LogError($"[MapEditor] 建立 Chunk ({cx}, {cy}) 失敗！\n路徑: {filePath}\n錯誤原因: {writeEx.Message}");
+                        }
+                    }
+                }
+
+                AssetDatabase.Refresh();
+
+                if (successCount == totalCount)
+                {
+                    Debug.Log($"[MapEditor] 已成功於資料夾 {dir} 建立測試世界: Zone_{worldId} (共 {successCount} 個區塊)");
                 }
             }
-
-            // 刷新 AssetDatabase，確保 Unity 編輯器與 YooAsset 能立刻偵測到新產生的資源
-            AssetDatabase.Refresh();
-
-            Debug.Log($"[MapEditor] 已成功於資料夾 {dir} 建立預設測試世界: Zone_{worldId} (共 {(preGenerateRadius * 2 + 1) * (preGenerateRadius * 2 + 1)} 個區塊)");
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[MapEditor] 建立測試世界時發生嚴重錯誤！\n原因: {ex.Message}");
+            }
         }
 
-        private void OpenSaveFolder()
+        protected virtual void OpenSaveFolder()
         {
             string baseDir = Path.Combine(Application.dataPath, "yoo", "DefaultPackage", "Proto", "InfiniteMap");
             string path = Path.Combine(baseDir, $"Zone_{worldId}");
@@ -103,35 +160,118 @@ namespace InfiniteMap.Unity.Editor
                 AssetDatabase.Refresh();
             }
 
-            // 在檔案總管 (Windows) 或 Finder (Mac) 中開啟資料夾
             EditorUtility.RevealInFinder(path);
         }
 
         // =========================================================
-        // 場景視覺化除錯工具：繪製目前活耀的 Chunk 邊界
+        // 編輯器專屬：存檔與覆寫邏輯
         // =========================================================
 
-        /// <summary>
-        /// 利用 DrawGizmo 屬性，在不修改 Manager 腳本的前提下，從外部為它繪製 Gizmos
-        /// 注意：簽章已更新為接收 InfiniteWorldMono
-        /// </summary>
-        [DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]
-        static void DrawWorldGizmos(InfiniteWorldMono manager, GizmoType gizmoType)
+        protected void SyncMaxStaticGuidFromRawPath(int zoneId)
         {
-            // 如果地圖編輯器視窗沒有開啟，就不繪製 Gizmos
-            if (!HasOpenInstances<InfiniteMapEditorWindow>()) return;
+            string baseDir = Path.Combine(Application.dataPath, "yoo", "DefaultPackage", "Proto", "InfiniteMap");
+            string dir = Path.Combine(baseDir, $"Zone_{zoneId}");
+            long maxGuid = 0;
 
-            if (!manager.showChunkGizmos) return;
+            if (Directory.Exists(dir))
+            {
+                string[] files = Directory.GetFiles(dir, "chunk_*.bytes");
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        byte[] data = File.ReadAllBytes(file);
+                        ChunkProto proto = ChunkProto.Parser.ParseFrom(data);
+                        foreach (var ent in proto.Entities)
+                        {
+                            if (EntityGuidFactory.IsStaticGuid(ent.Guid) && ent.Guid > maxGuid)
+                            {
+                                maxGuid = ent.Guid;
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
 
-            float actualChunkWorldSize = manager.chunkSize * manager.tileSize;
+            EntityGuidFactory.SetStaticCounter(maxGuid);
+            Debug.Log($"[MapEditor] 已從 {dir} 恢復全域最大靜態 GUID 至: {maxGuid}");
+        }
 
-            // 1. 如果遊戲執行中，畫出真實載入的 Chunk (綠色)
+        protected async UniTask EditorForceSaveToPathAsync(InfiniteWorldController controller, string editorBasePath)
+        {
+            if (controller == null) return;
+            var activeChunks = controller.GetActiveChunks();
+            if (activeChunks == null || activeChunks.Count == 0) return;
+
+            string dir = Path.Combine(editorBasePath, $"Zone_{controller.WorldId}");
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            List<UniTask> saveTasks = new List<UniTask>();
+            foreach (var chunk in activeChunks.Values)
+            {
+                saveTasks.Add(EditorSaveChunkStateAsync(controller, chunk, dir));
+            }
+
+            await UniTask.WhenAll(saveTasks);
+            Debug.Log($"[MapEditor] 已將 {activeChunks.Count} 個活躍區塊覆寫入開發資料夾: {dir}");
+        }
+
+        private async UniTask EditorSaveChunkStateAsync(InfiniteWorldController controller, Chunk chunk, string saveDir)
+        {
+            ChunkProto proto = new ChunkProto
+            {
+                Cx = chunk.Pos.x,
+                Cy = chunk.Pos.y,
+                LastTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            };
+
+            HashSet<long> entityGuids = new HashSet<long>(chunk.Entities);
+
+            foreach (long guid in entityGuids)
+            {
+                EntityProto latestState = controller.OnEntitySerialize?.Invoke(guid);
+                if (latestState != null)
+                {
+                    proto.Entities.Add(latestState);
+                }
+            }
+
+            byte[] dataToSave = proto.ToByteArray();
+            string fileName = $"chunk_{controller.WorldId}_{chunk.Pos.x}_{chunk.Pos.y}.bytes";
+            string filePath = Path.Combine(saveDir, fileName);
+
+            try
+            {
+                File.WriteAllBytes(filePath, dataToSave);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[MapEditor] 寫入存檔發生錯誤: {e.Message}");
+            }
+
+            await UniTask.Yield();
+        }
+
+        // =========================================================
+        // 場景視覺化繪製邏輯 (不再使用 [DrawGizmo])
+        // =========================================================
+
+        private void OnSceneGUI(SceneView sceneView)
+        {
+            if (!IsShowChunkGizmos) return;
+
+            float actualChunkWorldSize = CurrentChunkSize * CurrentTileSize;
+
             if (Application.isPlaying)
             {
-                if (manager.Controller != null)
+                var controller = ActiveController;
+                if (controller != null)
                 {
-                    // 呼叫我們在 Controller 中新增的開放介面取得當生活躍區塊
-                    var activeChunks = manager.Controller.GetActiveChunks();
+                    var activeChunks = controller.GetActiveChunks();
                     if (activeChunks != null)
                     {
                         foreach (var kvp in activeChunks)
@@ -141,24 +281,20 @@ namespace InfiniteMap.Unity.Editor
                     }
                 }
             }
-            // 2. 如果在編輯器未執行狀態，畫出「預期」會載入的範圍預覽 (黃色)
             else
             {
-                // 在編輯模式下，由於尚未呼叫 Tick()，CurrentFocusPosition 可能是零。
-                // 為了方便視覺化，我們使用 Manager 自身物件的 Transform 座標作為預覽中心！
-                Vector3 focusPos = manager.CurrentFocusPosition == Vector3.zero
-                                    ? manager.transform.position
-                                    : manager.CurrentFocusPosition;
+                Vector3 focusPos = CurrentFocusPosition;
 
-                int pos3X = Mathf.FloorToInt(focusPos.x / manager.tileSize);
-                int pos3Y = Mathf.FloorToInt(focusPos.z / manager.tileSize);
+                int pos3X = Mathf.FloorToInt(focusPos.x / CurrentTileSize);
+                int pos3Y = Mathf.FloorToInt(focusPos.z / CurrentTileSize);
 
-                int centerCx = pos3X >= 0 ? pos3X / manager.chunkSize : (pos3X + 1) / manager.chunkSize - 1;
-                int centerCy = pos3Y >= 0 ? pos3Y / manager.chunkSize : (pos3Y + 1) / manager.chunkSize - 1;
+                int centerCx = pos3X >= 0 ? pos3X / CurrentChunkSize : (pos3X + 1) / CurrentChunkSize - 1;
+                int centerCy = pos3Y >= 0 ? pos3Y / CurrentChunkSize : (pos3Y + 1) / CurrentChunkSize - 1;
 
-                for (int dx = -manager.loadRadius; dx <= manager.loadRadius; dx++)
+                int radius = CurrentLoadRadius;
+                for (int dx = -radius; dx <= radius; dx++)
                 {
-                    for (int dy = -manager.loadRadius; dy <= manager.loadRadius; dy++)
+                    for (int dy = -radius; dy <= radius; dy++)
                     {
                         DrawChunkGizmo(centerCx + dx, centerCy + dy, actualChunkWorldSize, new Color(1, 1, 0, 0.5f), new Color(1, 1, 0, 0.05f));
                     }
@@ -166,19 +302,22 @@ namespace InfiniteMap.Unity.Editor
             }
         }
 
-        static void DrawChunkGizmo(int cx, int cy, float size, Color wireColor, Color solidColor)
+        private static void DrawChunkGizmo(int cx, int cy, float size, Color wireColor, Color solidColor)
         {
             Vector3 center = new Vector3(
-                cx * size + (size / 2f),
-                0, // 基準高度設為 0
-                cy * size + (size / 2f)
+                cx * size + (size / 2f), 0, cy * size + (size / 2f)
             );
 
-            Gizmos.color = wireColor;
-            Gizmos.DrawWireCube(center, new Vector3(size, 0.1f, size));
+            Handles.color = wireColor;
+            Handles.DrawWireCube(center, new Vector3(size, 0.1f, size));
 
-            Gizmos.color = solidColor;
-            Gizmos.DrawCube(center, new Vector3(size, 0.1f, size));
+            Handles.color = solidColor;
+            Handles.DrawAAConvexPolygon(
+                center + new Vector3(-size / 2, 0, -size / 2),
+                center + new Vector3(size / 2, 0, -size / 2),
+                center + new Vector3(size / 2, 0, size / 2),
+                center + new Vector3(-size / 2, 0, size / 2)
+            );
         }
     }
 }

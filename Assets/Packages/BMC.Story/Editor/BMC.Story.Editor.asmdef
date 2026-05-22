@@ -3,7 +3,9 @@
     "rootNamespace": "",
     "references": [
         "BMC.Story",
-        "BMC.UI"
+        "BMC.UI",
+        "BMC.Core",
+        "UniTask"
     ],
     "includePlatforms": [
         "Editor"

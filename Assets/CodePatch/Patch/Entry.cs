@@ -1,6 +1,7 @@
 ﻿using BMC.AI;
 using BMC.Patch.Core;
 using BMC.UI;
+using BMC.Story;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ public class Entry : MonoBehaviour
         CommonDebugRegister.Init();
         AIDebugRegister.Init();
         TestDebugRegister.Init();
+        StoryDebugRegister.Init();
 
         UIMgr.Instance.CreateSceneUIRoot("Entry").Forget();
     }

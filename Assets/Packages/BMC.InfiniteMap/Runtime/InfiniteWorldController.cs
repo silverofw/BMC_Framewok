@@ -33,8 +33,11 @@ namespace InfiniteMap.Unity
         /// <summary> 當區塊載入，需要生成實體時觸發 (傳出 Proto 以及該區塊的最後存檔時間) </summary>
         public event System.Action<EntityProto, long> OnEntitySpawn;
 
-        /// <summary> 當區塊準備存檔時觸發 (傳入 GUID，請外部回傳最新的 Proto 屬性狀態) </summary>
-        public event FetchEntityDataDelegate OnEntitySerialize;
+        /// <summary> 
+        /// 當區塊準備存檔時觸發 (傳入 GUID，請外部回傳最新的 Proto 屬性狀態) 
+        /// 註：不使用 event 關鍵字，以便外部編輯器系統可以直接 Invoke 索取資料
+        /// </summary>
+        public FetchEntityDataDelegate OnEntitySerialize;
 
         /// <summary> 當區塊卸載完成時觸發 (傳出 GUID，請外部銷毀對應的 ECS/GameObject) </summary>
         public event System.Action<long> OnEntityDestroy;
@@ -110,6 +113,12 @@ namespace InfiniteMap.Unity
         /// </summary>
         public void AddRuntimeEntity(long guid, Pos3 pos)
         {
+            if (guid == 0)
+            {
+                Debug.LogWarning($"[InfiniteWorldController] 拒絕加入：嘗試將 GUID 為 0 的實體加入 Chunk ({pos.x}, {pos.y}, {pos.h})。這通常是因為實體未被正確配發 ID。");
+                return;
+            }
+
             if (_world == null) return;
             CPos cPos = pos.ToCPos(ChunkSize);
 
@@ -125,7 +134,7 @@ namespace InfiniteMap.Unity
         /// </summary>
         public void RemoveRuntimeEntity(long guid, Pos3 pos)
         {
-            if (_world == null) return;
+            if (guid == 0 || _world == null) return;
             CPos cPos = pos.ToCPos(ChunkSize);
 
             var activeChunks = GetActiveChunks();
@@ -140,7 +149,7 @@ namespace InfiniteMap.Unity
         /// </summary>
         public void MoveRuntimeEntity(long guid, Pos3 oldPos, Pos3 newPos)
         {
-            if (_world == null || oldPos == newPos) return;
+            if (guid == 0 || _world == null || oldPos == newPos) return;
 
             CPos oldCPos = oldPos.ToCPos(ChunkSize);
             CPos newCPos = newPos.ToCPos(ChunkSize);
@@ -235,20 +244,31 @@ namespace InfiniteMap.Unity
             // 2. 若無本地存檔，嘗試讀取官方發布的預設地圖檔 (YooAsset)
             else
             {
-                try
+#if UNITY_EDITOR
+                // 編輯器專屬捷徑：避免 YooAsset 尚未更新 Manifest 導致讀不到剛建立的資料
+                string editorRawPath = Path.Combine(Application.dataPath, "yoo", "DefaultPackage", "Proto", "InfiniteMap", $"Zone_{WorldId}", location);
+                if (File.Exists(editorRawPath))
                 {
-                    if (ResMgr.Instance.Check(location))
+                    data = await File.ReadAllBytesAsync(editorRawPath);
+                }
+                else
+#endif
+                {
+                    try
                     {
-                        string rawPath = await ResMgr.Instance.LoadRawFilePathAsync(location);
-                        if (!string.IsNullOrEmpty(rawPath) && File.Exists(rawPath))
+                        if (ResMgr.Instance.Check(location))
                         {
-                            data = await File.ReadAllBytesAsync(rawPath);
+                            string rawPath = await ResMgr.Instance.LoadRawFilePathAsync(location);
+                            if (!string.IsNullOrEmpty(rawPath) && File.Exists(rawPath))
+                            {
+                                data = await File.ReadAllBytesAsync(rawPath);
+                            }
                         }
                     }
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogWarning($"[World] 略過 YooAsset 加載: {e.Message}");
+                    catch (System.Exception e)
+                    {
+                        Debug.LogWarning($"[World] 略過 YooAsset 加載: {e.Message}");
+                    }
                 }
             }
 
