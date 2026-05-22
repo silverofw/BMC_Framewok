@@ -21,7 +21,7 @@ SpriteAtlas:
       crunchedCompression: 0
       sRGB: 1
     platformSettings:
-    - serializedVersion: 3
+    - serializedVersion: 4
       m_BuildTarget: DefaultTexturePlatform
       m_MaxTextureSize: 2048
       m_ResizeAlgorithm: 0
@@ -46,7 +46,7 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 4cf1917f21f7940b3973d424c9049152, type: 3}
-    bindAsDefault: 1
+    bindAsDefault: 0
     isAtlasV2: 0
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:

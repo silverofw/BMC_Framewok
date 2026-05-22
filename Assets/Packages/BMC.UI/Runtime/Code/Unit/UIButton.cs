@@ -18,7 +18,9 @@ namespace BMC.UI
 
         [Header("狀態切換物件")]
         [SerializeField] private GameObject[] OnEnterActive;
+        [SerializeField] private GameObject[] OnEnterDisActive;
         [SerializeField] private GameObject[] OnPressActive;
+        [SerializeField] private GameObject[] OnPressDdisActive;
 
         [Header("點擊判定")]
         [SerializeField, Tooltip("移動距離超過此像素值則取消 Click 觸發")]
@@ -27,6 +29,7 @@ namespace BMC.UI
         [SerializeField, Header("音效(空為靜音)")] private AudioClip clickAudio;
 
         private bool isPressing;
+        private bool isHover;
         private bool isDrag;
         private bool isDragV;
         private bool isDragH;
@@ -88,6 +91,8 @@ namespace BMC.UI
         {
             OnEnter?.Invoke();
 
+            isHover = true;
+
             // 處理進入時的物件顯示
             ToggleEnterObjects(true);
 
@@ -103,6 +108,8 @@ namespace BMC.UI
         public void OnPointerExit(PointerEventData eventData)
         {
             OnExit?.Invoke();
+
+            isHover = false;
 
             // 離開時隱藏進入物件
             ToggleEnterObjects(false);
@@ -151,19 +158,38 @@ namespace BMC.UI
 
         private void ToggleEnterObjects(bool isVisible)
         {
-            if (OnEnterActive == null) return;
-            foreach (var obj in OnEnterActive)
+            if (OnEnterActive != null)
             {
-                if (obj != null) obj.SetActive(isVisible);
+                foreach (var obj in OnEnterActive)
+                {
+                    if (obj != null) obj.SetActive(isVisible);
+                }
+            }
+
+            if (OnEnterDisActive != null)
+            {
+                foreach (var obj in OnEnterDisActive)
+                {
+                    if (obj != null) obj.SetActive(!isVisible);
+                }
             }
         }
 
         private void TogglePressObjects(bool isVisible)
         {
-            if (OnPressActive == null) return;
-            foreach (var obj in OnPressActive)
+            if (OnPressActive != null)
             {
-                if (obj != null) obj.SetActive(isVisible);
+                foreach (var obj in OnPressActive)
+                {
+                    if (obj != null) obj.SetActive(isVisible);
+                }
+            }
+            if (OnPressDdisActive != null)
+            {
+                foreach (var obj in OnPressDdisActive)
+                {
+                    if (obj != null) obj.SetActive(!isVisible && isHover);
+                }
             }
         }
 
