@@ -54,6 +54,24 @@ namespace BMC.Patch.Core
                     ("BgmVolume 1", () => AudioMgr.Instance.SetBgmVolume(1f)),
                     ("BgmVolume 0.5", () => AudioMgr.Instance.SetBgmVolume(0.5f))
             );
+
+            panel.AddDebugGroup(
+                "SERVER",
+                    ("初始化伺服器", () => {
+                        ServerMgr.Instance.Init();
+                        Log.Info($"[SERVER] 初始化完成 {ServerMgr.Instance.CurrentServer.url}");
+                    } ),
+                    ("切換至 Dev 伺服器", () => {
+                        ServerMgr.Instance.SwitchServer("Dev");
+                        if (ServerMgr.Instance.CurrentServer != null)
+                            Log.Info($"[SERVER] 已切換至 Dev: {ServerMgr.Instance.CurrentServer.url}");
+                    } ),
+                    ("切換至 Prod 伺服器", () => {
+                        ServerMgr.Instance.SwitchServer("Prod");
+                        if (ServerMgr.Instance.CurrentServer != null)
+                            Log.Info($"[SERVER] 已切換至 Prod: {ServerMgr.Instance.CurrentServer.url}");
+                    } )
+            );
             void setLang(SystemLanguage language)
             {
                 SaveMgr.Instance.Set(LocalMgr.SC_LANGUAGE, language);
