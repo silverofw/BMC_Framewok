@@ -1,0 +1,17 @@
+{
+  "defaultServerType": "Dev",
+  "servers": [
+    {
+      "serverType": "Dev",
+      "url": "http://localhost",
+      "port": 3000,
+      "cdnUrl": "http://localhost:3000/cdn"
+    },
+    {
+      "serverType": "Prod",
+      "url": "https://game-platform-api.dev",
+      "port": 443,
+      "cdnUrl": "https://game-platform-api.dev/cdn"
+    }
+  ]
+}
