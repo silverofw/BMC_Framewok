@@ -6,6 +6,7 @@ namespace InfiniteMap
 {
     /// <summary>
     /// 無邊際世界管理器 (完全獨立不依賴 MonoBehaviour 或 Singleton)
+    /// 採用「單一序列佇列鎖」架構，徹底解決滑鼠移動過快時產生的實體重複生成與內存洩漏問題。
     /// </summary>
     public class World
     {
@@ -20,6 +21,12 @@ namespace InfiniteMap
         public Func<CPos, UniTask<Chunk>> OnLoadChunkAsync;
         public Func<Chunk, UniTask> OnSaveChunkAsync;
 
+        // ============================================
+        // 佇列與防重入狀態機 (取代不穩定的 CancellationToken)
+        // ============================================
+        private bool _isUpdatingFocus = false;
+        private Pos3? _pendingFocusPos = null;
+
         public World(int chunkSize = 16, int loadRadius = 1)
         {
             ChunkSize = chunkSize;
@@ -28,9 +35,39 @@ namespace InfiniteMap
         }
 
         /// <summary>
-        /// 根據焦點(例如玩家位置)更新區塊
+        /// 根據焦點(例如玩家/編輯器滑鼠位置)更新區塊 (非同步防重入排隊機制)
         /// </summary>
         public async UniTask UpdateFocusAsync(Pos3 focusPos)
+        {
+            // 記錄最新的焦點目標（若在加載中，此時滑鼠再次移動，會直接覆蓋此目標）
+            _pendingFocusPos = focusPos;
+
+            // 如果已經有加載協程在運行，我們直接排隊等待，不重入執行
+            if (_isUpdatingFocus) return;
+
+            _isUpdatingFocus = true;
+
+            try
+            {
+                // 持續消耗佇列，直到最後一次移動的目標被完美處理完畢
+                while (_pendingFocusPos.HasValue)
+                {
+                    Pos3 nextTarget = _pendingFocusPos.Value;
+                    _pendingFocusPos = null; // 清空 pending 標記
+
+                    await DoUpdateFocusAsync(nextTarget);
+                }
+            }
+            finally
+            {
+                _isUpdatingFocus = false; // 確保一定會釋放鎖定
+            }
+        }
+
+        /// <summary>
+        /// 實際執行區塊加載與卸載的核心邏輯 (保證事務完整執行，絕不中途遺失登記)
+        /// </summary>
+        private async UniTask DoUpdateFocusAsync(Pos3 focusPos)
         {
             CPos currentCPos = focusPos.ToCPos(ChunkSize);
 
@@ -61,12 +98,15 @@ namespace InfiniteMap
 
             foreach (var cPos in toUnload)
             {
-                Chunk chunk = activeChunks[cPos];
-                if (OnSaveChunkAsync != null)
+                // 安全檢查：從 activeChunks 中移出，並觸發釋放 (OnEntityDestroy)
+                if (activeChunks.TryGetValue(cPos, out Chunk chunk))
                 {
-                    await OnSaveChunkAsync(chunk);
+                    if (OnSaveChunkAsync != null)
+                    {
+                        await OnSaveChunkAsync(chunk);
+                    }
+                    activeChunks.Remove(cPos);
                 }
-                activeChunks.Remove(cPos);
             }
 
             // 2. 載入新進入範圍的區塊
@@ -84,9 +124,9 @@ namespace InfiniteMap
                     if (newChunk == null)
                     {
                         newChunk = new Chunk(cPos);
-                        // 這裡可以呼叫地形生成器
                     }
 
+                    // 關鍵步驟：只要成功載入，就必須立刻加入 activeChunks，保證後續能被卸載釋放
                     activeChunks[cPos] = newChunk;
                 }
             }
@@ -103,7 +143,6 @@ namespace InfiniteMap
             {
                 for (int y = center.y - radius; y <= center.y + radius; y++)
                 {
-                    // 若有涵蓋高度的需求，可在此加一層 Z 軸迴圈
                     Pos3 searchPos = new Pos3(x, y, center.h);
                     CPos cPos = searchPos.ToCPos(ChunkSize);
 

@@ -1,11 +1,11 @@
-using UnityEngine;
-using System.IO;
+using BMC.Core;
+using Cysharp.Threading.Tasks;
+using Google.Protobuf;
+using InfiniteMap.Proto;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks; // 替換為 UniTask
-using InfiniteMap;
-using BMC.Core; // 引入 ResMgr 等核心功能
-using InfiniteMap.Proto; // 引入 Protobuf 生成的資料結構
-using Google.Protobuf;   // 引入 Protobuf 核心擴展 (用於 ToByteArray)
+using System.IO;
+using System.Threading;
+using UnityEngine;
 
 namespace InfiniteMap.Unity
 {
@@ -25,6 +25,25 @@ namespace InfiniteMap.Unity
         public int ChunkSize { get; private set; }
         public int LoadRadius { get; private set; }
         public float TileSize { get; private set; }
+
+        // =========================================================
+        // 檔案並發鎖管理 (解決 IOException: Sharing violation)
+        // =========================================================
+        private static readonly Dictionary<string, SemaphoreSlim> _fileLocks = new Dictionary<string, SemaphoreSlim>();
+        private static readonly object _fileLocksLock = new object();
+
+        private static SemaphoreSlim GetFileLock(string filePath)
+        {
+            lock (_fileLocksLock)
+            {
+                if (!_fileLocks.TryGetValue(filePath, out var semaphore))
+                {
+                    semaphore = new SemaphoreSlim(1, 1);
+                    _fileLocks[filePath] = semaphore;
+                }
+                return semaphore;
+            }
+        }
 
         // =========================================================
         // 框架事件 (IoC 反轉控制) - 供 AtomECSMgr 綁定
@@ -86,17 +105,18 @@ namespace InfiniteMap.Unity
         {
             if (_world == null) return;
 
-            // 效能優化：首次執行或玩家移動超過半格才更新區塊
+            // 效能優化：首次執行 or 玩家移動超過 half tile 才更新區塊
             if (_isFirstUpdate || Vector3.Distance(playerPosition, _lastPlayerPos) > TileSize * 0.5f)
             {
                 _isFirstUpdate = false;
                 _lastPlayerPos = playerPosition;
 
+                // 改為 XY 平面映射：X->x, Y->y, Z->h (作為高度)
                 // 將 Unity Vector3 轉換為底層框架的 Pos3
                 Pos3 playerPos = new Pos3(
                     Mathf.FloorToInt(playerPosition.x / TileSize),
-                    Mathf.FloorToInt(playerPosition.z / TileSize),
-                    Mathf.FloorToInt(playerPosition.y / TileSize)
+                    Mathf.FloorToInt(playerPosition.y / TileSize),
+                    Mathf.FloorToInt(playerPosition.z / TileSize) // z軸做為 H 傳入 Pos3
                 );
 
                 // 觸發區塊更新 (Fire and Forget 背景執行)
@@ -171,8 +191,114 @@ namespace InfiniteMap.Unity
         }
 
         // =========================================================
-        // 系統管理 API (存檔、切換 Zone)
+        // 系統管理 API (存檔、切換 Zone、跨 Zone 實體轉移)
         // =========================================================
+
+        /// <summary>
+        /// 將指定實體（如主角 Atom）安全導出、從目前地圖的活躍區塊中移除，並合併寫入目標 Zone 地圖的目標位置 Chunk 存檔中。
+        /// </summary>
+        public async UniTask<bool> TransferEntityToZoneAsync(long guid, int targetWorldId, Pos3 targetPos)
+        {
+            if (guid == 0) return false;
+
+            // 1. 序列化實體當前最新的屬性狀態
+            if (OnEntitySerialize == null)
+            {
+                Debug.LogError("[InfiniteWorldController] TransferEntityToZoneAsync 失敗：OnEntitySerialize 委派尚未綁定！");
+                return false;
+            }
+
+            EntityProto entityProto = OnEntitySerialize.Invoke(guid);
+            if (entityProto == null)
+            {
+                Debug.LogError($"[InfiniteWorldController] 序列化實體 {guid} 失敗，無法進行跨 Zone 轉移。");
+                return false;
+            }
+
+            // 2. 從目前所在的活躍區塊中移除此實體（防止原場景卸載存檔時產生分身）
+            Pos3 oldPos = new Pos3(entityProto.Pos.X, entityProto.Pos.Y, entityProto.Pos.H);
+            RemoveRuntimeEntity(guid, oldPos);
+
+            // 3. 更新目標位置屬性
+            entityProto.Pos.X = targetPos.x;
+            entityProto.Pos.Y = targetPos.y;
+            entityProto.Pos.H = targetPos.h;
+
+            // 4. 計算目標區塊座標 (cx, cy)
+            int cx = Mathf.FloorToInt((float)targetPos.x / ChunkSize);
+            int cy = Mathf.FloorToInt((float)targetPos.y / ChunkSize);
+
+            // 5. 確保目標 Zone 的資料夾存在
+            string targetDirectory = Path.Combine(_saveBasePath, $"Zone_{targetWorldId}");
+            if (!Directory.Exists(targetDirectory))
+            {
+                Directory.CreateDirectory(targetDirectory);
+            }
+
+            string fileName = $"chunk_{targetWorldId}_{cx}_{cy}.bytes";
+            string filePath = Path.Combine(targetDirectory, fileName);
+
+            ChunkProto chunkProto = null;
+
+            // 套用路徑鎖，避免多個任務同時讀寫此檔案
+            var fileLock = GetFileLock(filePath);
+            await fileLock.WaitAsync();
+
+            try
+            {
+                // 6. 讀取目標區塊已有的存檔數據（若存在）
+                if (File.Exists(filePath))
+                {
+                    try
+                    {
+                        byte[] existingData = await File.ReadAllBytesAsync(filePath);
+                        chunkProto = ChunkProto.Parser.ParseFrom(existingData);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogError($"[InfiniteWorldController] 讀取目標區塊檔案失敗: {ex.Message}");
+                    }
+                }
+
+                // 若目標區塊檔不存在，則建立全新 Proto 實例
+                if (chunkProto == null)
+                {
+                    chunkProto = new ChunkProto
+                    {
+                        Cx = cx,
+                        Cy = cy,
+                        LastTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                    };
+                }
+
+                // 7. 防碰撞與覆蓋：移除該區塊存檔中可能已有的同名 Guid 舊資料
+                for (int i = chunkProto.Entities.Count - 1; i >= 0; i--)
+                {
+                    if (chunkProto.Entities[i].Guid == guid)
+                    {
+                        chunkProto.Entities.RemoveAt(i);
+                    }
+                }
+
+                // 8. 寫入最新的實體數據
+                chunkProto.Entities.Add(entityProto);
+
+                // 9. 序列化回寫至檔案
+                byte[] dataToSave = chunkProto.ToByteArray();
+                await File.WriteAllBytesAsync(filePath, dataToSave);
+                Debug.Log($"[InfiniteWorldController] 實體 {guid} 成功轉移至地圖 Zone_{targetWorldId} 的區塊 ({cx}, {cy}) 座標 ({targetPos.x}, {targetPos.y})");
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[InfiniteWorldController] 寫入目標區塊檔案失敗: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                fileLock.Release();
+            }
+        }
 
         /// <summary>
         /// 單純的強制存檔 (不銷毀實體，適用於玩家主動點擊「儲存遊戲」)
@@ -227,29 +353,125 @@ namespace InfiniteMap.Unity
         }
 
         // =========================================================
+        // 離線區塊處理 API (編輯器/背景演算法共用)
+        // =========================================================
+
+        /// <summary>
+        /// 獲取或讀取指定坐標的離線 ChunkProto，若不存在則建立新的
+        /// </summary>
+        public ChunkProto GetOrLoadOfflineChunk(Dictionary<CPos, ChunkProto> cache, string baseDir, int mapId, CPos cpos)
+        {
+            if (cache.TryGetValue(cpos, out ChunkProto proto)) return proto;
+
+            string filePath = Path.Combine(baseDir, $"chunk_{mapId}_{cpos.x}_{cpos.y}.bytes");
+
+            // 讀取也需要套用文件鎖，避免與正在儲存的寫入衝突
+            var fileLock = GetFileLock(filePath);
+            fileLock.Wait();
+
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    try
+                    {
+                        byte[] data = File.ReadAllBytes(filePath);
+                        proto = ChunkProto.Parser.ParseFrom(data);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogWarning($"[InfiniteWorldController] 讀取離線區塊失敗，將建立新區塊: {e.Message}");
+                    }
+                }
+            }
+            finally
+            {
+                fileLock.Release();
+            }
+
+            if (proto == null)
+            {
+                proto = new ChunkProto
+                {
+                    Cx = cpos.x,
+                    Cy = cpos.y,
+                    LastTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                };
+            }
+
+            cache[cpos] = proto;
+            return proto;
+        }
+
+        /// <summary>
+        /// 批量將離線修改的 ChunkProto 寫入硬碟
+        /// </summary>
+        public void SaveOfflineChunks(Dictionary<CPos, ChunkProto> cache, string baseDir, int mapId)
+        {
+            if (cache == null || cache.Count == 0) return;
+            if (!Directory.Exists(baseDir)) Directory.CreateDirectory(baseDir);
+
+            foreach (var kvp in cache)
+            {
+                string filePath = Path.Combine(baseDir, $"chunk_{mapId}_{kvp.Key.x}_{kvp.Key.y}.bytes");
+
+                var fileLock = GetFileLock(filePath);
+                fileLock.Wait(); // 同步方法使用 Wait() 進行安全寫入鎖定
+
+                try
+                {
+                    File.WriteAllBytes(filePath, kvp.Value.ToByteArray());
+                }
+                finally
+                {
+                    fileLock.Release();
+                }
+            }
+        }
+
+        // =========================================================
         // 內部 I/O 實作 (Protobuf 存取)
         // =========================================================
 
         private async UniTask<Chunk> LoadChunkFromDiskAsync(CPos cPos)
         {
-            string location = $"chunk_{WorldId}_{cPos.x}_{cPos.y}.bytes";
-            string localFilePath = Path.Combine(_saveDirectory, location);
+            string location = $"chunk_{WorldId}_{cPos.x}_{cPos.y}";
+            string preferredFileName = $"{location}.bytes";
+            string localFilePath = Path.Combine(_saveDirectory, preferredFileName);
             byte[] data = null;
 
-            // 1. 優先讀取本地玩家的存檔
+            // 1. 優先讀取本地玩家的存檔 (套用文件鎖防止與儲存衝突)
             if (File.Exists(localFilePath))
             {
-                data = await File.ReadAllBytesAsync(localFilePath);
+                var fileLock = GetFileLock(localFilePath);
+                await fileLock.WaitAsync();
+                try
+                {
+                    data = await File.ReadAllBytesAsync(localFilePath);
+                }
+                finally
+                {
+                    fileLock.Release();
+                }
             }
             // 2. 若無本地存檔，嘗試讀取官方發布的預設地圖檔 (YooAsset)
             else
             {
 #if UNITY_EDITOR
                 // 編輯器專屬捷徑：避免 YooAsset 尚未更新 Manifest 導致讀不到剛建立的資料
-                string editorRawPath = Path.Combine(Application.dataPath, "yoo", "DefaultPackage", "Proto", "InfiniteMap", $"Zone_{WorldId}", location);
+                string editorRawPath = Path.Combine(Application.dataPath, "yoo", "DefaultPackage", "Proto", "InfiniteMap", $"Zone_{WorldId}", preferredFileName);
                 if (File.Exists(editorRawPath))
                 {
-                    data = await File.ReadAllBytesAsync(editorRawPath);
+                    var fileLock = GetFileLock(editorRawPath);
+                    await fileLock.WaitAsync();
+                    try
+                    {
+                        data = await File.ReadAllBytesAsync(editorRawPath);
+                    }
+                    finally
+                    {
+                        fileLock.Release();
+                    }
                 }
                 else
 #endif
@@ -258,11 +480,19 @@ namespace InfiniteMap.Unity
                     {
                         if (ResMgr.Instance.Check(location))
                         {
-                            string rawPath = await ResMgr.Instance.LoadRawFilePathAsync(location);
-                            if (!string.IsNullOrEmpty(rawPath) && File.Exists(rawPath))
+                            var asset = await ResMgr.Instance.LoadAssetAsync<TextAsset>(location);
+                            if (asset != null)
                             {
-                                data = await File.ReadAllBytesAsync(rawPath);
+                                data = asset.bytes;
                             }
+                            else
+                            {
+                                Debug.LogWarning($"[World] YooAsset 加載失敗: 無法找到資源 {location}");
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"[World] YooAsset 中不存在資源 {location}，將載入空白區塊。");
                         }
                     }
                     catch (System.Exception e)
@@ -330,7 +560,18 @@ namespace InfiniteMap.Unity
             string fileName = $"chunk_{WorldId}_{chunk.Pos.x}_{chunk.Pos.y}.bytes";
             string filePath = Path.Combine(_saveDirectory, fileName);
 
-            await File.WriteAllBytesAsync(filePath, dataToSave);
+            // 透過 SemaphoreSlim 獲取特定檔案的路徑排他鎖，徹底解決 sharing violation
+            var fileLock = GetFileLock(filePath);
+            await fileLock.WaitAsync();
+
+            try
+            {
+                await File.WriteAllBytesAsync(filePath, dataToSave);
+            }
+            finally
+            {
+                fileLock.Release();
+            }
         }
 
         /// <summary>

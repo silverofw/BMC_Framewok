@@ -12,16 +12,15 @@ namespace BMC.Build.Editor
 {
     public class BuildScript
     {
-        public static IReadOnlyList<string> PatchedAOTAssemblyList;
+        // 移除未使用的 public static IReadOnlyList<string> PatchedAOTAssemblyList; 避免與參數混淆
 
         private static string[] GetEnabledScenes()
         {
-            List<string> editorScenes = new List<string>();
-            foreach (EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
-            {
-                if (scene.enabled) { editorScenes.Add(scene.path); }
-            }
-            return editorScenes.ToArray();
+            // 優化：使用 LINQ 簡化獲取啟用場景的路徑
+            return EditorBuildSettings.scenes
+                .Where(scene => scene.enabled)
+                .Select(scene => scene.path)
+                .ToArray();
         }
 
         // --- 獲取當前 Build Profile 名稱 ---
@@ -37,13 +36,9 @@ namespace BMC.Build.Editor
                     "activeBuildProfile",
                     System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
 
-                if (propertyInfo != null)
+                if (propertyInfo != null && propertyInfo.GetValue(null) is UnityEngine.Object profileObj && profileObj != null)
                 {
-                    var profileObj = propertyInfo.GetValue(null) as UnityEngine.Object;
-                    if (profileObj != null)
-                    {
-                        profileName = profileObj.name;
-                    }
+                    profileName = profileObj.name;
                 }
             }
             catch (Exception e)
@@ -159,17 +154,12 @@ namespace BMC.Build.Editor
 
             // 步驟 2: 執行外部 Shell 腳本來打包 .ipa
 
-            // 專案根目錄
             string projectRoot = Directory.GetParent(Application.dataPath).FullName;
-
-            // Xcode 專案的路徑 (來自 Build Report)
             string xcodeProjectPath = report.summary.outputPath;
 
-            // .ipa 輸出路徑 (我們設定在 Builds/iOS_IPA)
             string ipaOutputPath = Path.Combine(projectRoot, "Builds", "iOS_IPA");
             if (!Directory.Exists(ipaOutputPath)) { Directory.CreateDirectory(ipaOutputPath); }
 
-            // Shell 腳本與設定檔的路徑
             string shellScriptPath = Path.Combine(projectRoot, "build_ipa.sh");
             string exportOptionsPath = Path.Combine(projectRoot, "ExportOptions.plist");
 
@@ -179,42 +169,53 @@ namespace BMC.Build.Editor
                 return;
             }
 
-            // 設定 ProcessStartInfo 來執行 Shell 腳本
-            System.Diagnostics.ProcessStartInfo processInfo = new System.Diagnostics.ProcessStartInfo();
-            processInfo.FileName = "/bin/bash";
-            processInfo.Arguments = $"\"{shellScriptPath}\" \"{xcodeProjectPath}\" \"{ipaOutputPath}\" \"{exportOptionsPath}\"";
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardOutput = true;
-            processInfo.RedirectStandardError = true;
-
-            System.Diagnostics.Process process = System.Diagnostics.Process.Start(processInfo);
-
-            // 讀取輸出與錯誤訊息
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-
-            process.WaitForExit();
-
-            Debug.Log("Shell Script Output:\n" + output);
-            if (!string.IsNullOrEmpty(error))
+            System.Diagnostics.ProcessStartInfo processInfo = new System.Diagnostics.ProcessStartInfo
             {
-                Debug.LogError("Shell Script Error:\n" + error);
+                FileName = "/bin/bash",
+                Arguments = $"\"{shellScriptPath}\" \"{xcodeProjectPath}\" \"{ipaOutputPath}\" \"{exportOptionsPath}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+
+            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(processInfo))
+            {
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                Debug.Log("Shell Script Output:\n" + output);
+                if (!string.IsNullOrEmpty(error))
+                {
+                    Debug.LogError("Shell Script Error:\n" + error);
+                }
             }
 
             Debug.Log("Xcode packaging process finished.");
         }
 
-        static BuildTarget BuildTarget = EditorUserBuildSettings.activeBuildTarget;
+        // [Bug 修復]: 移除了靜態 BuildTarget 緩存。靜態變數在切換平台時不會自動更新，會導致打包出錯。
+        // 現在改為即時讀取 EditorUserBuildSettings.activeBuildTarget。
 
         /// <summary>
-        /// 
+        /// 建置 Patch 資源包
         /// </summary>
-        /// <param name="patchedAOTAssemblyList"></param>
-        public static void BuildPatch(IReadOnlyList<string> patchedAOTAssemblyList, List<(string, EBuildPipeline)> list)
+        /// <param name="fastMode">是否開啟快速模式（僅編譯熱更DLL，不重新生成AOT）</param>
+        public static void BuildPatch(IReadOnlyList<string> patchedAOTAssemblyList, List<(string, EBuildPipeline)> list, bool fastMode = false)
         {
-            // 1. HybridCLR 編譯熱更Assembly
-            PrebuildCommand.GenerateAll();
-            Debug.Log("HybridCLR aot dll and hot-update dll build completed.");
+            // 1. HybridCLR 編譯程序集
+            if (fastMode)
+            {
+                // Fast Mode: 僅編譯業務邏輯的熱更新 DLL，速度極快 (日常開發使用)
+                CompileDllCommand.CompileDllActiveBuildTarget();
+                Debug.Log("HybridCLR hot-update dll compile completed (Fast Mode).");
+            }
+            else
+            {
+                // Full Mode: 重新生成橋接代碼、AOT與熱更 DLL (大保養使用)
+                PrebuildCommand.GenerateAll();
+                Debug.Log("HybridCLR aot dll and hot-update dll build completed (Full Mode).");
+            }
 
             // 2. 複製熱更Assembly到YooAssets資料夾
             CopyHotUpdateAssemblies(patchedAOTAssemblyList);
@@ -235,11 +236,12 @@ namespace BMC.Build.Editor
                         Debug.LogError($"Unsupported build pipeline: {pipeline}");
                         continue;
                 }
-                if (buildResult.Success)
+
+                if (buildResult != null && buildResult.Success)
                 {
                     Debug.Log($"YooAssets {packageName} build successful.");
                 }
-                else
+                else if (buildResult != null)
                 {
                     Debug.LogError($"YooAssets build failed: {buildResult.ErrorInfo}");
                 }
@@ -249,38 +251,34 @@ namespace BMC.Build.Editor
         /// <summary>
         /// 搬運 YooAsset.Editor.ScriptableBuildPipelineViewer 內容
         /// </summary>
-        /// <param name="PackageName"></param>
-        /// <param name="PipelineName"></param>
         protected static BuildResult ExecuteBuildtinBuild(string PackageName)
         {
             var PipelineName = EBuildPipeline.BuiltinBuildPipeline.ToString();
-            var fileNameStyle = AssetBundleBuilderSetting.GetPackageFileNameStyle(PackageName, PipelineName);
-            var buildinFileCopyOption = AssetBundleBuilderSetting.GetPackageBuildinFileCopyOption(PackageName, PipelineName);
-            var buildinFileCopyParams = AssetBundleBuilderSetting.GetPackageBuildinFileCopyParams(PackageName, PipelineName);
-            var compressOption = AssetBundleBuilderSetting.GetPackageCompressOption(PackageName, PipelineName);
-            var clearBuildCache = AssetBundleBuilderSetting.GetPackageClearBuildCache(PackageName, PipelineName);
-            var useAssetDependencyDB = AssetBundleBuilderSetting.GetPackageUseAssetDependencyDB(PackageName, PipelineName);
 
-            BuiltinBuildParameters buildParameters = new BuiltinBuildParameters();
-            buildParameters.BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot();
-            buildParameters.BuildinFileRoot = AssetBundleBuilderHelper.GetStreamingAssetsRoot();
-            buildParameters.BuildPipeline = PipelineName.ToString();
-            buildParameters.BuildBundleType = (int)EBuildBundleType.AssetBundle;
-            buildParameters.BuildTarget = BuildTarget;
-            buildParameters.PackageName = PackageName;
-            buildParameters.PackageVersion = GetDefaultPackageVersion();
-            buildParameters.EnableSharePackRule = true;
-            buildParameters.VerifyBuildingResult = true;
-            buildParameters.FileNameStyle = fileNameStyle;
-            buildParameters.BuildinFileCopyOption = buildinFileCopyOption;
-            Debug.Log($"BuildinFileCopyOption: {buildinFileCopyOption}");
-            buildParameters.BuildinFileCopyParams = buildinFileCopyParams;
-            buildParameters.CompressOption = compressOption;
-            buildParameters.ClearBuildCacheFiles = clearBuildCache;
-            buildParameters.UseAssetDependencyDB = useAssetDependencyDB;
-            buildParameters.EncryptionServices = CreateEncryptionServicesInstance(PackageName, PipelineName);
-            buildParameters.ManifestProcessServices = CreateManifestProcessServicesInstance(PackageName, PipelineName);
-            buildParameters.ManifestRestoreServices = CreateManifestRestoreServicesInstance(PackageName, PipelineName);
+            BuiltinBuildParameters buildParameters = new BuiltinBuildParameters
+            {
+                BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot(),
+                BuildinFileRoot = AssetBundleBuilderHelper.GetStreamingAssetsRoot(),
+                BuildPipeline = PipelineName,
+                BuildBundleType = (int)EBuildBundleType.AssetBundle,
+                // 即時讀取當前平台，避免快取 Bug
+                BuildTarget = EditorUserBuildSettings.activeBuildTarget,
+                PackageName = PackageName,
+                PackageVersion = GetDefaultPackageVersion(),
+                EnableSharePackRule = true,
+                VerifyBuildingResult = true,
+                FileNameStyle = AssetBundleBuilderSetting.GetPackageFileNameStyle(PackageName, PipelineName),
+                BuildinFileCopyOption = AssetBundleBuilderSetting.GetPackageBuildinFileCopyOption(PackageName, PipelineName),
+                BuildinFileCopyParams = AssetBundleBuilderSetting.GetPackageBuildinFileCopyParams(PackageName, PipelineName),
+                CompressOption = AssetBundleBuilderSetting.GetPackageCompressOption(PackageName, PipelineName),
+                ClearBuildCacheFiles = AssetBundleBuilderSetting.GetPackageClearBuildCache(PackageName, PipelineName),
+                UseAssetDependencyDB = AssetBundleBuilderSetting.GetPackageUseAssetDependencyDB(PackageName, PipelineName),
+                EncryptionServices = CreateEncryptionServicesInstance(PackageName, PipelineName),
+                ManifestProcessServices = CreateManifestProcessServicesInstance(PackageName, PipelineName),
+                ManifestRestoreServices = CreateManifestRestoreServicesInstance(PackageName, PipelineName)
+            };
+
+            Debug.Log($"BuildinFileCopyOption: {buildParameters.BuildinFileCopyOption}");
 
             BuiltinBuildPipeline pipeline = new BuiltinBuildPipeline();
             var buildResult = pipeline.Run(buildParameters, true);
@@ -292,30 +290,29 @@ namespace BMC.Build.Editor
         protected static BuildResult ExecuteRawFileBuild(string PackageName)
         {
             var PipelineName = EBuildPipeline.RawFileBuildPipeline.ToString();
-            var fileNameStyle = AssetBundleBuilderSetting.GetPackageFileNameStyle(PackageName, PipelineName);
-            var buildinFileCopyOption = AssetBundleBuilderSetting.GetPackageBuildinFileCopyOption(PackageName, PipelineName);
-            var buildinFileCopyParams = AssetBundleBuilderSetting.GetPackageBuildinFileCopyParams(PackageName, PipelineName);
-            var clearBuildCache = AssetBundleBuilderSetting.GetPackageClearBuildCache(PackageName, PipelineName);
-            var useAssetDependencyDB = AssetBundleBuilderSetting.GetPackageUseAssetDependencyDB(PackageName, PipelineName);
 
-            RawFileBuildParameters buildParameters = new RawFileBuildParameters();
-            buildParameters.BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot();
-            buildParameters.BuildinFileRoot = AssetBundleBuilderHelper.GetStreamingAssetsRoot();
-            buildParameters.BuildPipeline = PipelineName.ToString();
-            buildParameters.BuildBundleType = (int)EBuildBundleType.RawBundle;
-            buildParameters.BuildTarget = BuildTarget;
-            buildParameters.PackageName = PackageName;
-            buildParameters.PackageVersion = GetDefaultPackageVersion();
-            buildParameters.VerifyBuildingResult = true;
-            buildParameters.FileNameStyle = fileNameStyle;
-            buildParameters.BuildinFileCopyOption = buildinFileCopyOption;
-            Debug.Log($"BuildinFileCopyOption: {buildinFileCopyOption}");
-            buildParameters.BuildinFileCopyParams = buildinFileCopyParams;
-            buildParameters.ClearBuildCacheFiles = clearBuildCache;
-            buildParameters.UseAssetDependencyDB = useAssetDependencyDB;
-            buildParameters.EncryptionServices = CreateEncryptionServicesInstance(PackageName, PipelineName);
-            buildParameters.ManifestProcessServices = CreateManifestProcessServicesInstance(PackageName, PipelineName);
-            buildParameters.ManifestRestoreServices = CreateManifestRestoreServicesInstance(PackageName, PipelineName);
+            RawFileBuildParameters buildParameters = new RawFileBuildParameters
+            {
+                BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot(),
+                BuildinFileRoot = AssetBundleBuilderHelper.GetStreamingAssetsRoot(),
+                BuildPipeline = PipelineName,
+                BuildBundleType = (int)EBuildBundleType.RawBundle,
+                // 即時讀取當前平台，避免快取 Bug
+                BuildTarget = EditorUserBuildSettings.activeBuildTarget,
+                PackageName = PackageName,
+                PackageVersion = GetDefaultPackageVersion(),
+                VerifyBuildingResult = true,
+                FileNameStyle = AssetBundleBuilderSetting.GetPackageFileNameStyle(PackageName, PipelineName),
+                BuildinFileCopyOption = AssetBundleBuilderSetting.GetPackageBuildinFileCopyOption(PackageName, PipelineName),
+                BuildinFileCopyParams = AssetBundleBuilderSetting.GetPackageBuildinFileCopyParams(PackageName, PipelineName),
+                ClearBuildCacheFiles = AssetBundleBuilderSetting.GetPackageClearBuildCache(PackageName, PipelineName),
+                UseAssetDependencyDB = AssetBundleBuilderSetting.GetPackageUseAssetDependencyDB(PackageName, PipelineName),
+                EncryptionServices = CreateEncryptionServicesInstance(PackageName, PipelineName),
+                ManifestProcessServices = CreateManifestProcessServicesInstance(PackageName, PipelineName),
+                ManifestRestoreServices = CreateManifestRestoreServicesInstance(PackageName, PipelineName)
+            };
+
+            Debug.Log($"BuildinFileCopyOption: {buildParameters.BuildinFileCopyOption}");
 
             RawFileBuildPipeline pipeline = new RawFileBuildPipeline();
             var buildResult = pipeline.Run(buildParameters, true);
@@ -336,12 +333,8 @@ namespace BMC.Build.Editor
         protected static IEncryptionServices CreateEncryptionServicesInstance(string PackageName, string PipelineName)
         {
             var className = AssetBundleBuilderSetting.GetPackageEncyptionServicesClassName(PackageName, PipelineName);
-            var classTypes = EditorTools.GetAssignableTypes(typeof(IEncryptionServices));
-            var classType = classTypes.Find(x => x.FullName.Equals(className));
-            if (classType != null)
-                return (IEncryptionServices)Activator.CreateInstance(classType);
-            else
-                return null;
+            var classType = EditorTools.GetAssignableTypes(typeof(IEncryptionServices)).Find(x => x.FullName.Equals(className));
+            return classType != null ? (IEncryptionServices)Activator.CreateInstance(classType) : null;
         }
 
         /// <summary>
@@ -350,12 +343,8 @@ namespace BMC.Build.Editor
         protected static IManifestProcessServices CreateManifestProcessServicesInstance(string PackageName, string PipelineName)
         {
             var className = AssetBundleBuilderSetting.GetPackageManifestProcessServicesClassName(PackageName, PipelineName);
-            var classTypes = EditorTools.GetAssignableTypes(typeof(IManifestProcessServices));
-            var classType = classTypes.Find(x => x.FullName.Equals(className));
-            if (classType != null)
-                return (IManifestProcessServices)Activator.CreateInstance(classType);
-            else
-                return null;
+            var classType = EditorTools.GetAssignableTypes(typeof(IManifestProcessServices)).Find(x => x.FullName.Equals(className));
+            return classType != null ? (IManifestProcessServices)Activator.CreateInstance(classType) : null;
         }
 
         /// <summary>
@@ -364,18 +353,10 @@ namespace BMC.Build.Editor
         protected static IManifestRestoreServices CreateManifestRestoreServicesInstance(string PackageName, string PipelineName)
         {
             var className = AssetBundleBuilderSetting.GetPackageManifestRestoreServicesClassName(PackageName, PipelineName);
-            var classTypes = EditorTools.GetAssignableTypes(typeof(IManifestRestoreServices));
-            var classType = classTypes.Find(x => x.FullName.Equals(className));
-            if (classType != null)
-                return (IManifestRestoreServices)Activator.CreateInstance(classType);
-            else
-                return null;
+            var classType = EditorTools.GetAssignableTypes(typeof(IManifestRestoreServices)).Find(x => x.FullName.Equals(className));
+            return classType != null ? (IManifestRestoreServices)Activator.CreateInstance(classType) : null;
         }
 
-        /// <summary>
-        /// 複製所有來源的熱更新 DLL 到資源目錄
-        /// </summary>
-        [MenuItem("BMC/Build/CopyHotUpdateAssemblies", false, 110)]
         public static void CopyHotUpdateAssemblies(IReadOnlyList<string> PatchedAOTAssemblyList)
         {
             // 取得所有需要熱更新的 DLL 檔案名稱 (已去重)
@@ -393,6 +374,7 @@ namespace BMC.Build.Editor
                 Directory.CreateDirectory(destinationDir);
             }
 
+            // 搬運熱更新 DLL
             foreach (var dll in hotUpdateAssemblies)
             {
                 string dllName = dll + ".dll";
@@ -402,40 +384,43 @@ namespace BMC.Build.Editor
                 {
                     string destFile = Path.Combine(destinationDir, dllName + ".bytes");
                     File.Copy(sourceFile, destFile, true);
-                    Debug.Log($"Copied '{dllName}' to '{destFile}'");
+                    Debug.Log($"[HotUpdate] Copied '{dllName}' to '{destFile}'");
                 }
                 else
                 {
-                    Debug.LogError($"Hot-update DLL not found: {sourceFile}");
+                    Debug.LogError($"[HotUpdate] DLL not found: {sourceFile}");
                 }
             }
 
-            foreach (var dll in PatchedAOTAssemblyList)
+            // 搬運 AOT 補充元數據 DLL
+            if (PatchedAOTAssemblyList != null)
             {
-                string dllName = dll;
-                string aotDllsDir = Path.Combine(HybridCLR.Editor.Settings.HybridCLRSettings.Instance.strippedAOTDllOutputRootDir, EditorUserBuildSettings.activeBuildTarget.ToString());
-                string sourceFile = Path.Combine(aotDllsDir, dllName);
+                foreach (var dllName in PatchedAOTAssemblyList)
+                {
+                    string aotDllsDir = Path.Combine(HybridCLR.Editor.Settings.HybridCLRSettings.Instance.strippedAOTDllOutputRootDir, EditorUserBuildSettings.activeBuildTarget.ToString());
+                    string sourceFile = Path.Combine(aotDllsDir, dllName);
 
-                if (File.Exists(sourceFile))
-                {
-                    string destFile = Path.Combine(destinationDir, dllName + ".bytes");
-                    File.Copy(sourceFile, destFile, true);
-                    Debug.Log($"Copied '{dllName}' to '{destFile}'");
-                }
-                else
-                {
-                    Debug.LogError($"Hot-update DLL not found: {sourceFile}");
+                    if (File.Exists(sourceFile))
+                    {
+                        string destFile = Path.Combine(destinationDir, dllName + ".bytes");
+                        File.Copy(sourceFile, destFile, true);
+                        Debug.Log($"[AOT] Copied '{dllName}' to '{destFile}'");
+                    }
+                    else
+                    {
+                        // 提示優化：標註這是 AOT DLL 丟失，提醒可能需要 Generate All
+                        Debug.LogWarning($"[AOT] DLL not found: {sourceFile}. 若有修改 AOT 代碼，請先執行 'Generate -> All' 或是 Build 一次 Player。");
+                    }
                 }
             }
 
             AssetDatabase.Refresh();
-            Debug.Log("AssetDatabase refreshed.");
+            Debug.Log("AssetDatabase refreshed. Assemblies copy complete.");
         }
 
         /// <summary>
         /// 從 HybridCLRSettings 中獲取所有熱更新程序集列表 (會自動去重)
         /// </summary>
-        /// <returns></returns>
         private static IEnumerable<string> GetHotUpdateAssemblies()
         {
             var settings = HybridCLR.Editor.Settings.HybridCLRSettings.Instance;
@@ -446,12 +431,9 @@ namespace BMC.Build.Editor
             // 1. 從 hotUpdateAssemblyDefinitions (asmdef) 添加
             if (settings.hotUpdateAssemblyDefinitions != null)
             {
-                foreach (var asmdef in settings.hotUpdateAssemblyDefinitions)
+                foreach (var asmdef in settings.hotUpdateAssemblyDefinitions.Where(a => a != null))
                 {
-                    if (asmdef != null)
-                    {
-                        hotUpdateAssemblies.Add(asmdef.name);
-                    }
+                    hotUpdateAssemblies.Add(asmdef.name);
                 }
             }
 
