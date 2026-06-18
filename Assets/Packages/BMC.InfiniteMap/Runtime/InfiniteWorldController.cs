@@ -246,7 +246,10 @@ namespace InfiniteMap.Unity
 
             try
             {
-                // 6. 讀取目標區塊已有的存檔數據（若存在）
+                // 6. 讀取目標區塊已有的存檔數據
+                string location = $"chunk_{targetWorldId}_{cx}_{cy}";
+
+                // (1) 優先找本地玩家的存檔
                 if (File.Exists(filePath))
                 {
                     try
@@ -257,6 +260,39 @@ namespace InfiniteMap.Unity
                     catch (System.Exception ex)
                     {
                         Debug.LogError($"[InfiniteWorldController] 讀取目標區塊檔案失敗: {ex.Message}");
+                    }
+                }
+                // (2) 如果本地沒存檔，直接透過 YooAsset 抓取官方預設地圖資料
+                else
+                {
+                    byte[] defaultData = null;
+                    try
+                    {
+                        if (ResMgr.Instance.Check(location))
+                        {
+                            var asset = await ResMgr.Instance.LoadAssetAsync<TextAsset>(location);
+                            if (asset != null)
+                            {
+                                defaultData = asset.bytes;
+                            }
+                        }
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogWarning($"[InfiniteWorldController] 目標預設區塊 YooAsset 加載失敗: {e.Message}");
+                    }
+
+                    // 如果有抓到預設地圖，以此為基礎來寫入跨區實體
+                    if (defaultData != null && defaultData.Length > 0)
+                    {
+                        try
+                        {
+                            chunkProto = ChunkProto.Parser.ParseFrom(defaultData);
+                        }
+                        catch (System.Exception e)
+                        {
+                            Debug.LogError($"[InfiniteWorldController] 預設區塊反序列化失敗: {e.Message}");
+                        }
                     }
                 }
 
