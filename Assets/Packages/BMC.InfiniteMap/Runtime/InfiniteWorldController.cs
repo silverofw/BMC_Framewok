@@ -11,6 +11,9 @@ namespace InfiniteMap.Unity
 {
     // 定義向外部索取資料的委派
     public delegate EntityProto FetchEntityDataDelegate(long guid);
+    
+    // 定義要求外部生成空地圖(區塊)的委派
+    public delegate ChunkProto GenerateEmptyChunkDelegate(int worldId, CPos cPos);
 
     /// <summary>
     /// 純 C# 的世界控制器 (不再繼承 MonoBehaviour)
@@ -25,6 +28,12 @@ namespace InfiniteMap.Unity
         public int ChunkSize { get; private set; }
         public int LoadRadius { get; private set; }
         public float TileSize { get; private set; }
+        
+        /// <summary>
+        /// 是否處於編輯器開發/設計模式下？
+        /// 若為 true，即使在 Play Mode 依然允許直接寫入專案的 Assets 目錄。
+        /// </summary>
+        public bool IsEditorMode { get; private set; }
 
         // =========================================================
         // 檔案並發鎖管理 (解決 IOException: Sharing violation)
@@ -61,11 +70,17 @@ namespace InfiniteMap.Unity
         /// <summary> 當區塊卸載完成時觸發 (傳出 GUID，請外部銷毀對應的 ECS/GameObject) </summary>
         public event System.Action<long> OnEntityDestroy;
 
+        /// <summary> 當找不到存檔與預設地圖資料時，觸發此委派交由外部動態生成包含預設實體的空地圖 </summary>
+        public GenerateEmptyChunkDelegate OnGenerateEmptyChunk;
+
         // 純 C# 的世界核心邏輯
         private World _world;
 
         // 存檔路徑管理
-        private string _saveDirectory;
+        private string _saveDirectory => IsEditorMode ? 
+            Path.Combine(Application.dataPath, "yoo", "DefaultPackage", "Proto", "InfiniteMap", $"Zone_{WorldId}") : 
+            Path.Combine(_saveBasePath, $"Zone_{WorldId}");
+
         private string _saveBasePath;
 
         // 紀錄玩家上一次的位置，避免每幀無意義的計算
@@ -75,27 +90,28 @@ namespace InfiniteMap.Unity
         /// <summary>
         /// 系統初始化
         /// </summary>
-        public void Init(int worldId, int chunkSize, int loadRadius, float tileSize, string saveBasePath)
+        /// <param name="isEditorMode">是否為地圖編輯器模式？（若為 true，在 Play Mode 亦允許寫入原始 Assets 目錄）</param>
+        public void Init(int worldId, int chunkSize, int loadRadius, float tileSize, string saveBasePath, bool isEditorMode = false)
         {
+            IsEditorMode = isEditorMode;
+
             WorldId = worldId;
             ChunkSize = chunkSize;
             LoadRadius = loadRadius;
             TileSize = tileSize;
-            _saveBasePath = saveBasePath;
 
+            _saveBasePath = saveBasePath;
             // 初始化存檔資料夾路徑，使用 saveBasePath/Zone_{WorldId} 的資料夾結構
-            _saveDirectory = Path.Combine(saveBasePath, $"Zone_{WorldId}");
             if (!Directory.Exists(_saveDirectory))
-            {
                 Directory.CreateDirectory(_saveDirectory);
-            }
 
             // 1. 初始化純 C# 地圖框架
-            _world = new World(ChunkSize, LoadRadius);
-
-            // 2. 綁定資料的載入與儲存委派 (橋接 Unity I/O 與 底層邏輯)
-            _world.OnLoadChunkAsync = LoadChunkFromDiskAsync;
-            _world.OnSaveChunkAsync = SaveAndUnloadChunkAsync;
+            _world = new World(ChunkSize, LoadRadius)
+            {
+                // 2. 綁定資料的載入與儲存委派 (橋接 Unity I/O 與 底層邏輯)
+                OnLoadChunkAsync = LoadChunkFromDiskAsync,
+                OnSaveChunkAsync = SaveAndUnloadChunkAsync
+            };
         }
 
         /// <summary>
@@ -208,12 +224,18 @@ namespace InfiniteMap.Unity
                 return false;
             }
 
-            EntityProto entityProto = OnEntitySerialize.Invoke(guid);
-            if (entityProto == null)
+            EntityProto liveProto = OnEntitySerialize.Invoke(guid);
+            if (liveProto == null)
             {
                 Debug.LogError($"[InfiniteWorldController] 序列化實體 {guid} 失敗，無法進行跨 Zone 轉移。");
                 return false;
             }
+
+            // =========================================================
+            // 【安全修正 2】執行深拷貝 (Deep Clone) 阻斷引用
+            // 避免後面修改 entityProto 屬性時，直接連動修改到記憶體中原本活著的實體屬性
+            // =========================================================
+            EntityProto entityProto = liveProto.Clone();
 
             // 2. 從目前所在的活躍區塊中移除此實體（防止原場景卸載存檔時產生分身）
             Pos3 oldPos = new Pos3(entityProto.Pos.X, entityProto.Pos.Y, entityProto.Pos.H);
@@ -296,15 +318,24 @@ namespace InfiniteMap.Unity
                     }
                 }
 
-                // 若目標區塊檔不存在，則建立全新 Proto 實例
+                // 若目標區塊檔不存在，且 YooAsset 裡也沒有，則請求外部動態生成
                 if (chunkProto == null)
                 {
-                    chunkProto = new ChunkProto
+                    if (OnGenerateEmptyChunk != null)
                     {
-                        Cx = cx,
-                        Cy = cy,
-                        LastTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                    };
+                        chunkProto = OnGenerateEmptyChunk.Invoke(targetWorldId, new CPos(cx, cy));
+                    }
+
+                    // 若外部未提供生成邏輯，則建立全新空 Proto 實例
+                    if (chunkProto == null)
+                    {
+                        chunkProto = new ChunkProto
+                        {
+                            Cx = cx,
+                            Cy = cy,
+                            LastTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                        };
+                    }
                 }
 
                 // 7. 防碰撞與覆蓋：移除該區塊存檔中可能已有的同名 Guid 舊資料
@@ -382,8 +413,8 @@ namespace InfiniteMap.Unity
                 }
             }
 
-            // 重新初始化為新的世界編號
-            Init(newWorldId, ChunkSize, LoadRadius, TileSize, _saveBasePath);
+            // 重新初始化為新的世界編號 (保持相同的 IsEditorMode 設定)
+            Init(newWorldId, ChunkSize, LoadRadius, TileSize, _saveBasePath, IsEditorMode);
             _isFirstUpdate = true; // 重置標記，確保下一個 Tick 會立刻載入新世界的九宮格
             Debug.Log($"[World] ===== 已成功切換至 Zone_{newWorldId} =====");
         }
@@ -425,14 +456,23 @@ namespace InfiniteMap.Unity
                 fileLock.Release();
             }
 
+            // 若找不到檔案，嘗試請求外部生成
             if (proto == null)
             {
-                proto = new ChunkProto
+                if (OnGenerateEmptyChunk != null)
                 {
-                    Cx = cpos.x,
-                    Cy = cpos.y,
-                    LastTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                };
+                    proto = OnGenerateEmptyChunk.Invoke(mapId, cpos);
+                }
+
+                if (proto == null)
+                {
+                    proto = new ChunkProto
+                    {
+                        Cx = cpos.x,
+                        Cy = cpos.y,
+                        LastTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                    };
+                }
             }
 
             cache[cpos] = proto;
@@ -526,10 +566,6 @@ namespace InfiniteMap.Unity
                                 Debug.LogWarning($"[World] YooAsset 加載失敗: 無法找到資源 {location}");
                             }
                         }
-                        else
-                        {
-                            Debug.LogWarning($"[World] YooAsset 中不存在資源 {location}，將載入空白區塊。");
-                        }
                     }
                     catch (System.Exception e)
                     {
@@ -538,29 +574,42 @@ namespace InfiniteMap.Unity
                 }
             }
 
-            // 3. 反序列化並觸發實體生成
+            ChunkProto proto = null;
+
+            // 3. 嘗試反序列化硬碟/資源包的資料
             if (data != null && data.Length > 0)
             {
                 try
                 {
-                    ChunkProto proto = ChunkProto.Parser.ParseFrom(data);
-                    Chunk loadedChunk = new Chunk(cPos);
-                    loadedChunk.LastTime = proto.LastTime;
-
-                    foreach (var ent in proto.Entities)
-                    {
-                        Pos3 pos = new Pos3(ent.Pos.X, ent.Pos.Y, ent.Pos.H);
-                        loadedChunk.AddEntity(ent.Guid, pos);
-
-                        // 通知外部 ECSMgr 利用這個 Proto 資料重建 Atom，並將區塊的時間戳傳遞下去
-                        OnEntitySpawn?.Invoke(ent, loadedChunk.LastTime);
-                    }
-                    return loadedChunk;
+                    proto = ChunkProto.Parser.ParseFrom(data);
                 }
                 catch (System.Exception e)
                 {
                     Debug.LogError($"[World] 區塊 {location} 反序列化失敗: {e.Message}");
                 }
+            }
+
+            // 4. 若無存檔也無預設資源，呼叫外部實作動態生成地圖
+            if (proto == null && OnGenerateEmptyChunk != null)
+            {
+                proto = OnGenerateEmptyChunk.Invoke(WorldId, cPos);
+            }
+
+            // 5. 將 Proto 轉換為運行時 Chunk 並觸發實體生成
+            if (proto != null)
+            {
+                Chunk loadedChunk = new Chunk(cPos);
+                loadedChunk.LastTime = proto.LastTime > 0 ? proto.LastTime : System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+                foreach (var ent in proto.Entities)
+                {
+                    Pos3 pos = new Pos3(ent.Pos.X, ent.Pos.Y, ent.Pos.H);
+                    loadedChunk.AddEntity(ent.Guid, pos);
+
+                    // 通知外部 ECSMgr 利用這個 Proto 資料重建 Atom，並將區塊的時間戳傳遞下去
+                    OnEntitySpawn?.Invoke(ent, loadedChunk.LastTime);
+                }
+                return loadedChunk;
             }
 
             return null; // 若回傳 null，底層 World 框架會自動 New 一個空的 Chunk
@@ -586,7 +635,11 @@ namespace InfiniteMap.Unity
                     EntityProto latestState = OnEntitySerialize.Invoke(guid);
                     if (latestState != null)
                     {
-                        proto.Entities.Add(latestState);
+                        // =========================================================
+                        // 【安全修正 3】常規存檔時也採取 Clone 保護機制
+                        // 確保存檔寫入不會因 Protobuf 引用混用導致後續 ECS 系統中的運行狀態被鎖死或污染
+                        // =========================================================
+                        proto.Entities.Add(latestState.Clone());
                     }
                 }
             }
@@ -596,6 +649,7 @@ namespace InfiniteMap.Unity
             string fileName = $"chunk_{WorldId}_{chunk.Pos.x}_{chunk.Pos.y}.bytes";
             string filePath = Path.Combine(_saveDirectory, fileName);
 
+            Log.Info($"[INFW][SaveChunkStateAsync] {filePath}");
             // 透過 SemaphoreSlim 獲取特定檔案的路徑排他鎖，徹底解決 sharing violation
             var fileLock = GetFileLock(filePath);
             await fileLock.WaitAsync();

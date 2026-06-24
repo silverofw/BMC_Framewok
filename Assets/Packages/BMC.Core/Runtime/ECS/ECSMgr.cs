@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BMC.Core
 {
@@ -10,7 +11,10 @@ namespace BMC.Core
         int nextId = 1;
         private Dictionary<int, Entity> entitys { get; set; }
         private Dictionary<Type, ECSSystem> systems;
-        private Dictionary<Type, List<Component>> components;
+        
+        // 【核心優化】將原本的 List 改為 Dictionary，內層 Key 為 EntityId
+        private Dictionary<Type, Dictionary<int, Component>> components;
+
         public ECSMgr()
         {
             Clear();
@@ -21,13 +25,13 @@ namespace BMC.Core
             systems = new();
             if (components != null)
             {
-                foreach (var list in components.Values)
+                foreach (var dict in components.Values)
                 {
-                    foreach(var com in list) 
+                    foreach(var com in dict.Values) 
                     {
                         com.Depose();
                     }
-                    list.Clear();
+                    dict.Clear();
                 }
             }
             entitys = new();
@@ -46,21 +50,14 @@ namespace BMC.Core
 
         public void DeleteEntity(int id)
         {
-            //Core.eventHandler.Send((int)CoreEvent.LOG, $"[DeleteEntity] {id}");
-            foreach (var list in components.Values) 
+            // 【效能大幅優化】不需要再對所有元件進行雙層 foreach 掃描了
+            // 對於每種元件類型，只需做一次 O(1) 的 Dictionary.Remove
+            foreach (var dict in components.Values) 
             {
-                var deleteList = new List<Component>();
-                foreach(var com in list) 
+                if (dict.TryGetValue(id, out var com))
                 {
-                    if (com.EntityId == id)
-                    {
-                        deleteList.Add(com);
-                    }
-                }
-
-                foreach (var com in deleteList)
-                {
-                    RemoveComponent(com);
+                    com.Depose();
+                    dict.Remove(id);
                 }
             }
             entitys.Remove(id);
@@ -77,13 +74,14 @@ namespace BMC.Core
             systems[systemType] = sys;
         }
 
-        public T CreateEntity<T>()where T : Entity
+        public T CreateEntity<T>() where T : Entity
         {
             var entity = (T)Activator.CreateInstance(typeof(T), nextId);
             entitys.Add(nextId, entity);
             nextId++;
             return entity;
         }
+
         public T Get<T>(int id) where T : Entity
         {
             if (entitys.TryGetValue(id, out var entity))
@@ -95,14 +93,14 @@ namespace BMC.Core
 
         public T AddComponent<T>(T com) where T : Component
         {
-            if (components.TryGetValue(com.GetType(), out var list))
+            if (!components.TryGetValue(com.GetType(), out var dict))
             {
-                list.Add(com);
+                dict = new Dictionary<int, Component>();
+                components.Add(com.GetType(), dict);
             }
-            else
-            {
-                components.Add(com.GetType(), new List<Component>() { com });
-            }
+            
+            // 【優化】使用 EntityId 作為 Key，保證同一個 Entity 同種元件只有一個，並極大化加速查詢
+            dict[com.EntityId] = com;
             com.Init();
             return com;
         }
@@ -117,28 +115,36 @@ namespace BMC.Core
 
         public void RemoveComponent<T>(T com) where T : Component
         {
-            com.Depose();
-            components[com.GetType()].Remove(com);
+            // 【效能優化】從 O(N) 的 List.Remove 變成了 O(1) 的 Dictionary 刪除
+            if (components.TryGetValue(com.GetType(), out var dict))
+            {
+                if (dict.Remove(com.EntityId))
+                {
+                    com.Depose();
+                }
+            }
         }
 
-        public List<Component> GetComponentList<T>()where T:Component
+        // 【變更注意】回傳型別從 List 改為 IEnumerable。
+        // 如果這裡強迫轉回 List()，每幀都會產生大量 GC 記憶體垃圾 (Allocation)。
+        // 外部 System 呼叫此方法時，建議直接用 foreach (var com in GetComponentList<T>()) 來遍歷即可。
+        public IEnumerable<Component> GetComponentList<T>() where T : Component
         {
-            if (components.TryGetValue(typeof(T), out var list))
+            if (components.TryGetValue(typeof(T), out var dict))
             {
-                return list;
+                return dict.Values;
             }
 
-            return new List<Component>();
+            return Enumerable.Empty<Component>();
         }
 
         public T GetComponent<T>(int entityId) where T : Component
         {
-            var list = GetComponentList<T>();
-            if (list == null)
-                return null;
-            foreach (var com in list)
+            // 【效能大幅優化】原本是做 foreach 掃描整個 List (效能極差)
+            // 現在改為 O(1) 的 Dictionary 雜湊取值
+            if (components.TryGetValue(typeof(T), out var dict))
             {
-                if (com.EntityId == entityId)
+                if (dict.TryGetValue(entityId, out var com))
                 {
                     return com as T;
                 }

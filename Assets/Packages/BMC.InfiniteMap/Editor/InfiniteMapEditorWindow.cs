@@ -164,7 +164,7 @@ namespace InfiniteMap.Unity.Editor
             GUI.color = Application.isPlaying ? Color.gray : new Color(0.9f, 0.3f, 0.3f);
             if (GUILayout.Button(Application.isPlaying ? "運行中不可刪除" : "CLEAR PLAYER", GUILayout.Height(25)))
             {
-                if (EditorUtility.DisplayDialog("確認刪除全部紀錄", $"確定要刪除玩家的所有遊玩紀錄地圖資料嗎？\n這將清空 {Application.persistentDataPath}/WorldSaves/ 下所有檔案。", "確定刪除", "取消"))
+                if (EditorUtility.DisplayDialog("確認刪除全部紀錄", $"確定要刪除玩家的所有遊玩紀錄地圖資料嗎？", "確定刪除", "取消"))
                 {
                     ClearAllPlayerSaves();
                 }
