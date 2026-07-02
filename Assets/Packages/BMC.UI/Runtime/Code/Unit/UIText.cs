@@ -1,7 +1,6 @@
 ﻿using BMC.Core;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Scripting.APIUpdating;
 
 namespace BMC.UI
 {
