@@ -72,5 +72,20 @@ namespace BMC.UI
                 }
             }
         }
+
+        /// <summary>
+        /// 內部方法：瞬間清空所有訂閱者
+        /// </summary>
+        public void ClearAllListeners()
+        {
+            // 將事件設為 null，所有外部的訂閱都會被解除
+            OnValueChanged = null; 
+        }
+
+        private void OnDestroy()
+        {
+            // 好習慣：當這個 UI 被銷毀時，主動清空事件，避免記憶體洩漏
+            ClearAllListeners();
+        }
     }
 }
