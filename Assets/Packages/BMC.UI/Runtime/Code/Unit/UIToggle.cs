@@ -8,6 +8,7 @@ namespace BMC.UI
     {
         [Header("當前狀態")]
         [SerializeField] private bool isOn = true;
+        [SerializeField] public UIButton btn;
 
         [Header("狀態切換物件列表")]
         [SerializeField] private List<GameObject> onObjects = new List<GameObject>();
@@ -20,6 +21,11 @@ namespace BMC.UI
         private void Start()
         {
             UpdateVisuals();
+
+            btn.OnClick = () =>
+            {
+                Set(!isOn);
+            };
         }
 
         /// <summary>
