@@ -187,6 +187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d43f626d9b5f4d729097092ded48bdb, type: 3}
   m_Name: UIEffectProjectSettings
   m_EditorClassIdentifier: Coffee.UIEffect::Coffee.UIEffects.UIEffectProjectSettings
+  m_PreLoadSettingsInBuild: 1
   m_RuntimePresets: []
   m_RuntimePresetsV2: []
   m_UseHDRColorPicker: 1
@@ -212,5 +213,9 @@ MonoBehaviour:
     - key: Hidden/TextMeshPro/Mobile/Distance Field SSD (SoftMaskable)
       value: Hidden/TextMeshPro/Mobile/Distance Field SSD (UIEffect)
     m_Asset: {fileID: -4781729744322600757}
+    m_RegisteredShaders:
+    - {fileID: 4800000, guid: 96246b1ead49a4c5a996fd477bc5a117, type: 3}
+    - {fileID: 4800000, guid: 935b7be1c88464d2eb87204fdfab5a38, type: 3}
+    - {fileID: 4800000, guid: e65241fa80a374114b3f55ed746c04d9, type: 3}
     m_ErrorOnUnregisteredVariant: 0
     m_UnregisteredVariants: []

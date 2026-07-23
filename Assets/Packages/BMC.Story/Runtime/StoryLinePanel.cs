@@ -53,6 +53,8 @@ namespace BMC.Story
 
         private bool isInitChapter;
 
+        private List<ChapterData> chapters = new List<ChapterData>();
+
         void Awake()
         {
             if (storyItemPrefab) storyItemPrefab.SetActive(false);
@@ -94,6 +96,13 @@ namespace BMC.Story
                 {
                     startChapter = chapter;
                 }
+            }
+
+            foreach (var chapter in chapters)
+            {
+                if (chapter.GetChapterBytes == null) continue;
+
+                this.chapters.Add(chapter);
             }
 
             chapterBtn.OnClick = () => {
@@ -138,6 +147,12 @@ namespace BMC.Story
             {
                 PreviewChapter(chapters[0]);
             }
+        }
+
+        public void PreviewChapter(int index)
+        {
+            if(index < 0 || index >= chapters.Count) return;
+            PreviewChapter(chapters[index]);
         }
 
         /// <summary>
