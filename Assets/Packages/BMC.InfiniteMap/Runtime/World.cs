@@ -92,7 +92,6 @@ namespace InfiniteMap
 
             // 如果目標沒變，就不用重新跑
             if (currentCPos == lastUpdateCPos) return;
-            lastUpdateCPos = currentCPos;
 
             HashSet<CPos> neededChunks = new HashSet<CPos>();
 
@@ -135,23 +134,38 @@ namespace InfiniteMap
             }
 
             // 2. 加載需要的區塊
+            // 【修復】原本這裡一旦焦點中途改變就直接 return，但 lastUpdateCPos 在方法一開始就已經
+            // 寫入了，導致「這個位置處理過了」的標記跟「這個位置的 chunk 真的都載入完成了」脫鉤——
+            // 如果角色連續移動導致這裡被中斷、還有些 chunk 沒真的塞進 activeChunks，
+            // 等角色停下來不再移動時，因為 lastUpdateCPos 已經等於 currentCPos，就再也不會重新
+            // 嘗試補齊那些漏掉的 chunk，畫面上該處的地板/物件就永久是空的，只能離開重進才會恢復。
+            // 現在改成：只有整批 neededChunks 都確認在 activeChunks 裡、完全沒被中斷時，
+            // 才把 lastUpdateCPos 更新成 currentCPos；被中斷的話維持原值，之後角色只要再度停在
+            // 同一個位置，就會重新觸發、補載入還沒完成的 chunk。
+            bool completed = true;
             bool hasLoadedAny = false;
             foreach (var cPos in neededChunks)
             {
                 if (_isDestroyed) return;
 
-                // 【關鍵修復】防呆中斷機制：如果加載途中焦點改變（玩家跑走了），直接放棄過時的加載
-                // 讓外層迴圈能立刻接手新焦點，避免「剛加載完下一秒就被卸載」導致存檔被清空的災難。
-                if (_pendingFocusPos.HasValue) return;
+                if (_pendingFocusPos.HasValue)
+                {
+                    completed = false;
+                    break;
+                }
 
                 if (!activeChunks.ContainsKey(cPos))
                 {
                     if (hasLoadedAny && ChunkLoadIntervalMs > 0)
                     {
                         await UniTask.Delay(ChunkLoadIntervalMs);
-                        
-                        // 延遲醒來後再次檢查是否已經過時或被銷毀
-                        if (_isDestroyed || _pendingFocusPos.HasValue) return;
+
+                        if (_isDestroyed) return;
+                        if (_pendingFocusPos.HasValue)
+                        {
+                            completed = false;
+                            break;
+                        }
                     }
 
                     Chunk newChunk = null;
@@ -177,8 +191,13 @@ namespace InfiniteMap
                     {
                         activeChunks[cPos] = newChunk;
                     }
-                    hasLoadedAny = true; 
+                    hasLoadedAny = true;
                 }
+            }
+
+            if (completed)
+            {
+                lastUpdateCPos = currentCPos;
             }
         }
         
