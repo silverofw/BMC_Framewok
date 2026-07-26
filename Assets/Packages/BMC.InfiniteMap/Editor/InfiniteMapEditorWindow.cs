@@ -108,7 +108,7 @@ namespace InfiniteMap.Unity.Editor
             if (Application.isPlaying && ActiveController != null)
             {
                 // 改為對應 XY 平面，Z 為 0 (或高度)
-                ActiveController.Tick(new Vector3(targetPosX * CurrentTileSize, targetPosY * CurrentTileSize, 0));
+                ActiveController.UpdateWorldFocus(new Vector3(targetPosX * CurrentTileSize, targetPosY * CurrentTileSize, 0));
                 Debug.Log($"[Map Editor] 已更新無邊際地圖加載中心為: [{targetPosX}, {targetPosY}]");
             }
             else if (!Application.isPlaying)

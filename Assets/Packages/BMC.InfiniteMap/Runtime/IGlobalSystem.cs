@@ -41,16 +41,11 @@ namespace InfiniteMap
         /// </summary>
         EntityProto FetchEntityData(long guid);
 
-        /// <summary>
-        /// 當地塊載入時觸發 (實體甦醒)
-        /// 區域系統(如ECS)可在此將 Proto 轉為 Atom；全域系統可視需求忽略。
-        /// </summary>
-        void OnEntitySpawn(EntityProto proto, long lastSaveTimeUnix);
+        void OnChunkLoaded(CPos cPos);
+        void OnChunkUnloaded(CPos cPos);
 
-        /// <summary>
-        /// 當地塊卸載時觸發 (實體休眠)
-        /// 區域系統(如ECS)可在此回收記憶體；全域系統可視需求忽略。
-        /// </summary>
-        void OnEntityDestroy(long guid);
+        bool OnRuntimeEntityAdd(long guid, int configId, Pos3 pos);
+        bool OnRuntimeEntityRemove(long guid, Pos3 pos);
+        bool OnRuntimeEntityMove(long guid, Pos3 oldPos, Pos3 newPos);
     }
 }

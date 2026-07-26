@@ -1,12 +1,14 @@
 {
   "name": "com.bmc.infinitemap",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "displayName": "BMC Infinite Map",
-  "description": "BMC 無限地圖。",
+  "description": "BMC 無限地圖：以 Chunk 為單位的無邊際地圖載入／存檔框架，支援 protobuf 序列化、動態生成與全域子系統 (IGlobalSystem)。",
   "unity": "6000.0",
+  "type": "library",
   "repository": {
     "type": "git",
-    "url": "https://github.com/silverofw/BMC_Framewok.git"
+    "url": "https://github.com/silverofw/BMC_Framewok.git",
+    "directory": "Assets/Packages/BMC.InfiniteMap"
   },
   "dependencies": {
     "com.bmc.core": "1.0.0"
@@ -17,6 +19,9 @@
   },
   "keywords": [
     "bmc",
-    "map"
+    "map",
+    "infinite-map",
+    "chunk",
+    "world"
   ]
 }

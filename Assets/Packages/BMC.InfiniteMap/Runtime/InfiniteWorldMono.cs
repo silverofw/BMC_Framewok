@@ -74,7 +74,7 @@ namespace InfiniteMap.Unity
 
             if (Controller != null)
             {
-                Controller.Tick(CurrentFocusPosition);
+                Controller.UpdateWorldFocus(CurrentFocusPosition);
             }
 
             // 測試流程：結合 EntityGuidFactory 測試靜態與動態 ID
@@ -112,7 +112,7 @@ namespace InfiniteMap.Unity
             );
 
             // 3. 通知地圖底層註冊
-            Controller.AddRuntimeEntity(newGuid, pos3);
+            Controller.AddRuntimeEntity(newGuid, 0, pos3);
 
             // 4. 在畫面上實際把它建立出來
             CreateTestGameObject(newGuid, pos3);

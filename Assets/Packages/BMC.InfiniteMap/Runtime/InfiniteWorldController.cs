@@ -47,6 +47,24 @@ namespace InfiniteMap.Unity
             }
         }
 
+        // 清掉目前未被持有(CurrentCount==1)的檔案鎖，避免無邊際地圖長時間探索後 _fileLocks 無限增長。
+        // 只移除閒置鎖，且不 Dispose(本專案未使用 AvailableWaitHandle，SemaphoreSlim 無非受控資源需釋放)，
+        // 即使極端競態下仍有他處持有舊參照也不會拋 ObjectDisposedException。
+        private static void CleanupIdleFileLocks()
+        {
+            lock (_fileLocksLock)
+            {
+                var idleKeys = new List<string>();
+                foreach (var kv in _fileLocks)
+                {
+                    if (kv.Value.CurrentCount == 1)
+                        idleKeys.Add(kv.Key);
+                }
+                foreach (var k in idleKeys)
+                    _fileLocks.Remove(k);
+            }
+        }
+
         public event System.Action<EntityProto, long> OnEntitySpawn;
         public FetchEntityDataDelegate OnEntitySerialize;
         public event System.Action<long> OnEntityDestroy;
@@ -63,6 +81,8 @@ namespace InfiniteMap.Unity
         private CPos _lastPlayerChunkPos = new CPos(int.MaxValue, int.MaxValue);
         private bool _isFirstUpdate = true;
 
+        private List<IGlobalSystem> _subSystem = new List<IGlobalSystem>();
+
         public void Init(int worldId, int chunkSize, int loadRadius, float tileSize, string saveBasePath, bool isEditorMode = false, int loadDelayMs = 250, int chunkLoadIntervalMs = 50)
         {
             IsEditorMode = isEditorMode;
@@ -73,6 +93,7 @@ namespace InfiniteMap.Unity
             _saveBasePath = saveBasePath;
 
             _entityStateCache.Clear(); // 初始化時清空快取
+            CleanupIdleFileLocks();    // 每次載入地圖時回收閒置的檔案鎖，避免 static 字典無限增長
 
             if (!Directory.Exists(_saveDirectory))
                 Directory.CreateDirectory(_saveDirectory);
@@ -82,9 +103,26 @@ namespace InfiniteMap.Unity
                 OnLoadChunkAsync = LoadChunkFromDiskAsync,
                 OnSaveChunkAsync = SaveAndUnloadChunkAsync
             };
+
+            foreach(var s in _subSystem)
+            {
+                s.Init(chunkSize, saveBasePath, worldId);
+            }
         }
 
-        public void Tick(Vector3 playerPosition)
+        public void RegisterGlobalSystem(IGlobalSystem sys)
+        {
+            _subSystem.Add(sys);
+        }
+        public void Tick(int scale)
+        {
+            foreach(var s in _subSystem)
+            {
+                s.Tick(1);
+            }
+        }
+
+        public void UpdateWorldFocus(Vector3 playerPosition)
         {
             if (_world == null) return;
 
@@ -104,9 +142,16 @@ namespace InfiniteMap.Unity
             }
         }
 
-        public void AddRuntimeEntity(long guid, Pos3 pos)
+        public void AddRuntimeEntity(long guid, int config, Pos3 pos)
         {
             if (guid == 0 || _world == null) return;
+
+            foreach(var s in _subSystem)
+            {
+                if(s.OnRuntimeEntityAdd(guid, config, pos))
+                    return;
+            }
+
             CPos cPos = pos.ToCPos(ChunkSize);
 
             var activeChunks = GetActiveChunks();
@@ -119,6 +164,13 @@ namespace InfiniteMap.Unity
         public void RemoveRuntimeEntity(long guid, Pos3 pos)
         {
             if (guid == 0 || _world == null) return;
+
+            foreach(var s in _subSystem)
+            {
+                if(s.OnRuntimeEntityRemove(guid, pos))
+                    return;
+            }
+
             CPos cPos = pos.ToCPos(ChunkSize);
 
             var activeChunks = GetActiveChunks();
@@ -132,6 +184,12 @@ namespace InfiniteMap.Unity
         public void MoveRuntimeEntity(long guid, Pos3 oldPos, Pos3 newPos)
         {
             if (guid == 0 || _world == null || oldPos == newPos) return;
+
+            foreach(var s in _subSystem)
+            {
+                if(s.OnRuntimeEntityMove(guid, oldPos, newPos))
+                    return;
+            }
 
             CPos oldCPos = oldPos.ToCPos(ChunkSize);
             CPos newCPos = newPos.ToCPos(ChunkSize);
@@ -158,6 +216,11 @@ namespace InfiniteMap.Unity
                 await _world.DestroyAndSaveAllAsync();
                 Debug.Log($"[InfiniteWorldController] Zone_{WorldId} 已安全完成所有存檔與資源釋放。");
             }
+            // 先讓場景物件資料寫回個別sys
+            foreach(var s in _subSystem)
+            {
+                await s.SaveAsync();
+            }
         }
 
         public async UniTask<bool> TransferEntityToZoneAsync(long guid, int targetWorldId, Pos3 targetPos)
@@ -181,7 +244,11 @@ namespace InfiniteMap.Unity
             int cx = Mathf.FloorToInt((float)targetPos.x / ChunkSize);
             int cy = Mathf.FloorToInt((float)targetPos.y / ChunkSize);
 
-            string targetDirectory = Path.Combine(_saveBasePath, $"Zone_{targetWorldId}");
+            // 與 _saveDirectory / WipeZoneDataAsync 保持一致：編輯器模式寫入 Assets 內的預設 proto 路徑，
+            // 否則載入(讀 Assets)與轉移寫入(寫 persistentData)會落在不同位置導致轉移不生效。
+            string targetDirectory = IsEditorMode ?
+                Path.Combine(Application.dataPath, "yoo", "DefaultPackage", "Proto", "InfiniteMap", $"Zone_{targetWorldId}") :
+                Path.Combine(_saveBasePath, $"Zone_{targetWorldId}");
             if (!Directory.Exists(targetDirectory)) Directory.CreateDirectory(targetDirectory);
 
             string fileName = $"chunk_{targetWorldId}_{cx}_{cy}.bytes";
@@ -252,6 +319,10 @@ namespace InfiniteMap.Unity
 
         public async UniTask ForceSaveAllAsync()
         {
+            foreach(var s in _subSystem)
+            {
+                await s.SaveAsync();
+            }
             if (_world == null) return;
             var activeChunks = GetActiveChunks();
             if (activeChunks == null || activeChunks.Count == 0) return;
@@ -349,6 +420,11 @@ namespace InfiniteMap.Unity
 
         private async UniTask<Chunk> LoadChunkFromDiskAsync(CPos cPos)
         {
+            foreach(var s in _subSystem)
+            {
+                s.OnChunkLoaded(cPos);
+            }
+
             string location = $"chunk_{WorldId}_{cPos.x}_{cPos.y}";
             string preferredFileName = $"{location}.bytes";
             string localFilePath = Path.Combine(_saveDirectory, preferredFileName);
@@ -479,6 +555,10 @@ namespace InfiniteMap.Unity
 
         private async UniTask SaveAndUnloadChunkAsync(Chunk chunk)
         {
+            foreach(var s in _subSystem)
+            {
+                s.OnChunkUnloaded(chunk.Pos);
+            }
             await SaveChunkStateAsync(chunk);
 
             // 確保回到主執行緒進行銷毀
@@ -499,10 +579,7 @@ namespace InfiniteMap.Unity
 
         public Dictionary<CPos, Chunk> GetActiveChunks()
         {
-            if (_world == null) return null;
-            var field = typeof(World).GetField("activeChunks", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (field != null) return (Dictionary<CPos, Chunk>)field.GetValue(_world);
-            return null;
+            return _world?.ActiveChunks;
         }
     }
 }

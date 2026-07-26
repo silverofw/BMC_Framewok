@@ -17,6 +17,8 @@ namespace InfiniteMap
         public int ChunkLoadIntervalMs { get; set; }
 
         private Dictionary<CPos, Chunk> activeChunks;
+        // 提供給 InfiniteWorldController 直接存取，取代原本每次呼叫的反射
+        public Dictionary<CPos, Chunk> ActiveChunks => activeChunks;
         private CPos lastUpdateCPos = new CPos(int.MaxValue, int.MaxValue);
 
         public Func<CPos, UniTask<Chunk>> OnLoadChunkAsync;
