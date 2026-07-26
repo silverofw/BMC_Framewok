@@ -81,6 +81,17 @@ namespace InfiniteMap.Unity
         private CPos _lastPlayerChunkPos = new CPos(int.MaxValue, int.MaxValue);
         private bool _isFirstUpdate = true;
 
+        // 【保險機制】UpdateWorldFocus 只有在玩家實際移動時才會被呼叫。如果某次區塊載入
+        // 中途被中斷(見 World.DoUpdateFocusAsync 的修正)、玩家又剛好停在原地不再移動，
+        // 就永遠不會有任何東西再觸發重新嘗試載入。這裡定期用「最後一次已知的焦點位置」
+        // 重新呼叫一次 UpdateWorldFocus：如果上次已經完整載入成功，World 內部的
+        // lastUpdateCPos 早已跟目前位置一致，這裡只是多一次幾乎零成本的比較就返回；
+        // 只有真的還有東西沒載入完成時，才會真正重新嘗試補齊。
+        private Vector3 _lastFocusPosition;
+        private bool _hasFocusPosition = false;
+        private float _selfHealTimer = 0f;
+        private const float SelfHealIntervalSeconds = 2f;
+
         private List<IGlobalSystem> _subSystem = new List<IGlobalSystem>();
 
         public void Init(int worldId, int chunkSize, int loadRadius, float tileSize, string saveBasePath, bool isEditorMode = false, int loadDelayMs = 250, int chunkLoadIntervalMs = 50)
@@ -94,6 +105,10 @@ namespace InfiniteMap.Unity
 
             _entityStateCache.Clear(); // 初始化時清空快取
             CleanupIdleFileLocks();    // 每次載入地圖時回收閒置的檔案鎖，避免 static 字典無限增長
+
+            // 換 Zone 時重置保險機制的狀態，避免沿用上一個世界的焦點位置
+            _hasFocusPosition = false;
+            _selfHealTimer = 0f;
 
             if (!Directory.Exists(_saveDirectory))
                 Directory.CreateDirectory(_saveDirectory);
@@ -120,17 +135,39 @@ namespace InfiniteMap.Unity
             {
                 s.Tick(1);
             }
+
+            if (_hasFocusPosition && _world != null)
+            {
+                _selfHealTimer += UnityEngine.Time.deltaTime * Mathf.Max(scale, 1);
+                if (_selfHealTimer >= SelfHealIntervalSeconds)
+                {
+                    _selfHealTimer = 0f;
+                    // 直接呼叫 World，不透過 UpdateWorldFocus：UpdateWorldFocus 會先比對
+                    // chunk 座標，位置沒變就整個跳過，但這裡就是要在「位置沒變」的情況下
+                    // 也讓 World 有機會重新檢查、補齊漏掉的 chunk。
+                    _world.UpdateFocusAsync(ToPos3(_lastFocusPosition)).Forget();
+                }
+            }
+        }
+
+        private Pos3 ToPos3(Vector3 worldPosition)
+        {
+            return new Pos3(
+                Mathf.FloorToInt(worldPosition.x / TileSize),
+                Mathf.FloorToInt(worldPosition.y / TileSize),
+                Mathf.FloorToInt(worldPosition.z / TileSize)
+            );
         }
 
         public void UpdateWorldFocus(Vector3 playerPosition)
         {
             if (_world == null) return;
 
-            Pos3 playerPos = new Pos3(
-                Mathf.FloorToInt(playerPosition.x / TileSize),
-                Mathf.FloorToInt(playerPosition.y / TileSize),
-                Mathf.FloorToInt(playerPosition.z / TileSize) 
-            );
+            _lastFocusPosition = playerPosition;
+            _hasFocusPosition = true;
+            _selfHealTimer = 0f;
+
+            Pos3 playerPos = ToPos3(playerPosition);
 
             CPos currentChunkPos = playerPos.ToCPos(ChunkSize);
 
