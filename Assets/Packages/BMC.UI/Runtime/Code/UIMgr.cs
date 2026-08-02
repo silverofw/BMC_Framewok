@@ -77,7 +77,11 @@ namespace BMC.UI
     public class UIMgr : Singleton<UIMgr>
     {
         public Core.EventHandler eventHandler = new();
-        public Stack<JoypadPanel> joypadPanels = new Stack<JoypadPanel>();
+        // 用 List 當堆疊使用（而非 Stack<T>）：Stack.Pop/Peek 只認「最上層」，
+        // 一旦面板因為動畫時間差或巢狀 MsgPanel 而不是照 LIFO 順序關閉，
+        // RemovePanel 就會判斷「不是最上層」而跳過移除，導致殘影面板卡在堆疊裡。
+        // 改用 List + Remove(panel) 讓面板無論在堆疊哪個位置關閉，都能正確被清除。
+        public List<JoypadPanel> joypadPanels = new List<JoypadPanel>();
         public bool IsSceneInit { get; private set; }
 
 
@@ -186,7 +190,7 @@ namespace BMC.UI
         private JoypadPanel GetTopJoypadPanel()
         {
             if (joypadPanels.Count > 0)
-                return joypadPanels.Peek();
+                return joypadPanels[joypadPanels.Count - 1];
             return null;
         }
 
@@ -202,7 +206,7 @@ namespace BMC.UI
 
         public void PushJoypadPanel(JoypadPanel panel)
         {
-            joypadPanels.Push(panel);
+            joypadPanels.Add(panel);
         }
 
         public async UniTask LoadGlobalCanvas()
@@ -238,8 +242,8 @@ namespace BMC.UI
             if (uiMaskControlCount.Count == 0)
                 UIMaskControl?.Invoke(false);
 
-            if (joypadPanels.Count > 0 && joypadPanels.Peek() == panel)
-                joypadPanels.Pop();
+            if (panel is JoypadPanel joypadPanel)
+                joypadPanels.Remove(joypadPanel);
             panels.Remove(panel);
         }
 
@@ -302,7 +306,7 @@ namespace BMC.UI
         {
             if (joypadPanels.Count == 0)
                 return false;
-            return joypadPanels.Peek() == panel;
+            return joypadPanels[joypadPanels.Count - 1] == panel;
         }
 
         public async UniTask<UIPanel> ShowPanel(Type type, UICanvasType uICanvasType = UICanvasType.SCENE_UI_1, bool checkSame = true)
@@ -372,13 +376,14 @@ namespace BMC.UI
                 Log.Info("[closeJoypadPanel] no panel can close");
                 return;
             }
-            if (!joypadPanels.Peek().canBackClose)
+            var topPanel = joypadPanels[joypadPanels.Count - 1];
+            if (!topPanel.canBackClose)
             {
-                Log.Info($"[{joypadPanels.Peek()}] can not back close");
+                Log.Info($"[{topPanel}] can not back close");
                 return;
             }
-            var panel = joypadPanels.Pop();
-            closePanel(panel);
+            joypadPanels.RemoveAt(joypadPanels.Count - 1);
+            closePanel(topPanel);
         }
 
         public void closePanel(UIPanel panel, bool anima = true, Action callback = null)
