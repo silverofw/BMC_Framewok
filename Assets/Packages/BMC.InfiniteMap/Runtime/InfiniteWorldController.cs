@@ -234,15 +234,24 @@ namespace InfiniteMap.Unity
             var activeChunks = GetActiveChunks();
             if (activeChunks == null) return;
 
+            // 【修正】目標 chunk 若還沒串流載入完成(區塊載入是分批延遲的，理論上邊界情況下
+            // 可能發生)，先前的寫法會照樣把實體從舊 chunk 移除，但因為 TryGetValue 找不到新
+            // chunk 就直接放棄「加回去」——實體從此兩邊都追蹤不到，之後存檔(DestroyAndSaveAllAsync
+            // 只存 activeChunks 裡看得到的實體)就會憑空漏掉它。改成：加不進新 chunk 就整個不搬，
+            // 讓實體維持在舊 chunk 的紀錄裡，等下一次真正移動、目標 chunk 已經載入完成時再搬過去，
+            // 寧可暫時位置紀錄稍舊，也不要讓實體變成完全追蹤不到。
+            if (!activeChunks.TryGetValue(newCPos, out Chunk newChunk))
+            {
+                Debug.LogWarning($"[World] MoveRuntimeEntity: 目標 chunk {newCPos} 尚未載入，guid {guid} 暫緩搬移(仍留在 {oldCPos})。");
+                return;
+            }
+
             if (activeChunks.TryGetValue(oldCPos, out Chunk oldChunk))
             {
                 oldChunk.RemoveEntity(guid, oldPos);
             }
 
-            if (activeChunks.TryGetValue(newCPos, out Chunk newChunk))
-            {
-                newChunk.AddEntity(guid, newPos);
-            }
+            newChunk.AddEntity(guid, newPos);
         }
         
         public async UniTask DestroyAndSaveAllAsync()
@@ -457,6 +466,8 @@ namespace InfiniteMap.Unity
 
         private async UniTask<Chunk> LoadChunkFromDiskAsync(CPos cPos)
         {
+            Debug.Log($"[DIAG][LoadChunk] 開始載入 {cPos} (WorldId={WorldId}, IsEditorMode={IsEditorMode})");
+
             foreach(var s in _subSystem)
             {
                 s.OnChunkLoaded(cPos);
@@ -467,11 +478,14 @@ namespace InfiniteMap.Unity
             string localFilePath = Path.Combine(_saveDirectory, preferredFileName);
             byte[] data = null;
 
-            if (File.Exists(localFilePath))
+            bool localExists = File.Exists(localFilePath);
+            Debug.Log($"[DIAG][LoadChunk] {cPos} 本地存檔路徑: {localFilePath} 存在={localExists}");
+
+            if (localExists)
             {
                 var fileLock = GetFileLock(localFilePath);
                 await fileLock.WaitAsync();
-                try { data = await File.ReadAllBytesAsync(localFilePath); } 
+                try { data = await File.ReadAllBytesAsync(localFilePath); }
                 catch (Exception e) { Debug.LogError($"[IO] 讀取存檔失敗 {cPos}: {e}"); }
                 finally { fileLock.Release(); }
             }
@@ -479,10 +493,13 @@ namespace InfiniteMap.Unity
             {
                 try
                 {
-                    if (ResMgr.Instance.Check(location))
+                    bool locationValid = ResMgr.Instance.Check(location);
+                    Debug.Log($"[DIAG][LoadChunk] {cPos} 改查 YooAsset 預設資源: location={location} valid={locationValid}");
+                    if (locationValid)
                     {
                         var asset = await ResMgr.Instance.LoadAssetAsync<TextAsset>(location);
                         if (asset != null) data = asset.bytes;
+                        Debug.Log($"[DIAG][LoadChunk] {cPos} YooAsset 讀取結果: asset={(asset != null ? "OK" : "NULL")} bytes={(data?.Length ?? -1)}");
                     }
                 }
                 catch (Exception e)
@@ -497,15 +514,18 @@ namespace InfiniteMap.Unity
             ChunkProto proto = null;
             if (data != null && data.Length > 0)
             {
-                try { proto = ChunkProto.Parser.ParseFrom(data); } 
+                try { proto = ChunkProto.Parser.ParseFrom(data); }
                 catch (Exception e) { Debug.LogError($"[IO] Protobuf 解析失敗，資料可能損毀 {cPos}: {e}"); }
             }
 
             if (proto == null && OnGenerateEmptyChunk != null)
             {
+                Debug.LogWarning($"[DIAG][LoadChunk] {cPos} data 為空/解析失敗，改用 OnGenerateEmptyChunk 產生預設區塊！");
                 try { proto = OnGenerateEmptyChunk.Invoke(WorldId, cPos); }
                 catch (Exception e) { Debug.LogError($"[Generator] 呼叫 OnGenerateEmptyChunk 發生錯誤 {cPos}: {e}"); }
             }
+
+            Debug.Log($"[DIAG][LoadChunk] {cPos} proto={(proto != null ? $"OK entities={proto.Entities.Count}" : "NULL")}");
 
             if (proto != null)
             {

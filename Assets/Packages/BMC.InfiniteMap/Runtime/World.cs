@@ -26,9 +26,23 @@ namespace InfiniteMap
 
         private bool _isUpdatingFocus = false;
         private Pos3? _pendingFocusPos = null;
-        
+
         // 【新增】防殭屍載入標記：避免世界銷毀後，舊的非同步任務還在背景偷塞區塊
         private bool _isDestroyed = false;
+
+        // 【修正】UpdateFocusAsync 是 .Forget() 背景執行、沒有人持有它的 UniTask，
+        // DestroyAndSaveAllAsync 之前完全不知道有沒有一個背景串流工作正在半路修改 activeChunks。
+        // 如果玩家移動(或 Controller.Tick 的自我修復計時器)剛好在換區的瞬間也觸發了一次
+        // UpdateFocusAsync，這個背景工作可能正卡在「卸載不需要的區塊→await 存檔」的迴圈中間，
+        // 跟 DestroyAndSaveAllAsync 同時讀寫 activeChunks：DestroyAndSaveAllAsync 讀到的
+        // activeChunks 快照可能已經被背景工作搶先移除了某個 chunk(該 chunk 因此不會被
+        // DestroyAndSaveAllAsync 存到)，而背景工作自己那份「還在 await 存檔」的工作又完全不受
+        // DestroyAndSaveAllAsync 的返回值保護——DestroyAndSaveAllAsync 一返回，呼叫端就接著做
+        // 場景重載/清空所有實體，這個背景工作若還沒真正寫完檔案就可能讀到「实体已被清除」的
+        // 半殘狀態，導致該 chunk 存檔漏掉正在裡面的實體(例如玩家自己)。
+        // 用一個 completion signal 讓 DestroyAndSaveAllAsync 能夠等到「目前這一輪背景串流工作
+        // 完全結束」之後才開始自己的存檔，兩邊就不會再交錯讀寫同一份 activeChunks。
+        private UniTaskCompletionSource _focusIdleSignal = null;
 
         public World(int chunkSize = 16, int loadRadius = 1, int loadDelayMs = 250, int chunkLoadIntervalMs = 100)
         {
@@ -48,6 +62,7 @@ namespace InfiniteMap
             if (_isUpdatingFocus) return;
 
             _isUpdatingFocus = true;
+            _focusIdleSignal = new UniTaskCompletionSource();
 
             try
             {
@@ -81,6 +96,21 @@ namespace InfiniteMap
             finally
             {
                 _isUpdatingFocus = false;
+                _focusIdleSignal?.TrySetResult();
+                _focusIdleSignal = null;
+            }
+        }
+
+        /// <summary>
+        /// 等待「目前這一輪背景區塊串流工作」(UpdateFocusAsync 的 .Forget() 背景執行)完全結束。
+        /// 沒有背景工作在跑時立刻返回。DestroyAndSaveAllAsync 用這個方法確保自己開始存檔前，
+        /// 不會有另一個背景工作同時在改 activeChunks，見 _focusIdleSignal 的說明。
+        /// </summary>
+        private async UniTask WaitForFocusIdleAsync()
+        {
+            if (_isUpdatingFocus && _focusIdleSignal != null)
+            {
+                await _focusIdleSignal.Task;
             }
         }
 
@@ -91,7 +121,11 @@ namespace InfiniteMap
             CPos currentCPos = focusPos.ToCPos(ChunkSize);
 
             // 如果目標沒變，就不用重新跑
-            if (currentCPos == lastUpdateCPos) return;
+            if (currentCPos == lastUpdateCPos)
+            {
+                UnityEngine.Debug.Log($"[DIAG][World] focusPos={focusPos} -> currentCPos={currentCPos} 跟 lastUpdateCPos 相同，跳過。");
+                return;
+            }
 
             HashSet<CPos> neededChunks = new HashSet<CPos>();
 
@@ -102,6 +136,8 @@ namespace InfiniteMap
                     neededChunks.Add(new CPos(currentCPos.x + dx, currentCPos.y + dy));
                 }
             }
+
+            UnityEngine.Debug.Log($"[DIAG][World] focusPos={focusPos} -> currentCPos={currentCPos} (原 lastUpdateCPos={lastUpdateCPos})，LoadRadius={LoadRadius}，neededChunks=[{string.Join(",", neededChunks)}]");
 
             // 1. 卸載不需要的區塊 (卸載不能被中斷，必須確保資料存檔落地)
             List<CPos> toUnload = new List<CPos>();
@@ -204,6 +240,14 @@ namespace InfiniteMap
         public async UniTask DestroyAndSaveAllAsync()
         {
             _isDestroyed = true; // 【關鍵修復】標記為銷毀，斬斷所有還在背景跑的加載任務
+
+            // 【修正】等目前這一輪背景區塊串流工作(若有)完全結束，才開始下面自己的存檔快照。
+            // 見 _focusIdleSignal 的說明：沒有這一步的話，玩家換區前一刻若剛好也觸發了一次
+            // UpdateFocusAsync(移動或 Controller.Tick 的自我修復計時器都會觸發)，這個背景工作
+            // 跟這裡會同時讀寫 activeChunks，可能導致某個 chunk(甚至包含玩家自己所在的那個)
+            // 兩邊都沒真正存到、或這裡返回後背景工作才姍姍來遲地存檔，那時場景可能已經開始
+            // 重載、實體已被清空，寫進去的就是缺漏玩家的殘缺資料。
+            await WaitForFocusIdleAsync();
 
             if (activeChunks.Count == 0) return;
 

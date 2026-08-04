@@ -3,6 +3,19 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.0.9] - 2026-08-04
+
+### Fixed
+- `World.DestroyAndSaveAllAsync()` 未與背景執行的 `UpdateFocusAsync`(玩家移動、或
+  `Controller.Tick` 的自我修復計時器觸發，`.Forget()` 執行、無人持有其 `UniTask`)互斥：
+  兩者可能同時讀寫 `activeChunks`，導致某個 chunk(甚至含玩家自己)在換區存檔時被漏存，
+  或背景工作在場景重載、實體已被清空後才寫入殘缺資料。新增 `_focusIdleSignal`
+  completion signal，`DestroyAndSaveAllAsync` 於 `_isDestroyed=true` 後、真正開始存檔前
+  先等待任何進行中的背景串流工作完全結束。
+- `InfiniteWorldController.MoveRuntimeEntity` 在目標 chunk 尚未串流載入完成時，會把實體
+  從舊 chunk 移除卻加不進新 chunk，造成該實體從此在 `activeChunks` 中完全追蹤不到、下次
+  存檔時憑空消失。改為目標 chunk 不存在時整個不搬移，實體維持在舊 chunk 的紀錄裡。
+
 ## [1.0.8] - 2026-07-26
 
 ### Added
