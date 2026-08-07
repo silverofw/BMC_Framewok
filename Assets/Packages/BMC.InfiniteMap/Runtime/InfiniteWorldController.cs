@@ -608,10 +608,13 @@ namespace InfiniteMap.Unity
                         }
                         else if (_entityStateCache.TryGetValue(guid, out var cachedState))
                         {
-                            // 【關鍵修復】如果視覺物件還沒載入完畢就被卸載，OnEntitySerialize 會回傳 null。
-                            // 為了避免該物件在存檔中被永久抹除，我們使用剛讀取時的「安全快取資料」寫回硬碟。
+                            // 【關鍵修復】OnEntitySerialize 回傳 null 有兩種情況：(1) 視覺物件還沒載入完畢
+                            // 就被卸載的偶發情況，(2) 上層刻意讓某類 entity 永遠不實體化(例如大量、被動的
+                            // 地形類 entity，見 GetCachedEntityData/UpdateCachedEntityData 的說明)，這種
+                            // 情況下每次存檔都會合法地走到這裡。不管哪種情況都使用「安全快取資料」寫回
+                            // 硬碟，避免物件在存檔中被永久抹除；但因為情況 (2) 屬於常態、數量龐大，這裡
+                            // 不再逐筆記 log，避免每次存檔都洗版。
                             proto.Entities.Add(cachedState.Clone());
-                            Debug.Log($"[Save] 實體 {guid} 尚未實體化即被存檔，已使用快取資料安全寫回。");
                         }
                     }
                     catch (Exception e)

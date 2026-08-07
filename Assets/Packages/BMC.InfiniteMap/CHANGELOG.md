@@ -3,6 +3,15 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.0.11] - 2026-08-05
+
+### Changed
+- `SaveChunkStateAsync` 的 `_entityStateCache` fallback 分支移除了逐筆 `Debug.Log`。這個
+  分支原本是為了「視覺物件還沒載入完就被存檔」這種偶發情況設計的除錯訊息，但只要上層有
+  entity 刻意設計成「永遠不完整實體化」(見 1.0.10 的 `GetCachedEntityData`)，這個分支就會
+  變成該類 entity 每次存檔都合法會走到的常態路徑，逐筆記 log 會在數量大時嚴重拖慢存檔
+  (Console 寫入本身很慢)。fallback 邏輯本身不變，只是不再逐筆記錄。
+
 ## [1.0.10] - 2026-08-05
 
 ### Added
