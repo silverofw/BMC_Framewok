@@ -11,9 +11,13 @@ namespace BMC.Core
         int nextId = 1;
         private Dictionary<int, Entity> entitys { get; set; }
         private Dictionary<Type, ECSSystem> systems;
-        
+
         // 【核心優化】將原本的 List 改為 Dictionary，內層 Key 為 EntityId
         private Dictionary<Type, Dictionary<int, Component>> components;
+
+        // guid 是上層(遊戲邏輯)賦予 Entity 的外部識別碼，框架本身不會自動產生或驗證，
+        // 純粹是一個 guid->EntityId 的登記表，由上層在建立/刪除 Entity 時自行呼叫維護。
+        private Dictionary<long, int> guidToId;
 
         public ECSMgr()
         {
@@ -27,7 +31,7 @@ namespace BMC.Core
             {
                 foreach (var dict in components.Values)
                 {
-                    foreach(var com in dict.Values) 
+                    foreach(var com in dict.Values)
                     {
                         com.Depose();
                     }
@@ -36,8 +40,18 @@ namespace BMC.Core
             }
             entitys = new();
             components = new();
+            guidToId = new();
 
             nextId = 1;
+        }
+
+        public void RegisterGuid(long guid, int entityId) => guidToId[guid] = entityId;
+
+        public void UnregisterGuid(long guid) => guidToId.Remove(guid);
+
+        public T GetByGuid<T>(long guid) where T : Entity
+        {
+            return guidToId.TryGetValue(guid, out var id) ? Get<T>(id) : null;
         }
 
         public void Tick(int scale)
