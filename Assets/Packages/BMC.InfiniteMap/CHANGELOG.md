@@ -3,6 +3,14 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.0.10] - 2026-08-05
+
+### Added
+- `InfiniteWorldController.GetCachedEntityData(guid)`/`UpdateCachedEntityData(proto)`：
+  開放讀寫內部的 `_entityStateCache`，讓上層可以在不將 entity 完整實體化(例如不需要建立
+  完整 ECS 物件)的情況下，直接查詢/更新某個 entity 的最新 EntityProto。給大量、被動、
+  不需要主動行為的地形類 entity 使用，避免為了查詢而被迫建立完整運行時物件。
+
 ## [1.0.9] - 2026-08-04
 
 ### Fixed

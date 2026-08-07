@@ -34,6 +34,28 @@ namespace InfiniteMap.Unity
         // 實體狀態快取防護：防止非同步加載不及時，導致存檔時被誤判為空而抹除資料
         private Dictionary<long, EntityProto> _entityStateCache = new Dictionary<long, EntityProto>();
 
+        /// <summary>
+        /// 讀取快取中的實體最新資料，不需要這個實體真的被上層(例如 ECS)實體化。給想在不建立
+        /// 完整運行時物件的情況下，直接查詢原始 EntityProto 的呼叫端使用(例如大量、被動、
+        /// 不需要主動行為的地形類 entity)。找不到回傳 null。
+        /// </summary>
+        public EntityProto GetCachedEntityData(long guid)
+        {
+            return _entityStateCache.TryGetValue(guid, out var proto) ? proto : null;
+        }
+
+        /// <summary>
+        /// 主動寫入/更新快取中的實體資料。給不透過完整 ECS 實體化、卻仍需要修改某個 entity
+        /// 最新狀態的呼叫端使用——例如把一個原本在快取中的實體臨時實體化、修改後又還原，
+        /// 這裡讓還原後的最新狀態能被 GetCachedEntityData 查到，不用等到下一次真正整塊存檔
+        /// (SaveChunkStateAsync)才會更新快取。
+        /// </summary>
+        public void UpdateCachedEntityData(EntityProto proto)
+        {
+            if (proto == null) return;
+            _entityStateCache[proto.Guid] = proto.Clone();
+        }
+
         private static SemaphoreSlim GetFileLock(string filePath)
         {
             lock (_fileLocksLock)
