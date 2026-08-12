@@ -14,6 +14,7 @@ namespace InfiniteMap
         public int ChunkSize { get; private set; }
         public int LoadRadius { get; set; } 
         public int LoadDelayMs { get; set; } 
+        // 同時用來分幀「載入」跟「卸載」兩個方向，避免同一批要處理的 chunk 一次擠在同一幀
         public int ChunkLoadIntervalMs { get; set; }
 
         private Dictionary<CPos, Chunk> activeChunks;
@@ -149,11 +150,21 @@ namespace InfiniteMap
                 }
             }
 
+            // 【平滑卸載】比照下面載入迴圈的 ChunkLoadIntervalMs 分幀寫法：從 activeChunks
+            // 移除維持同步不變(避免有 entity 在卸載中途被加進一個已經決定要消失的 chunk)，
+            // 但實際存檔(可能包含不小的 CPU 開銷)之間插入間隔，避免玩家一次跨越多個 chunk
+            // 邊界時，好幾個 chunk 的存檔尖峰疊在同一批處理裡。
+            bool hasUnloadedAny = false;
             foreach (var cPos in toUnload)
             {
                 if (activeChunks.TryGetValue(cPos, out Chunk chunk))
                 {
                     activeChunks.Remove(cPos);
+
+                    if (hasUnloadedAny && ChunkLoadIntervalMs > 0)
+                    {
+                        await UniTask.Delay(ChunkLoadIntervalMs);
+                    }
 
                     if (OnSaveChunkAsync != null)
                     {
@@ -166,6 +177,7 @@ namespace InfiniteMap
                             UnityEngine.Debug.LogError($"[World] 卸載區塊 {cPos} 時發生錯誤: {ex}");
                         }
                     }
+                    hasUnloadedAny = true;
                 }
             }
 

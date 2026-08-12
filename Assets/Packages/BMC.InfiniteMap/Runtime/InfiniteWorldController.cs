@@ -530,15 +530,21 @@ namespace InfiniteMap.Unity
                 }
             }
 
-            // 【關鍵防護】確保切換回主執行緒 (Main Thread)，否則觸發 Unity 實例化或 API 會失敗或被吞掉
-            await UniTask.SwitchToMainThread();
-
             ChunkProto proto = null;
             if (data != null && data.Length > 0)
             {
+                // 【效能】ParseFrom 是純 CPU 運算、不碰 Unity API，留在切主執行緒之前執行，
+                // 跟存檔側 SaveChunkStateAsync 的 ToByteArray() 對稱，避免同一塊 CPU 開銷
+                // 卡在主執行緒上。
                 try { proto = ChunkProto.Parser.ParseFrom(data); }
                 catch (Exception e) { Debug.LogError($"[IO] Protobuf 解析失敗，資料可能損毀 {cPos}: {e}"); }
             }
+
+            // 【關鍵防護】確保切換回主執行緒 (Main Thread)：下面的 OnGenerateEmptyChunk
+            // (程序化地圖產生器會用到 UnityEngine.Random/Mathf.PerlinNoise)跟 OnEntitySpawn
+            // (建立 Unity/ECS 實體)都必須在主執行緒執行，否則觸發 Unity 實例化或 API 會失敗
+            // 或被吞掉。
+            await UniTask.SwitchToMainThread();
 
             if (proto == null && OnGenerateEmptyChunk != null)
             {
@@ -614,7 +620,11 @@ namespace InfiniteMap.Unity
                             // 情況下每次存檔都會合法地走到這裡。不管哪種情況都使用「安全快取資料」寫回
                             // 硬碟，避免物件在存檔中被永久抹除；但因為情況 (2) 屬於常態、數量龐大，這裡
                             // 不再逐筆記 log，避免每次存檔都洗版。
-                            proto.Entities.Add(cachedState.Clone());
+                            // 【效能】不 Clone：_entityStateCache 所有寫入點都是整筆替換(dict[guid] = x.Clone())，
+                            // 從不就地修改已存在的物件，所以這裡拿到的參照可以直接放進 proto.Entities，
+                            // 不需要再複製一份——地板類 entity 數量龐大(一個 chunk 500~800 個)，每次存檔
+                            // 省下等量的 Clone()/GC alloc。
+                            proto.Entities.Add(cachedState);
                         }
                     }
                     catch (Exception e)
@@ -624,15 +634,28 @@ namespace InfiniteMap.Unity
                 }
             }
 
-            byte[] dataToSave = proto.ToByteArray();
+            // 【重要】fileName/filePath 要在切執行緒「之前」先算好：_saveDirectory 在
+            // IsEditorMode(地圖編輯器烘焙工作流程)時會即時呼叫 Application.dataPath，這是
+            // Unity 規定只能在主執行緒呼叫的 API，不能等到切到 thread pool 之後才算。
             string fileName = $"chunk_{WorldId}_{chunk.Pos.x}_{chunk.Pos.y}.bytes";
             string filePath = Path.Combine(_saveDirectory, fileName);
 
+            // 【效能】proto 到這裡已經是不再被其他執行緒碰到的純資料物件，ToByteArray()
+            // 是純 CPU 運算(chunk 動輒 500~800 個 entity，這一步過去在主執行緒上實測要價
+            // 70ms+，是玩家跨 chunk 邊界卡頓的主因)，離開主執行緒不影響正確性。
+            await UniTask.SwitchToThreadPool();
+
+            byte[] dataToSave = proto.ToByteArray();
+
             var fileLock = GetFileLock(filePath);
             await fileLock.WaitAsync();
-            try { await File.WriteAllBytesAsync(filePath, dataToSave); } 
+            try { await File.WriteAllBytesAsync(filePath, dataToSave); }
             catch (Exception e) { Debug.LogError($"[IO] 寫入存檔失敗 {chunk.Pos}: {e}"); }
             finally { fileLock.Release(); }
+
+            // 確保呼叫端(SaveAndUnloadChunkAsync/ForceSaveAllAsync 等)拿回控制權時仍在
+            // 主執行緒，維持這個方法一直以來「回傳時已在主執行緒」的隱含契約。
+            await UniTask.SwitchToMainThread();
         }
 
         private async UniTask SaveAndUnloadChunkAsync(Chunk chunk)

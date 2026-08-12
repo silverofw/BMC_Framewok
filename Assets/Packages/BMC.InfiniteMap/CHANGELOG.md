@@ -3,6 +3,24 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.0.12] - 2026-08-12
+
+### Changed
+- `SaveChunkStateAsync`：`_entityStateCache` fallback 分支不再 `Clone()` 快取物件——所有
+  寫入點都是整筆替換(`dict[guid] = x.Clone()`)，從不就地修改，直接沿用參照是安全的，省下
+  地板類 entity(一個 chunk 常見 500~800 個)每次存檔的大量 `Clone()`/GC alloc。
+- `SaveChunkStateAsync`：entity 序列化迴圈跑完之後才會用到的 `ChunkProto.ToByteArray()`
+  跟 `File.WriteAllBytesAsync` 改到 `UniTask.SwitchToThreadPool()` 之後執行，不再卡在主
+  執行緒——`ToByteArray()` 對一個 500~800 entity 的 chunk 實測要價 70ms+，是玩家跨 chunk
+  邊界移動時卡頓的主因(entity 序列化本身仍留在主執行緒，因為需要呼叫上層的
+  `OnEntitySerialize` 存取活的 Unity/ECS 物件)。
+- `LoadChunkFromDiskAsync`：`ChunkProto.Parser.ParseFrom(data)`(純 CPU、不碰 Unity API)
+  改到切回主執行緒之前執行，跟上面的存檔端改動對稱；`OnGenerateEmptyChunk`(程序化地圖
+  產生器需要 `UnityEngine.Random`/`Mathf`)跟 `OnEntitySpawn` 維持在主執行緒不動。
+- `World.DoUpdateFocusAsync`：卸載迴圈比照既有的載入分幀機制(`ChunkLoadIntervalMs`)在
+  連續卸載多個 chunk 時插入間隔，避免玩家一次跨越多個 chunk 邊界(例如斜向移動)時，多個
+  chunk 的存檔尖峰疊在同一批處理裡。從 `activeChunks` 移除本身維持同步、不受影響。
+
 ## [1.0.11] - 2026-08-05
 
 ### Changed
