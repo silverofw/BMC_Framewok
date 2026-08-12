@@ -572,8 +572,11 @@ namespace InfiniteMap.Unity
                         Pos3 pos = new Pos3(ent.Pos.X, ent.Pos.Y, ent.Pos.H);
                         loadedChunk.AddEntity(ent.Guid, pos);
                         
-                        // 【寫入防護快取】確保存檔時若物件來不及生成，還能用這個最後狀態寫回去
-                        _entityStateCache[ent.Guid] = ent.Clone();
+                        // 【寫入防護快取】確保存檔時若物件來不及生成，還能用這個最後狀態寫回去。
+                        // 【效能】不 Clone：ent 接下來會透過 OnEntitySpawn 直接交給上層(例如包進
+                        // MapEntity/StatusComponent.proto)當作活資料的儲存體本身，讓 cache 從一開始
+                        // 就跟活著的資料共用同一個物件，之後任何變動都會直接反映在這裡，不需要另外同步。
+                        _entityStateCache[ent.Guid] = ent;
 
                         OnEntitySpawn?.Invoke(ent, loadedChunk.LastTime);
                     }
@@ -609,8 +612,14 @@ namespace InfiniteMap.Unity
                         EntityProto latestState = OnEntitySerialize.Invoke(guid);
                         if (latestState != null)
                         {
+                            // 【重要，不能省】這個 Clone 不是多餘的：latestState 現在通常就是上層
+                            // 活資料本身的參照(例如 StatusComponent.proto)，接下來要離開主執行緒
+                            // 做 ToByteArray()，這段期間主執行緒可能仍在繼續修改同一個物件(例如子彈
+                            // 打中一個還沒真正卸載的實體)，沒有這個 Clone 會有跨執行緒資料競爭。
                             proto.Entities.Add(latestState.Clone());
-                            _entityStateCache[guid] = latestState.Clone(); // 成功獲取則更新快取
+                            // 不 Clone：latestState 就是活資料本身，跟 cache 已經是同一個物件，這行只是
+                            // 確保「這個 guid 第一次出現在 cache 裡」時把關聯建立起來，之後都是同一份。
+                            _entityStateCache[guid] = latestState;
                         }
                         else if (_entityStateCache.TryGetValue(guid, out var cachedState))
                         {

@@ -3,6 +3,19 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.0.13] - 2026-08-13
+
+### Changed
+- `LoadChunkFromDiskAsync`：寫入 `_entityStateCache` 時不再 `Clone()` 剛解析出來的
+  `EntityProto`——這個物件接下來會透過 `OnEntitySpawn` 直接交給上層當作活資料的儲存體
+  本身(見 Game001 端 `StatusComponent` 改直接持有 `EntityProto` 參照的對應改動)，讓快取
+  從一開始就跟活著的資料共用同一個物件，之後任何屬性變動都會直接反映在快取裡，不需要
+  額外的同步/重建步驟。
+- `SaveChunkStateAsync`：存檔成功分支只保留一次 `Clone()`(放進即將離開主執行緒序列化的
+  `ChunkProto.Entities`，這次不能省——序列化期間主執行緒可能仍在修改同一個活物件，需要
+  一份跨執行緒安全的快照)，`_entityStateCache` 的更新不再額外 `Clone()`一次(理由同上，
+  兩者本來就是同一個物件)。
+
 ## [1.0.12] - 2026-08-12
 
 ### Changed
