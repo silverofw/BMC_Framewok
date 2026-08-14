@@ -242,12 +242,18 @@ namespace InfiniteMap.Unity
 
         public void MoveRuntimeEntity(long guid, Pos3 oldPos, Pos3 newPos)
         {
+            // 【暫時診斷】排查地板舉起改高度後邏輯位置沒跟著更新的問題，之後會移除
+            Debug.Log($"[DIAG][MoveRuntimeEntity] guid={guid} oldPos={oldPos} newPos={newPos} guidIs0={guid == 0} worldNull={_world == null} samePos={oldPos == newPos}");
+
             if (guid == 0 || _world == null || oldPos == newPos) return;
 
             foreach(var s in _subSystem)
             {
                 if(s.OnRuntimeEntityMove(guid, oldPos, newPos))
+                {
+                    Debug.Log($"[DIAG][MoveRuntimeEntity] 被子系統 {s.GetType().Name} 攔截，guid={guid}");
                     return;
+                }
             }
 
             CPos oldCPos = oldPos.ToCPos(ChunkSize);

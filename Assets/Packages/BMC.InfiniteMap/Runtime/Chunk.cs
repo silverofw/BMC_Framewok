@@ -28,6 +28,9 @@ namespace InfiniteMap
 
         public void AddEntity(long guid, Pos3 pos)
         {
+            // 【暫時診斷】排查地板舉起改高度後邏輯位置沒跟著更新的問題，之後會移除
+            UnityEngine.Debug.Log($"[DIAG][Chunk.AddEntity] chunk={Pos} guid={guid} pos={pos}");
+
             Entities.Add(guid);
 
             if (!spatialIndex.TryGetValue(pos, out var list))
@@ -40,6 +43,10 @@ namespace InfiniteMap
 
         public void RemoveEntity(long guid, Pos3 pos)
         {
+            // 【暫時診斷】排查地板舉起改高度後邏輯位置沒跟著更新的問題，之後會移除
+            bool foundAtPos = spatialIndex.TryGetValue(pos, out var existingList) && existingList.Contains(guid);
+            UnityEngine.Debug.Log($"[DIAG][Chunk.RemoveEntity] chunk={Pos} guid={guid} pos={pos} foundAtThisPos={foundAtPos}");
+
             Entities.Remove(guid);
 
             if (spatialIndex.TryGetValue(pos, out var list))
