@@ -533,9 +533,15 @@ namespace InfiniteMap.Unity
             ChunkProto proto = null;
             if (data != null && data.Length > 0)
             {
-                // 【效能】ParseFrom 是純 CPU 運算、不碰 Unity API，留在切主執行緒之前執行，
-                // 跟存檔側 SaveChunkStateAsync 的 ToByteArray() 對稱，避免同一塊 CPU 開銷
-                // 卡在主執行緒上。
+                // 【效能，修正】ParseFrom 是純 CPU 運算、不碰 Unity API，本來就該離開主執行緒，
+                // 但光把這行程式碼「寫在」SwitchToMainThread() 之前不會讓它真的離開主執行緒——
+                // 這個方法從呼叫端進來就一直在主執行緒跑，中間沒有任何明確的切換點，前面的
+                // await File.ReadAllBytesAsync()/ResMgr 呼叫的延續預設也會被 Unity 的
+                // UnitySynchronizationContext 送回主執行緒繼續執行。實測一個存了 800+ entity
+                // 的 chunk，ParseFrom 反序列化要價 40ms+，整段卡在主執行緒上。這裡明確呼叫
+                // SwitchToThreadPool()，才會真的讓 ParseFrom 離開主執行緒，跟存檔側
+                // SaveChunkStateAsync 呼叫 ToByteArray() 前的 SwitchToThreadPool()對稱。
+                await UniTask.SwitchToThreadPool();
                 try { proto = ChunkProto.Parser.ParseFrom(data); }
                 catch (Exception e) { Debug.LogError($"[IO] Protobuf 解析失敗，資料可能損毀 {cPos}: {e}"); }
             }

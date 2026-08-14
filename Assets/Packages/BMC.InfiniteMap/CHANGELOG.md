@@ -3,6 +3,16 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.0.14] - 2026-08-14
+
+### Fixed
+- `LoadChunkFromDiskAsync`：補上真正的 `UniTask.SwitchToThreadPool()`。1.0.12 那次只是把
+  `ChunkProto.Parser.ParseFrom(data)` 這行程式碼移到既有的 `SwitchToMainThread()` 之前，
+  但方法從呼叫端進來就一直在主執行緒跑、中間沒有任何明確的切換點，`ParseFrom` 實際上從
+  未真正離開主執行緒——實測一個存了 800+ entity 的 chunk，`ParseFrom` 反序列化要價
+  40ms+，整段卡在主執行緒上。現在明確呼叫 `SwitchToThreadPool()`，跟存檔側
+  `SaveChunkStateAsync` 的對稱寫法一致。
+
 ## [1.0.13] - 2026-08-13
 
 ### Changed
