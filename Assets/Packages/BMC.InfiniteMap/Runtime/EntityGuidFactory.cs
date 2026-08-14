@@ -18,15 +18,27 @@ namespace InfiniteMap.Unity
         // 靜態 GUID 配置 (Bit 62 = 0)
         // =========================================================
         // 原本使用計數器，為了解決「未完全加載地圖時不知道最大計數」的盲區，
-        // 這裡將 42 個位元改為【時間驅動 (Time-based)】：
+        // 這裡將 45 個位元改為【時間驅動 (Time-based)】：
         // 31 bits: 秒數 (足以從 2024 年使用至 2092 年不溢位)
-        // 11 bits: 序列號 (允許編輯器【每秒】產生 2048 個靜態物件)
+        // 14 bits: 序列號 (允許每秒產生 16384 個靜態物件)
+        //
+        // 【效能修正】原本是 11 bits(每秒 2048 個)：MapGeneratorMgr.GenerateChunk 用柏林
+        // 噪聲程序化生成開放世界地形時，一個 16x16 chunk 光地板本體+懸空填補層就可能要價
+        // 900~1500 個靜態 guid，玩家一旦在同一秒內觸發兩個以上全新 chunk 生成(移動速度快、
+        // 一次跨越多個 chunk 邊界時很容易發生)，累計就會超過舊配額。超過配額會呼叫
+        // WaitNextSecond，內部是「持有 lock 的情況下 Thread.Sleep(1) 忙等到下一秒」——
+        // 對於在主執行緒同步呼叫的生成流程來說，等同整個遊戲凍結最長接近 1 秒，且因為是
+        // 卡在 Sleep 而非真的在跑程式碼，Profiler(含 Deep Profile)幾乎看不出任何有意義的
+        // 呼叫堆疊可以展開，只會看到一大塊算在最外層 delegate 的 Self 時間。改成 14 bits
+        // 把配額拉高到 16384/秒，一秒內同時生成 10 個以上全新 chunk 才可能觸發，正常遊玩
+        // 幾乎不會再命中這個等待路徑。
         private const int StaticTimeBits = 31;
-        private const int StaticSeqBits = 11;
+        private const int StaticSeqBits = 14;
         private const long StaticSeqMask = (1L << StaticSeqBits) - 1L;
-        private const int StaticCounterBits = StaticTimeBits + StaticSeqBits; // 總共 42 bits
+        private const int StaticCounterBits = StaticTimeBits + StaticSeqBits; // 總共 45 bits
 
-        // 剩餘高位元留給地圖編號 (容量可達 1,048,575 張地圖)
+        // 剩餘高位元留給地圖編號 (容量可達 131,071 張地圖，這個遊戲實際使用的 ZoneId
+        // 目前都在幾千以內，遠低於這個上限)
         public static int CurrentZoneId { get; set; } = 0;
 
         // 內部靜態時間與序列狀態

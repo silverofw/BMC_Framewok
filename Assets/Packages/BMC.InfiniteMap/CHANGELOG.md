@@ -3,6 +3,20 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.0.15] - 2026-08-14
+
+### Fixed
+- `EntityGuidFactory.GetNextStaticGuid`：靜態 guid 每秒序列號配額從 2048 提高到
+  16384(`StaticSeqBits` 11 → 14)。根因：`MapGeneratorMgr.GenerateChunk` 用柏林噪聲
+  程序化生成開放世界地形時，一個 16x16 chunk 光地板本體+懸空填補層就可能要價
+  900~1500 個靜態 guid，玩家在同一秒內觸發兩個以上全新 chunk 生成時(移動速度快、一次
+  跨越多個 chunk 邊界時很容易發生)，累計容易超過舊配額。超過配額會呼叫
+  `WaitNextSecond`，內部是「持有 lock 的情況下 `Thread.Sleep(1)` 忙等到下一秒」，對於
+  在主執行緒同步呼叫的生成流程來說等同整個遊戲凍結最長接近 1 秒，且因為是卡在 Sleep
+  而非真的在跑程式碼，Profiler(含 Deep Profile)幾乎看不出任何有意義的呼叫堆疊可以
+  展開。剩餘可用的地圖編號容量從 1,048,575 降到 131,071，仍遠大於這個遊戲實際使用的
+  ZoneId 範圍(目前都在幾千以內)。
+
 ## [1.0.14] - 2026-08-14
 
 ### Fixed
