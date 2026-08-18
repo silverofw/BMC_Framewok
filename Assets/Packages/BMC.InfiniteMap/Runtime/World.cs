@@ -12,7 +12,25 @@ namespace InfiniteMap
     public class World
     {
         public int ChunkSize { get; private set; }
-        public int LoadRadius { get; set; } 
+
+        private int _loadRadius;
+        /// <summary>
+        /// 載入半徑。**執行期改這個值是允許的**(例如攝影機拉遠要多載一圈)。
+        ///
+        /// 【改值時一定要重置 lastUpdateCPos】DoUpdateFocusAsync 開頭有
+        /// 「currentCPos == lastUpdateCPos 就整個跳過」的早退，只改半徑不重置的話，
+        /// 要等玩家實際跨過一次 chunk 邊界才會生效 —— 站著按縮放鍵完全沒反應。
+        /// </summary>
+        public int LoadRadius
+        {
+            get => _loadRadius;
+            set
+            {
+                if (_loadRadius == value) return;
+                _loadRadius = value;
+                lastUpdateCPos = new CPos(int.MaxValue, int.MaxValue);
+            }
+        }
         public int LoadDelayMs { get; set; } 
         // 同時用來分幀「載入」跟「卸載」兩個方向，避免同一批要處理的 chunk 一次擠在同一幀
         public int ChunkLoadIntervalMs { get; set; }

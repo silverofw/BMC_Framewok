@@ -147,6 +147,27 @@ namespace InfiniteMap.Unity
             }
         }
 
+        /// <summary>
+        /// 執行期調整載入半徑(攝影機拉遠時要多載一圈，否則可視範圍會超出已載入的 chunk，
+        /// 玩家看到的是地圖邊緣的空白)。
+        ///
+        /// 【為什麼要自己再推一次焦點】World 的早退是比對 chunk 座標，玩家站著不動時
+        /// 光改半徑不會觸發任何載入。World.LoadRadius 的 setter 已經把 lastUpdateCPos 重置了，
+        /// 這裡補一次 UpdateFocusAsync 讓新增的那一圈立刻開始載入。
+        /// 縮小半徑時走的是同一條路：多出來的 chunk 會在那次 focus 更新裡被存檔卸載。
+        /// </summary>
+        public void SetLoadRadius(int loadRadius)
+        {
+            loadRadius = Mathf.Max(1, loadRadius);
+            if (LoadRadius == loadRadius) return;
+            LoadRadius = loadRadius;
+
+            if (_world == null) return;
+            _world.LoadRadius = loadRadius;
+            if (_hasFocusPosition)
+                _world.UpdateFocusAsync(ToPos3(_lastFocusPosition)).Forget();
+        }
+
         public void RegisterGlobalSystem(IGlobalSystem sys)
         {
             _subSystem.Add(sys);
