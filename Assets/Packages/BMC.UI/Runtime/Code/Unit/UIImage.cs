@@ -29,8 +29,22 @@ namespace BMC.UI
             {
                 image.raycastTarget = false;
             }
-            Local();
         }
+
+        // 翻譯與訂閱都放在 OnEnable：語言切換時要即時換圖，
+        // 物件停用期間則不該持有訂閱。
+        private void OnEnable()
+        {
+            Local();
+            LocalMgr.Instance.OnLanguageChanged += OnLanguageChanged;
+        }
+
+        private void OnDisable()
+        {
+            LocalMgr.Instance.OnLanguageChanged -= OnLanguageChanged;
+        }
+
+        private void OnLanguageChanged(SystemLanguage language) => Local();
 
         // 改為大寫開頭的 public 方法，方便 Editor 腳本呼叫
         public void Local()

@@ -46,8 +46,8 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
-      - CollectPath: Assets/Packages/BMC.Story/Samples/Basic Controls/Prefabs
-        CollectorGUID: ec9176aee6ee77047a6896ce105a0664
+      - CollectPath: Assets/Packages/BMC.UIToolkit/Samples/Basic Controls
+        CollectorGUID: cf20c55968406c249a2e392fe25f2298
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory

@@ -13,6 +13,11 @@
   },
   "samples": [
     {
+      "displayName": "Basic Controls",
+      "description": "套件內建的通用介面資源（MsgPanel／Toast 的 UXML、共用樣式與預設主題）。資源位址一律以 UIT_ 為前綴，避免與 uGUI 版 BMC.UI 的同名資源衝突。",
+      "path": "Samples~/Basic Controls"
+    },
+    {
       "displayName": "Basic UI Flow",
       "description": "最基礎的 UI Toolkit 面板流程範例：開啟面板、按鈕點擊、點背景遮罩關閉。",
       "path": "Samples~/Basic UI Flow"

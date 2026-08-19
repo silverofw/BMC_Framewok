@@ -131,7 +131,7 @@ namespace BMC.Core
             }
             catch (Exception e)
             {
-                if (EnableDebugLogs) Debug.LogWarning($"[SaveMgr] Get Error: {key} - {e.Message}");
+                if (EnableDebugLogs) Debug.LogWarning($"[SaveMgr] Get Error: {key} - {e}");
                 return defaultValue;
             }
         }
@@ -307,7 +307,7 @@ namespace BMC.Core
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"[SaveMgr] 載入異常: {e.Message}");
+                    Debug.LogError($"[SaveMgr] 載入異常: {e}");
                     InitializeNewSave(slot);
                 }
             }
@@ -326,10 +326,18 @@ namespace BMC.Core
         /// 5. 寫入主檔案
         /// 6. 停止計時並打印耗時
         /// </summary>
-        public void SaveCurrentSlot()
+        /// <returns>
+        /// 是否儲存成功。失敗時只會寫入錯誤日誌而不拋出例外，
+        /// 呼叫端務必檢查回傳值——否則玩家會以為已經存檔，實際上資料已經掉了。
+        /// </returns>
+        public bool SaveCurrentSlot()
         {
             string key = GetActiveKey();
-            if (string.IsNullOrEmpty(key)) return;
+            if (string.IsNullOrEmpty(key))
+            {
+                Debug.LogError("[SaveMgr] 儲存失敗: 取不到有效的存檔金鑰");
+                return false;
+            }
 
             System.Diagnostics.Stopwatch sw = null;
             if (EnableDebugLogs)
@@ -389,10 +397,15 @@ namespace BMC.Core
                     sw.Stop();
                     Debug.Log($"<color=green>[SaveMgr] Slot {CurrentSlot} 存檔成功。總耗時: {sw.Elapsed.TotalMilliseconds:F2} ms</color>");
                 }
+
+                return true;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveMgr] 儲存失敗: {e.Message}");
+                // 印出完整例外而非只有 Message：像組件載入失敗這類問題，
+                // 真正的線索都在內層例外與堆疊裡，只看 Message 查不出來。
+                Debug.LogError($"[SaveMgr] 儲存失敗: {e}");
+                return false;
             }
         }
 

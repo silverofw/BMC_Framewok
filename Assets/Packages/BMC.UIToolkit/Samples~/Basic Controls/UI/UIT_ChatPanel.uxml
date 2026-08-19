@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="UIT_Common.uss" />
+    <ui:VisualElement name="mask" class="bmc-mask">
+        <ui:VisualElement name="box" class="bmc-panel-box bmc-chat-box">
+            <ui:Label text="聊天室" name="title" class="bmc-title" />
+
+            <ui:ScrollView name="messages" class="bmc-chat-messages" />
+
+            <ui:VisualElement name="input-row" class="bmc-chat-input-row">
+                <ui:TextField name="input" class="bmc-chat-input" />
+                <bmc:UIButton text="送出" name="btn-send" class="bmc-button bmc-button--primary" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="bmc-button-row bmc-preview-footer">
+                <bmc:UIButton text="清空" name="btn-clear" class="bmc-button" />
+                <bmc:UIButton text="Close" name="close-button" local-key="COMMON_CLOSE" class="bmc-button bmc-button--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

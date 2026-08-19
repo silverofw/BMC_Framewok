@@ -9,10 +9,21 @@ namespace BMC.UI
         [SerializeField] private TMP_Text text;
         [SerializeField] private string key;
 
-        private void Start()
+        // 改用 OnEnable／OnDisable 而非 Start：
+        // 除了初次顯示要翻譯，還要在語言切換時即時更新，
+        // 而物件停用期間不該持有訂閱。
+        private void OnEnable()
         {
             Local();
+            LocalMgr.Instance.OnLanguageChanged += OnLanguageChanged;
         }
+
+        private void OnDisable()
+        {
+            LocalMgr.Instance.OnLanguageChanged -= OnLanguageChanged;
+        }
+
+        private void OnLanguageChanged(SystemLanguage language) => Local();
 
         public void Set(string msg)
         {

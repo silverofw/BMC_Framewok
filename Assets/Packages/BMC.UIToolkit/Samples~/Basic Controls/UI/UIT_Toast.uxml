@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="UIT_Common.uss" />
+    <ui:VisualElement name="toast-root" class="bmc-toast-root" picking-mode="Ignore">
+        <ui:VisualElement name="toast-box" class="bmc-toast" picking-mode="Ignore">
+            <ui:Label name="info" class="bmc-toast__text" picking-mode="Ignore" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

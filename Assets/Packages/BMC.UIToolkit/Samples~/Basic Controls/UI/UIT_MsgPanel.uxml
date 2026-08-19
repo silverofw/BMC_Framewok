@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="UIT_Common.uss" />
+    <ui:VisualElement name="mask" class="bmc-mask">
+        <ui:VisualElement name="box" class="bmc-panel-box">
+            <bmc:UILabel name="title" class="bmc-title" />
+            <bmc:UILabel name="info" class="bmc-text" />
+            <ui:VisualElement name="button-row" class="bmc-button-row">
+                <bmc:UIButton name="cancel-button" text="Cancel" local-key="COMMON_CANCEL" class="bmc-button" />
+                <bmc:UIButton name="confirm-button" text="OK" local-key="COMMON_OK" class="bmc-button bmc-button--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

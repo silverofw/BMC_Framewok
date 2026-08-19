@@ -1,0 +1,32 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="UIT_Common.uss" />
+    <ui:VisualElement name="mask" class="bmc-mask">
+        <ui:VisualElement name="box" class="bmc-panel-box bmc-listdemo-box">
+            <ui:Label text="MultiListView" name="title" class="bmc-title" />
+            <ui:Label text="每列 3 格的虛擬化列表，捲動時只會重複使用畫面上的元素。" class="bmc-hint" />
+
+            <bmc:MultiListView name="list" class="bmc-listdemo-list" scroll-row="3" item-width="0" item-height="70" spacing-x="8" spacing-y="8" show-line-count="4" />
+
+            <ui:Label text="—" name="status" class="bmc-hint" />
+
+            <ui:VisualElement name="grid-controls" class="bmc-listdemo-controls">
+                <ui:Label text="欄" class="bmc-listdemo-controls__label" />
+                <bmc:UIButton text="-" name="btn-col-minus" class="bmc-button bmc-button--tiny" />
+                <ui:Label text="3" name="col-count" class="bmc-listdemo-controls__value" />
+                <bmc:UIButton text="+" name="btn-col-plus" class="bmc-button bmc-button--tiny" />
+
+                <ui:Label text="可見列" class="bmc-listdemo-controls__label" />
+                <bmc:UIButton text="-" name="btn-row-minus" class="bmc-button bmc-button--tiny" />
+                <ui:Label text="4" name="row-count" class="bmc-listdemo-controls__value" />
+                <bmc:UIButton text="+" name="btn-row-plus" class="bmc-button bmc-button--tiny" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="bmc-button-row bmc-preview-footer">
+                <bmc:UIButton text="50 筆" name="btn-50" class="bmc-button" />
+                <bmc:UIButton text="500 筆" name="btn-500" class="bmc-button" />
+                <bmc:UIButton text="隨機捲動" name="btn-scroll" class="bmc-button" />
+                <bmc:UIButton text="Close" name="close-button" local-key="COMMON_CLOSE" class="bmc-button bmc-button--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

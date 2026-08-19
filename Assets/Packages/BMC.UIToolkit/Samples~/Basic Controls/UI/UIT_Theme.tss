@@ -1,0 +1,32 @@
+/* BMC.UIToolkit 預設主題。
+   PanelSettings.themeStyleSheet 不可為 null，執行期自建 UIDocument 時需要一份主題。
+
+   必須匯入 Unity 內建的預設主題：字型（--unity-font-definition）與內建控制項的
+   基礎樣式都由它提供。少了這行，版面與底色仍會正常繪製，但一個字都不會顯示。
+   這與 Unity 透過 Create > UI Toolkit > TSS Theme File 產生的內容一致。
+
+   實際視覺樣式由 UIT_Common.uss 與各面板自己的 uss 負責；
+   專案要換膚時可以自備 .tss 指派給 PanelSettings，不必改動這份。 */
+@import url("unity-theme://default");
+
+VisualElement {
+}
+
+/* UIButton 的按壓回饋。
+   對齊 uGUI 版 BMC.UI.UIButton：按下縮到 0.9、耗時 0.1 秒、緩動 Ease.OutQuad，
+   放開或指標移出時還原（:active 解除即自動反向播放，行為與 uGUI 版一致）。
+
+   規則放在主題而不是個別 uss，是為了比照 uGUI 版「元件本身就帶這個行為」——
+   任何面板只要用這份主題，UIButton 就有回饋，不必逐一在 uxml 掛樣式類別。
+   若專案改用自訂的 PanelSettings 主題，記得把這兩條規則帶過去。
+
+   選擇器 UIButton 對應 C# 型別名稱（BMC.UIToolkit.UIButton）。 */
+UIButton {
+    transition-property: scale;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-out-quad;
+}
+
+UIButton:active {
+    scale: 0.9 0.9;
+}

@@ -1,4 +1,7 @@
-/* 範例用的最小化 Theme Style Sheet，僅用來滿足 PanelSettings.themeStyleSheet 不可為 null 的需求。
-   實際視覺樣式全部由 SamplePanel.uss 提供，這裡不需要任何規則。 */
-:root {
+/* 範例用的 Theme Style Sheet。
+   必須匯入 Unity 內建預設主題，字型才會被帶進來——少了它文字不會顯示。
+   實際視覺樣式全部由 SamplePanel.uss 提供。 */
+@import url("unity-theme://default");
+
+VisualElement {
 }

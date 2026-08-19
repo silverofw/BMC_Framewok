@@ -1,0 +1,34 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="UIT_Common.uss" />
+    <ui:VisualElement name="mask" class="bmc-mask">
+        <ui:VisualElement name="box" class="bmc-panel-box bmc-preview-box">
+            <ui:Label text="UIToolkit Preview" name="title" class="bmc-title" />
+
+            <ui:ScrollView name="scroll" class="bmc-preview-scroll">
+
+                <ui:Label text="Text" class="bmc-section-title" />
+                <ui:Label text="bmc-title 樣式" class="bmc-title" />
+                <ui:Label text="bmc-text 樣式：內文可自動換行，用來確認主題字型有正確載入。" class="bmc-text" />
+                <bmc:UILabel text="（此行掛 local-key，語系載入後會換成譯文）" local-key="PREVIEW_LOCALIZED" class="bmc-hint" />
+
+                <ui:Label text="UIButton" class="bmc-section-title" />
+                <ui:VisualElement class="bmc-button-row">
+                    <bmc:UIButton text="Normal" name="btn-normal" class="bmc-button" />
+                    <bmc:UIButton text="Primary" name="btn-primary" class="bmc-button bmc-button--primary" />
+                    <bmc:UIButton text="Disabled" name="btn-disabled" class="bmc-button" />
+                </ui:VisualElement>
+                <ui:Label text="OnClick fired: 0" name="click-count" class="bmc-hint" />
+
+                <ui:Label text="內建控制項（驗證主題）" class="bmc-section-title" />
+                <ui:Toggle label="Toggle" name="preview-toggle" />
+                <ui:Slider label="Slider" name="preview-slider" low-value="0" high-value="100" value="40" />
+                <ui:TextField label="TextField" name="preview-textfield" value="輸入測試" />
+
+            </ui:ScrollView>
+
+            <ui:VisualElement class="bmc-button-row bmc-preview-footer">
+                <bmc:UIButton text="Close" name="close-button" local-key="COMMON_CLOSE" class="bmc-button bmc-button--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

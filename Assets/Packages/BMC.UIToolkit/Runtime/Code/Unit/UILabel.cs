@@ -1,26 +1,21 @@
-using System;
-using BMC.Core;
 using UnityEngine.UIElements;
+using BMC.Core;
 
 namespace BMC.UIToolkit
 {
     /// <summary>
-    /// UI Toolkit 版按鈕，對應 uGUI 版 BMC.UI 的 UIButton。
-    /// 包裝原生 Button，統一經由 UIMgr 事件匯流排送出點擊音效事件（AUDIO_BUTTON_CLICK），
-    /// 實際播放的音效由外部（例如 BMC.Audio）訂閱決定，UI 層不直接相依特定音效系統。
+    /// UI Toolkit 版多語言文字，對應 uGUI 版 BMC.UI 的 UIText。
     ///
-    /// 按下時的縮放回饋定義在 UIT_Theme.tss 的 UIButton:active 規則，
-    /// 對齊 uGUI 版的 scale 0.9 / 0.1 秒 / Ease.OutQuad。
+    /// 相較 uGUI 版把 key 藏在 prefab 的 Inspector 裡，這裡 key 直接寫在 UXML 上
+    /// （local-key 屬性），版面與譯文對應關係一眼可見。
     /// </summary>
     [UxmlElement]
-    public partial class UIButton : Button
+    public partial class UILabel : Label
     {
-        public event Action OnClick;
-
         private string localKeyValue;
 
         /// <summary>
-        /// 按鈕文字的多語言鍵值。留空則維持 UXML 上編排的 text 不動。
+        /// 多語言鍵值。留空則維持 UXML 上編排的 text 不動。
         /// </summary>
         [UxmlAttribute]
         public string localKey
@@ -33,14 +28,25 @@ namespace BMC.UIToolkit
             }
         }
 
-        public UIButton()
+        public UILabel()
         {
-            clicked += HandleClicked;
             this.BindLocalization(ApplyLocalization);
         }
 
         /// <summary>
-        /// 依目前語言套用譯文。語系資料尚未載入時保留 UXML 上的預設文字。
+        /// 直接指定文字，對應 uGUI 版 UIText.Set。
+        /// 會清掉 localKey：明確設定的內容不該在下次語言變更時被譯文蓋掉。
+        /// </summary>
+        public void Set(string msg)
+        {
+            localKeyValue = null;
+            text = msg;
+        }
+
+        /// <summary>
+        /// 依目前語言套用譯文。
+        /// 語系資料尚未載入時刻意不動作，保留 UXML 上的預設文字，
+        /// 避免在還沒接上多語言的專案裡把 key 直接顯示給玩家。
         /// </summary>
         public void ApplyLocalization()
         {
@@ -56,12 +62,6 @@ namespace BMC.UIToolkit
                 return;
 
             text = translated;
-        }
-
-        private void HandleClicked()
-        {
-            UIMgr.Instance.eventHandler.Send((int)UIEvent.AUDIO_BUTTON_CLICK);
-            OnClick?.Invoke();
         }
     }
 }

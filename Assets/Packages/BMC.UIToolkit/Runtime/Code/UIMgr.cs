@@ -54,6 +54,28 @@ namespace BMC.UIToolkit
 
         private const string ASSET_UI_ROOT = "UIDocumentRoot";
 
+        /// <summary>
+        /// 預設主題的資源位址。PanelSettings.themeStyleSheet 不可為 null，執行期自建根節點時需要它。
+        /// </summary>
+        private const string ASSET_DEFAULT_THEME = "UIT_Theme";
+
+        /// <summary>
+        /// 面板資源的位址前綴。
+        ///
+        /// uGUI 版 BMC.UI 直接以類別名稱當資源位址，而收集器採 AddressByFileName，
+        /// 因此兩套同時存在時位址會正面衝突——兩邊都有 Toast 與 MsgPanel，
+        /// 先被收集到的那個（uGUI 的 .prefab）會蓋掉另一個，載入時型別對不上而失敗。
+        /// 本套件的資源一律加上前綴來區隔命名空間。
+        ///
+        /// 專案若有自己的命名規則，可在啟動時改寫此值。
+        /// </summary>
+        public static string AddressPrefix { get; set; } = "UIT_";
+
+        /// <summary>
+        /// 取得面板類別對應的資源位址。
+        /// </summary>
+        public static string GetPanelAddress(System.Type panelType) => AddressPrefix + panelType.Name;
+
         public Core.EventHandler eventHandler = new();
 
         private GameObject rootGo;
@@ -108,6 +130,65 @@ namespace BMC.UIToolkit
             rootDocument.rootVisualElement.style.height = Length.Percent(100);
 
             globalLayers = BuildLayers(rootDocument.rootVisualElement, GlobalLayerOrder);
+        }
+
+        /// <summary>
+        /// 全域根節點是否已建立。
+        /// </summary>
+        public bool IsRootReady => rootDocument != null;
+
+        /// <summary>
+        /// 確保全域根節點存在：若專案尚未透過 LoadGlobalRoot 或 UseRootDocument 指定，
+        /// 就地建立一個帶預設 PanelSettings 的 UIDocument。
+        /// 讓套件內建的基礎介面（MsgPanel／Toast）在專案還沒接好資源系統時也能運作。
+        /// </summary>
+        /// <param name="sortingOrder">UIDocument 的排序值，數值越大越上層</param>
+        public async UniTask EnsureRuntimeRootAsync(float sortingOrder = 100f)
+        {
+            if (IsRootReady)
+                return;
+
+            var theme = await LoadAsset<ThemeStyleSheet>(ASSET_DEFAULT_THEME);
+            if (theme == null)
+                return;
+
+            // 先建立為停用狀態，等 panelSettings 指派完再啟用：
+            // UIDocument 在 OnEnable 就會依 panelSettings 建立 rootVisualElement，
+            // 順序顛倒會拿到 null 的 rootVisualElement。
+            var go = new GameObject("Global_UIRoot(Runtime)");
+            go.SetActive(false);
+            GameObject.DontDestroyOnLoad(go);
+
+            var document = go.AddComponent<UIDocument>();
+            document.panelSettings = CreateDefaultPanelSettings(theme, sortingOrder);
+            go.SetActive(true);
+
+            UseRootDocument(document);
+        }
+
+        private static PanelSettings CreateDefaultPanelSettings(ThemeStyleSheet theme, float sortingOrder)
+        {
+            var settings = ScriptableObject.CreateInstance<PanelSettings>();
+            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+            settings.referenceResolution = new Vector2Int(1920, 1080);
+            settings.sortingOrder = sortingOrder;
+            settings.themeStyleSheet = theme;
+            return settings;
+        }
+
+        /// <summary>
+        /// 由資源系統取得指定位址的資產。先驗證位址再載入，
+        /// 位址不存在時回傳 null 並給出可讀訊息，而不是讓 YooAsset 直接拋錯。
+        /// </summary>
+        private static async UniTask<T> LoadAsset<T>(string address) where T : UnityEngine.Object
+        {
+            if (!ResMgr.Instance.Check(address))
+            {
+                Log.Error($"[UIMgr] 資源位址不存在: '{address}'。請確認 BMC.UIToolkit 的 Basic Controls 資源已加入資源收集器。");
+                return null;
+            }
+
+            return await ResMgr.Instance.LoadAssetAsync<T>(address, false);
         }
 
         /// <summary>
@@ -177,8 +258,20 @@ namespace BMC.UIToolkit
                 }
                 return sceneLayers[layer];
             }
+
+            if (globalLayers == null)
+            {
+                Log.Error($"[UILayer] 全域根節點尚未建立，請先呼叫 LoadGlobalRoot／UseRootDocument／EnsureRuntimeRootAsync: {layer}");
+                return null;
+            }
             return globalLayers[layer];
         }
+
+        /// <summary>
+        /// 目前開啟中的面板。UI Toolkit 的面板不是 GameObject，
+        /// 無法從 Hierarchy 觀察，因此開放這份清單供除錯工具查詢。
+        /// </summary>
+        public IReadOnlyList<UIPanel> OpenPanels => panels;
 
         public T GetPanel<T>() where T : UIPanel
         {
@@ -191,7 +284,7 @@ namespace BMC.UIToolkit
         }
 
         /// <summary>
-        /// 依 UXML（VisualTreeAsset，資源名稱與面板類別同名）建立並顯示面板。
+        /// 依 UXML（VisualTreeAsset）建立並顯示面板，資源位址為 AddressPrefix + 類別名稱。
         /// 對應 uGUI 版的 ShowPanel&lt;T&gt;，但改為 new() 建立面板實例、CloneTree 建立畫面。
         /// </summary>
         public async UniTask<T> ShowPanel<T>(UILayer layer = UILayer.SCENE_UI_1, bool checkSame = true) where T : UIPanel, new()
@@ -199,12 +292,10 @@ namespace BMC.UIToolkit
             if (checkSame && TryGetExisting<T>(out var exist))
                 return exist;
 
-            var vta = await ResMgr.Instance.LoadAssetAsync<VisualTreeAsset>(typeof(T).Name, false);
+            var address = GetPanelAddress(typeof(T));
+            var vta = await LoadAsset<VisualTreeAsset>(address);
             if (vta == null)
-            {
-                Log.Error($"[{typeof(T)}] load error");
                 return null;
-            }
 
             return CreatePanel<T>(vta, layer);
         }
@@ -240,6 +331,12 @@ namespace BMC.UIToolkit
                 return null;
 
             var root = asset.CloneTree();
+
+            // VisualElement 不是 GameObject，不會出現在 Hierarchy，只能靠
+            // Window > UI Toolkit > Debugger 檢視。預設 TemplateContainer 沒有名稱，
+            // 在偵錯器裡是一片無名節點，因此明確命名成面板類別名稱。
+            root.name = typeof(T).Name;
+
             // CloneTree() 回傳的 TemplateContainer 預設不佔滿版面：若唯一子元素是 position:absolute
             // （例如遮罩型面板），TemplateContainer 會因為子元素不參與版面而縮成 0 大小。
             // 一律撐滿所在層級容器，讓面板內部自行決定要滿版還是置中顯示。
