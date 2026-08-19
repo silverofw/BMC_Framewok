@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="SamplePanel.uss" />
+    <ui:VisualElement name="mask" class="sample-mask">
+        <ui:VisualElement name="sample-panel-box" class="sample-panel-box">
+            <ui:Label text="BMC.UIToolkit Sample" name="title" class="sample-title" />
+            <ui:Label text="Count: 0" name="count-label" class="sample-count" />
+            <ui:VisualElement name="button-row" class="sample-button-row">
+                <bmc:UIButton text="Increment" name="increment-button" class="sample-button" />
+                <bmc:UIButton text="Close" name="close-button" class="sample-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

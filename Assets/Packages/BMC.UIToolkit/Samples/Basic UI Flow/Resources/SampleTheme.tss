@@ -1,0 +1,4 @@
+/* 範例用的最小化 Theme Style Sheet，僅用來滿足 PanelSettings.themeStyleSheet 不可為 null 的需求。
+   實際視覺樣式全部由 SamplePanel.uss 提供，這裡不需要任何規則。 */
+:root {
+}
