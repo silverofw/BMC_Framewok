@@ -32,27 +32,26 @@ internal class FsmInitializePackage : IStateNode
         var packageName = (string)_machine.GetBlackboardValue("PackageName");
 
         // 创建资源包裹类
-        var package = YooAssets.TryGetPackage(packageName);
-        if (package == null)
+        if (YooAssets.TryGetPackage(packageName, out var package) == false)
             package = YooAssets.CreatePackage(packageName);
 
         // 编辑器下的模拟模式
-        InitializationOperation initializationOperation = null;
+        InitializePackageOperation initializationOperation = null;
         if (playMode == EPlayMode.EditorSimulateMode)
         {
-            var buildResult = EditorSimulateModeHelper.SimulateBuild(packageName);
+            var buildResult = EditorSimulateBuildInvoker.Build(packageName, (int)EBundleType.VirtualAssetBundle);
             var packageRoot = buildResult.PackageRootDirectory;
-            var createParameters = new EditorSimulateModeParameters();
-            createParameters.EditorFileSystemParameters = FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
-            initializationOperation = package.InitializeAsync(createParameters);
+            var initOptions = new EditorSimulateModeOptions();
+            initOptions.EditorFileSystemParameters = FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
+            initializationOperation = package.InitializePackageAsync(initOptions);
         }
 
         // 单机运行模式
         if (playMode == EPlayMode.OfflinePlayMode)
         {
-            var createParameters = new OfflinePlayModeParameters();
-            createParameters.BuildinFileSystemParameters = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
-            initializationOperation = package.InitializeAsync(createParameters);
+            var initOptions = new OfflinePlayModeOptions();
+            initOptions.BuiltinFileSystemParameters = FileSystemParameters.CreateDefaultBuiltinFileSystemParameters();
+            initializationOperation = package.InitializePackageAsync(initOptions);
         }
 
         // 联机运行模式
@@ -61,35 +60,37 @@ internal class FsmInitializePackage : IStateNode
             string defaultHostServer = GetHostServerURL();
             string fallbackHostServer = GetHostServerURL();
             Debug.Log($"[GetHostServerURL] {defaultHostServer}");
-            IRemoteServices remoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
-            var createParameters = new HostPlayModeParameters();
-            createParameters.BuildinFileSystemParameters = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
-            createParameters.CacheFileSystemParameters = FileSystemParameters.CreateDefaultCacheFileSystemParameters(remoteServices);
-            initializationOperation = package.InitializeAsync(createParameters);
+            IRemoteService remoteService = new RemoteServices(defaultHostServer, fallbackHostServer);
+            var initOptions = new HostPlayModeOptions();
+            initOptions.BuiltinFileSystemParameters = FileSystemParameters.CreateDefaultBuiltinFileSystemParameters();
+            initOptions.CacheFileSystemParameters = FileSystemParameters.CreateDefaultSandboxFileSystemParameters(remoteService);
+            // v3 的下載看門狗預設為 0（不啟用），連線卡住時會永遠停在更新畫面且不會跳重試視窗
+            initOptions.CacheFileSystemParameters.AddParameter(EFileSystemParameter.DownloadWatchdogTimeout, 10);
+            initializationOperation = package.InitializePackageAsync(initOptions);
         }
 
         // WebGL运行模式
         if (playMode == EPlayMode.WebPlayMode)
         {
-#if UNITY_WEBGL && WEIXINMINIGAME && !UNITY_EDITOR
-            var createParameters = new WebPlayModeParameters();
+#if UNITY_WEBGL && (WEIXINMINIGAME || UNITY_WECHATMINIGAME) && !UNITY_EDITOR
+            var initOptions = new WebPlayModeOptions();
 			string defaultHostServer = GetHostServerURL();
             string fallbackHostServer = GetHostServerURL();
             string packageRoot = $"{WeChatWASM.WX.env.USER_DATA_PATH}/__GAME_FILE_CACHE"; //注意：如果有子目录，请修改此处！
-            IRemoteServices remoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
-            createParameters.WebServerFileSystemParameters = WechatFileSystemCreater.CreateFileSystemParameters(packageRoot, remoteServices);
-            initializationOperation = package.InitializeAsync(createParameters);
+            IRemoteService remoteService = new RemoteServices(defaultHostServer, fallbackHostServer);
+            initOptions.WebNetworkFileSystemParameters = WechatFileSystemCreater.CreateFileSystemParameters(packageRoot, remoteService);
+            initializationOperation = package.InitializePackageAsync(initOptions);
 #else
-            var createParameters = new WebPlayModeParameters();
-            createParameters.WebServerFileSystemParameters = FileSystemParameters.CreateDefaultWebServerFileSystemParameters();
-            initializationOperation = package.InitializeAsync(createParameters);
+            var initOptions = new WebPlayModeOptions();
+            initOptions.WebServerFileSystemParameters = FileSystemParameters.CreateDefaultWebServerFileSystemParameters();
+            initializationOperation = package.InitializePackageAsync(initOptions);
 #endif
         }
 
         yield return initializationOperation;
 
         // 如果初始化失败弹出提示界面
-        if (initializationOperation.Status != EOperationStatus.Succeed)
+        if (initializationOperation.Status != EOperationStatus.Succeeded)
         {
             Debug.LogWarning($"{initializationOperation.Error}");
             PatchEventDefine.InitializeFailed.SendEventMessage();
@@ -134,7 +135,7 @@ internal class FsmInitializePackage : IStateNode
     /// <summary>
     /// 远端资源地址查询服务类
     /// </summary>
-    private class RemoteServices : IRemoteServices
+    private class RemoteServices : IRemoteService
     {
         private readonly string _defaultHostServer;
         private readonly string _fallbackHostServer;
@@ -144,13 +145,19 @@ internal class FsmInitializePackage : IStateNode
             _defaultHostServer = defaultHostServer;
             _fallbackHostServer = fallbackHostServer;
         }
-        string IRemoteServices.GetRemoteMainURL(string fileName)
+
+        /// <summary>
+        /// v3 改為一次回傳所有候選地址，依優先度排序（主地址在前，備援在後）。
+        /// 注意：呼叫端會把回傳的清單快取起來持續使用，且多個下載同時進行，
+        /// 因此每次都必須回傳全新的清單，不可共用同一份實例。
+        /// </summary>
+        IReadOnlyList<string> IRemoteService.GetRemoteUrls(string fileName)
         {
-            return $"{_defaultHostServer}/{fileName}";
-        }
-        string IRemoteServices.GetRemoteFallbackURL(string fileName)
-        {
-            return $"{_fallbackHostServer}/{fileName}";
+            return new List<string>
+            {
+                $"{_defaultHostServer}/{fileName}",
+                $"{_fallbackHostServer}/{fileName}",
+            };
         }
     }
 }

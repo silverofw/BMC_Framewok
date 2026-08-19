@@ -40,10 +40,11 @@ public class Patch : MonoBehaviour
 #endif
         if (!await checkAppVersion())
             return;
-        var ops = new List<(string, GameAsyncOperation)>();
+        var ops = new List<(string, Func<UniTask>)>();
         foreach (var p in packages)
         {
-            ops.Add((p, new PatchOperation(p, playMode)));
+            var operation = new PatchOperation(p, playMode);
+            ops.Add((p, operation.ExecuteAsync));
         }
 
         await ResMgr.Instance.InitAssets(playMode, ops.ToArray());

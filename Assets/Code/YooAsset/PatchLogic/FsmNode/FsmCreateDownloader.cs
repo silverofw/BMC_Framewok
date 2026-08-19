@@ -30,7 +30,7 @@ public class FsmCreateDownloader : IStateNode
         var package = YooAssets.GetPackage(packageName);
         int downloadingMaxNum = 10;
         int failedTryAgain = 3;
-        var downloader = package.CreateResourceDownloader(downloadingMaxNum, failedTryAgain);
+        var downloader = package.CreateResourceDownloader(new ResourceDownloaderOptions(downloadingMaxNum, failedTryAgain));
         _machine.SetBlackboardValue("Downloader", downloader);
 
         if (downloader.TotalDownloadCount == 0)

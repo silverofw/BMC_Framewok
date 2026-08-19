@@ -226,8 +226,8 @@ namespace BMC.Build.Editor
                 BuildResult buildResult = null;
                 switch (pipeline)
                 {
-                    case EBuildPipeline.BuiltinBuildPipeline:
-                        buildResult = ExecuteBuildtinBuild(packageName);
+                    case EBuildPipeline.LegacyBuildPipeline:
+                        buildResult = ExecuteLegacyBuild(packageName);
                         break;
                     case EBuildPipeline.RawFileBuildPipeline:
                         buildResult = ExecuteRawFileBuild(packageName);
@@ -251,36 +251,36 @@ namespace BMC.Build.Editor
         /// <summary>
         /// 搬運 YooAsset.Editor.ScriptableBuildPipelineViewer 內容
         /// </summary>
-        protected static BuildResult ExecuteBuildtinBuild(string PackageName)
+        protected static BuildResult ExecuteLegacyBuild(string PackageName)
         {
-            var PipelineName = EBuildPipeline.BuiltinBuildPipeline.ToString();
+            var PipelineName = EBuildPipeline.LegacyBuildPipeline.ToString();
 
-            BuiltinBuildParameters buildParameters = new BuiltinBuildParameters
+            LegacyBuildParameters buildParameters = new LegacyBuildParameters
             {
-                BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot(),
-                BuildinFileRoot = AssetBundleBuilderHelper.GetStreamingAssetsRoot(),
+                BuildOutputRoot = BundleBuilderHelper.GetDefaultBuildOutputRoot(),
+                BundledFileRoot = BundleBuilderHelper.GetStreamingAssetsRoot(),
                 BuildPipeline = PipelineName,
-                BuildBundleType = (int)EBuildBundleType.AssetBundle,
+                BuildBundleType = (int)EBundleType.AssetBundle,
                 // 即時讀取當前平台，避免快取 Bug
                 BuildTarget = EditorUserBuildSettings.activeBuildTarget,
                 PackageName = PackageName,
                 PackageVersion = GetDefaultPackageVersion(),
                 EnableSharePackRule = true,
                 VerifyBuildingResult = true,
-                FileNameStyle = AssetBundleBuilderSetting.GetPackageFileNameStyle(PackageName, PipelineName),
-                BuildinFileCopyOption = AssetBundleBuilderSetting.GetPackageBuildinFileCopyOption(PackageName, PipelineName),
-                BuildinFileCopyParams = AssetBundleBuilderSetting.GetPackageBuildinFileCopyParams(PackageName, PipelineName),
-                CompressOption = AssetBundleBuilderSetting.GetPackageCompressOption(PackageName, PipelineName),
-                ClearBuildCacheFiles = AssetBundleBuilderSetting.GetPackageClearBuildCache(PackageName, PipelineName),
-                UseAssetDependencyDB = AssetBundleBuilderSetting.GetPackageUseAssetDependencyDB(PackageName, PipelineName),
-                EncryptionServices = CreateEncryptionServicesInstance(PackageName, PipelineName),
-                ManifestProcessServices = CreateManifestProcessServicesInstance(PackageName, PipelineName),
-                ManifestRestoreServices = CreateManifestRestoreServicesInstance(PackageName, PipelineName)
+                FileNameStyle = BundleBuilderSetting.GetPackageFileNameStyle(PackageName, PipelineName),
+                BundledCopyOption = BundleBuilderSetting.GetPackageBundledCopyOption(PackageName, PipelineName),
+                BundledCopyParams = BundleBuilderSetting.GetPackageBundledCopyParams(PackageName, PipelineName),
+                CompressOption = BundleBuilderSetting.GetPackageCompressOption(PackageName, PipelineName),
+                ClearBuildCacheFiles = BundleBuilderSetting.GetPackageClearBuildCache(PackageName, PipelineName),
+                UseAssetDependencyDB = BundleBuilderSetting.GetPackageUseAssetDependencyDB(PackageName, PipelineName),
+                BundleEncryptor = CreateBundleEncryptorInstance(PackageName, PipelineName),
+                ManifestEncryptor = CreateManifestEncryptorInstance(PackageName, PipelineName),
+                ManifestDecryptor = CreateManifestDecryptorInstance(PackageName, PipelineName)
             };
 
-            Debug.Log($"BuildinFileCopyOption: {buildParameters.BuildinFileCopyOption}");
+            Debug.Log($"BundledCopyOption: {buildParameters.BundledCopyOption}");
 
-            BuiltinBuildPipeline pipeline = new BuiltinBuildPipeline();
+            LegacyBuildPipeline pipeline = new LegacyBuildPipeline();
             var buildResult = pipeline.Run(buildParameters, true);
             if (buildResult.Success)
                 EditorUtility.RevealInFinder(buildResult.OutputPackageDirectory);
@@ -293,26 +293,26 @@ namespace BMC.Build.Editor
 
             RawFileBuildParameters buildParameters = new RawFileBuildParameters
             {
-                BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot(),
-                BuildinFileRoot = AssetBundleBuilderHelper.GetStreamingAssetsRoot(),
+                BuildOutputRoot = BundleBuilderHelper.GetDefaultBuildOutputRoot(),
+                BundledFileRoot = BundleBuilderHelper.GetStreamingAssetsRoot(),
                 BuildPipeline = PipelineName,
-                BuildBundleType = (int)EBuildBundleType.RawBundle,
+                BuildBundleType = (int)EBundleType.RawBundle,
                 // 即時讀取當前平台，避免快取 Bug
                 BuildTarget = EditorUserBuildSettings.activeBuildTarget,
                 PackageName = PackageName,
                 PackageVersion = GetDefaultPackageVersion(),
                 VerifyBuildingResult = true,
-                FileNameStyle = AssetBundleBuilderSetting.GetPackageFileNameStyle(PackageName, PipelineName),
-                BuildinFileCopyOption = AssetBundleBuilderSetting.GetPackageBuildinFileCopyOption(PackageName, PipelineName),
-                BuildinFileCopyParams = AssetBundleBuilderSetting.GetPackageBuildinFileCopyParams(PackageName, PipelineName),
-                ClearBuildCacheFiles = AssetBundleBuilderSetting.GetPackageClearBuildCache(PackageName, PipelineName),
-                UseAssetDependencyDB = AssetBundleBuilderSetting.GetPackageUseAssetDependencyDB(PackageName, PipelineName),
-                EncryptionServices = CreateEncryptionServicesInstance(PackageName, PipelineName),
-                ManifestProcessServices = CreateManifestProcessServicesInstance(PackageName, PipelineName),
-                ManifestRestoreServices = CreateManifestRestoreServicesInstance(PackageName, PipelineName)
+                FileNameStyle = BundleBuilderSetting.GetPackageFileNameStyle(PackageName, PipelineName),
+                BundledCopyOption = BundleBuilderSetting.GetPackageBundledCopyOption(PackageName, PipelineName),
+                BundledCopyParams = BundleBuilderSetting.GetPackageBundledCopyParams(PackageName, PipelineName),
+                ClearBuildCacheFiles = BundleBuilderSetting.GetPackageClearBuildCache(PackageName, PipelineName),
+                UseAssetDependencyDB = BundleBuilderSetting.GetPackageUseAssetDependencyDB(PackageName, PipelineName),
+                BundleEncryptor = CreateBundleEncryptorInstance(PackageName, PipelineName),
+                ManifestEncryptor = CreateManifestEncryptorInstance(PackageName, PipelineName),
+                ManifestDecryptor = CreateManifestDecryptorInstance(PackageName, PipelineName)
             };
 
-            Debug.Log($"BuildinFileCopyOption: {buildParameters.BuildinFileCopyOption}");
+            Debug.Log($"BundledCopyOption: {buildParameters.BundledCopyOption}");
 
             RawFileBuildPipeline pipeline = new RawFileBuildPipeline();
             var buildResult = pipeline.Run(buildParameters, true);
@@ -328,33 +328,48 @@ namespace BMC.Build.Editor
         }
 
         /// <summary>
-        /// 创建资源包加密服务类实例
+        /// 创建资源包加密器实例
         /// </summary>
-        protected static IEncryptionServices CreateEncryptionServicesInstance(string PackageName, string PipelineName)
+        protected static IBundleEncryptor CreateBundleEncryptorInstance(string PackageName, string PipelineName)
         {
-            var className = AssetBundleBuilderSetting.GetPackageEncyptionServicesClassName(PackageName, PipelineName);
-            var classType = EditorTools.GetAssignableTypes(typeof(IEncryptionServices)).Find(x => x.FullName.Equals(className));
-            return classType != null ? (IEncryptionServices)Activator.CreateInstance(classType) : null;
+            var className = BundleBuilderSetting.GetPackageBundleEncryptorClassName(PackageName, PipelineName);
+            return CreateServicesInstance<IBundleEncryptor>(className);
         }
 
         /// <summary>
-        /// 创建资源清单加密服务类实例
+        /// 创建资源清单加密器实例
         /// </summary>
-        protected static IManifestProcessServices CreateManifestProcessServicesInstance(string PackageName, string PipelineName)
+        protected static IManifestEncryptor CreateManifestEncryptorInstance(string PackageName, string PipelineName)
         {
-            var className = AssetBundleBuilderSetting.GetPackageManifestProcessServicesClassName(PackageName, PipelineName);
-            var classType = EditorTools.GetAssignableTypes(typeof(IManifestProcessServices)).Find(x => x.FullName.Equals(className));
-            return classType != null ? (IManifestProcessServices)Activator.CreateInstance(classType) : null;
+            var className = BundleBuilderSetting.GetPackageManifestEncryptorClassName(PackageName, PipelineName);
+            return CreateServicesInstance<IManifestEncryptor>(className);
         }
 
         /// <summary>
-        /// 创建资源清单解密服务类实例
+        /// 创建资源清单解密器实例
         /// </summary>
-        protected static IManifestRestoreServices CreateManifestRestoreServicesInstance(string PackageName, string PipelineName)
+        protected static IManifestDecryptor CreateManifestDecryptorInstance(string PackageName, string PipelineName)
         {
-            var className = AssetBundleBuilderSetting.GetPackageManifestRestoreServicesClassName(PackageName, PipelineName);
-            var classType = EditorTools.GetAssignableTypes(typeof(IManifestRestoreServices)).Find(x => x.FullName.Equals(className));
-            return classType != null ? (IManifestRestoreServices)Activator.CreateInstance(classType) : null;
+            var className = BundleBuilderSetting.GetPackageManifestDecryptorClassName(PackageName, PipelineName);
+            return CreateServicesInstance<IManifestDecryptor>(className);
+        }
+
+        /// <summary>
+        /// 依照設定的類別名稱建立服務實例，未設定或找不到類別時回傳 null
+        /// </summary>
+        private static T CreateServicesInstance<T>(string className) where T : class
+        {
+            if (string.IsNullOrEmpty(className))
+                return null;
+
+            var classType = EditorAssemblyUtility.GetAssignableTypes(typeof(T)).Find(x => className.Equals(x.FullName));
+            if (classType == null)
+            {
+                Debug.LogWarning($"[BuildScript] 找不到 {typeof(T).Name} 的類別: '{className}'。");
+                return null;
+            }
+
+            return (T)Activator.CreateInstance(classType);
         }
 
         public static void CopyHotUpdateAssemblies(IReadOnlyList<string> PatchedAOTAssemblyList)

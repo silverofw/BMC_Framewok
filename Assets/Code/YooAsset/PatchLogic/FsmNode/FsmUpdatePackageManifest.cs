@@ -29,10 +29,10 @@ public class FsmUpdatePackageManifest : IStateNode
         var packageName = (string)_machine.GetBlackboardValue("PackageName");
         var packageVersion = (string)_machine.GetBlackboardValue("PackageVersion");
         var package = YooAssets.GetPackage(packageName);
-        var operation = package.UpdatePackageManifestAsync(packageVersion);
+        var operation = package.LoadPackageManifestAsync(new LoadPackageManifestOptions(packageVersion, 60));
         yield return operation;
 
-        if (operation.Status != EOperationStatus.Succeed)
+        if (operation.Status != EOperationStatus.Succeeded)
         {
             Debug.LogWarning(operation.Error);
             PatchEventDefine.PackageManifestUpdateFailed.SendEventMessage();

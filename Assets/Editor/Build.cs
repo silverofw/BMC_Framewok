@@ -12,7 +12,7 @@ public class Build
     {
         List<(string, EBuildPipeline)> list = new List<(string, EBuildPipeline)>
         {
-            ("DefaultPackage", EBuildPipeline.BuiltinBuildPipeline),
+            ("DefaultPackage", EBuildPipeline.LegacyBuildPipeline),
             ("RawPackage", EBuildPipeline.RawFileBuildPipeline),
         };
         // 傳入 true，啟用 Fast Mode
@@ -25,7 +25,7 @@ public class Build
     {
         List<(string, EBuildPipeline)> list = new List<(string, EBuildPipeline)>
         {
-            ("DefaultPackage", EBuildPipeline.BuiltinBuildPipeline),
+            ("DefaultPackage", EBuildPipeline.LegacyBuildPipeline),
             ("RawPackage", EBuildPipeline.RawFileBuildPipeline),
         };
         // 傳入 false，進行耗時的 GenerateAll

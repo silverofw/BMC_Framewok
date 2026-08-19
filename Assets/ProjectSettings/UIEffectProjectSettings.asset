@@ -119,16 +119,6 @@ ShaderVariantCollection:
         passType: 0
       - keywords: TRANSITION_SHINY UNITY_UI_CLIP_RECT
         passType: 0
-  - first: {fileID: -6465566751694194690, guid: c4b99d7494b704b7c885015e0153163b, type: 3}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: -6465566751694194690, guid: e5b632cdcfc38478ebc1424ae9371f99, type: 3}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
   - first: {fileID: 4800000, guid: 935b7be1c88464d2eb87204fdfab5a38, type: 3}
     second:
       variants:
@@ -174,6 +164,16 @@ ShaderVariantCollection:
       - keywords: TRANSITION_PATTERN
         passType: 0
       - keywords: TRANSITION_SHINY
+        passType: 0
+  - first: {fileID: -6465566751694194690, guid: c4b99d7494b704b7c885015e0153163b, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: -6465566751694194690, guid: e5b632cdcfc38478ebc1424ae9371f99, type: 3}
+    second:
+      variants:
+      - keywords: 
         passType: 0
 --- !u!114 &11400000
 MonoBehaviour:

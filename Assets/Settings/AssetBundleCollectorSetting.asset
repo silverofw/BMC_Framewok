@@ -46,6 +46,14 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
+      - CollectPath: Assets/Packages/BMC.Story/Samples/Basic Controls/Prefabs
+        CollectorGUID: ec9176aee6ee77047a6896ce105a0664
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
     - GroupName: DLL
       GroupDesc: 
       AssetTags: 

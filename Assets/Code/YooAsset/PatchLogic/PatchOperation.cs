@@ -1,9 +1,15 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 using UniFramework.Machine;
 using UniFramework.Event;
 using YooAsset;
 
-public class PatchOperation : GameAsyncOperation
+/// <summary>
+/// 單一資源包的補丁更新流程。
+/// YooAsset v3 移除了 GameAsyncOperation（且沒有公開 API 可以啟動自訂 operation），
+/// 因此改為官方 v3 範例的作法：自行持有狀態機並每幀驅動 Update。
+/// </summary>
+public class PatchOperation
 {
     private enum ESteps
     {
@@ -42,30 +48,30 @@ public class PatchOperation : GameAsyncOperation
         _machine.SetBlackboardValue("PackageName", packageName);
         _machine.SetBlackboardValue("PlayMode", playMode);
     }
-    protected override void OnStart()
+
+    /// <summary>
+    /// 執行補丁流程，直到 FsmStartGame 呼叫 SetFinish 為止。
+    /// 更新失敗時流程會停在對應狀態等待使用者重試，因此這裡不會結束。
+    /// </summary>
+    public async UniTask ExecuteAsync()
     {
-        _steps = ESteps.Update;
-        _machine.Run<FsmInitializePackage>();
-    }
-    protected override void OnUpdate()
-    {
-        if (_steps == ESteps.None || _steps == ESteps.Done)
+        if (_steps != ESteps.None)
             return;
 
-        if (_steps == ESteps.Update)
+        _steps = ESteps.Update;
+        _machine.Run<FsmInitializePackage>();
+
+        while (_steps == ESteps.Update)
         {
             _machine.Update();
+            await UniTask.Yield(PlayerLoopTiming.Update);
         }
-    }
-    protected override void OnAbort()
-    {
     }
 
     public void SetFinish()
     {
         _steps = ESteps.Done;
         _eventGroup.RemoveAllListener();
-        Status = EOperationStatus.Succeed;
         Debug.Log($"Package {_packageName} patch done !");
     }
 

@@ -26,13 +26,13 @@ public class FsmDownloadPackageFiles : IStateNode
     private IEnumerator BeginDownload()
     {
         var downloader = (ResourceDownloaderOperation)_machine.GetBlackboardValue("Downloader");
-        downloader.DownloadErrorCallback = PatchEventDefine.WebFileDownloadFailed.SendEventMessage;
-        downloader.DownloadUpdateCallback = PatchEventDefine.DownloadUpdate.SendEventMessage;
-        downloader.BeginDownload();
+        downloader.DownloadError += PatchEventDefine.WebFileDownloadFailed.SendEventMessage;
+        downloader.DownloadProgressChanged += PatchEventDefine.DownloadUpdate.SendEventMessage;
+        downloader.StartDownload();
         yield return downloader;
 
         // 检测下载结果
-        if (downloader.Status != EOperationStatus.Succeed)
+        if (downloader.Status != EOperationStatus.Succeeded)
             yield break;
 
         _machine.ChangeState<FsmDownloadPackageOver>();
