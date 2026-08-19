@@ -15,7 +15,7 @@
     {
       "displayName": "Basic UI Flow",
       "description": "最基礎的 UI Toolkit 面板流程範例：開啟面板、按鈕點擊、點背景遮罩關閉。",
-      "path": "Samples/Basic UI Flow"
+      "path": "Samples~/Basic UI Flow"
     }
   ],
   "author": {
