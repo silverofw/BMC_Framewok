@@ -4,6 +4,11 @@
         <ui:VisualElement name="box" class="bmc-panel-box bmc-preview-box">
             <ui:Label text="UIToolkit Preview" name="title" class="bmc-title" />
 
+            <ui:VisualElement name="tab-bar" class="bmc-tab-bar">
+                <bmc:UIButton text="元件" name="tab-basic" class="bmc-tab" />
+                <bmc:UIButton text="字體特效" name="tab-fontfx" class="bmc-tab" />
+            </ui:VisualElement>
+
             <ui:ScrollView name="scroll" class="bmc-preview-scroll">
 
                 <ui:Label text="Text" class="bmc-section-title" />
@@ -23,6 +28,23 @@
                 <ui:Toggle label="Toggle" name="preview-toggle" />
                 <ui:Slider label="Slider" name="preview-slider" low-value="0" high-value="100" value="40" />
                 <ui:TextField label="TextField" name="preview-textfield" value="輸入測試" />
+
+            </ui:ScrollView>
+
+            <ui:ScrollView name="scroll-fontfx" class="bmc-preview-scroll">
+
+                <ui:Label text="字體特效" class="bmc-section-title" />
+                <ui:Label text="動態文字特效" name="fx-preview" class="bmc-fx-preview" />
+
+                <ui:VisualElement name="fx-button-row" class="bmc-fx-button-row">
+                    <bmc:UIButton text="一般" name="fx-none" class="bmc-button" />
+                    <bmc:UIButton text="粗體" name="fx-bold" class="bmc-button" />
+                    <bmc:UIButton text="外框描邊" name="fx-outline" class="bmc-button" />
+                    <bmc:UIButton text="陰影浮凸" name="fx-shadow" class="bmc-button" />
+                    <bmc:UIButton text="霓虹光暈" name="fx-neon" class="bmc-button" />
+                    <bmc:UIButton text="寬字距標題" name="fx-spaced" class="bmc-button" />
+                    <bmc:UIButton text="斜體強調" name="fx-italic" class="bmc-button" />
+                </ui:VisualElement>
 
             </ui:ScrollView>
 
