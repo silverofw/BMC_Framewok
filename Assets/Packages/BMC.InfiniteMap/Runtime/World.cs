@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -141,10 +141,7 @@ namespace InfiniteMap
 
             // 如果目標沒變，就不用重新跑
             if (currentCPos == lastUpdateCPos)
-            {
-                UnityEngine.Debug.Log($"[DIAG][World] focusPos={focusPos} -> currentCPos={currentCPos} 跟 lastUpdateCPos 相同，跳過。");
                 return;
-            }
 
             HashSet<CPos> neededChunks = new HashSet<CPos>();
 
@@ -155,8 +152,6 @@ namespace InfiniteMap
                     neededChunks.Add(new CPos(currentCPos.x + dx, currentCPos.y + dy));
                 }
             }
-
-            UnityEngine.Debug.Log($"[DIAG][World] focusPos={focusPos} -> currentCPos={currentCPos} (原 lastUpdateCPos={lastUpdateCPos})，LoadRadius={LoadRadius}，neededChunks=[{string.Join(",", neededChunks)}]");
 
             // 1. 卸載不需要的區塊 (卸載不能被中斷，必須確保資料存檔落地)
             List<CPos> toUnload = new List<CPos>();

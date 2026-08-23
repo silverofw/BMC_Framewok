@@ -1,6 +1,6 @@
-{
+﻿{
   "name": "com.bmc.infinitemap",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "displayName": "BMC Infinite Map",
   "description": "BMC 無限地圖：以 Chunk 為單位的無邊際地圖載入／存檔框架，支援 protobuf 序列化、動態生成與全域子系統 (IGlobalSystem)。",
   "unity": "6000.0",
