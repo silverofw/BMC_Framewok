@@ -59,6 +59,19 @@ namespace BMC.Build.Editor
                 return null;
             }
 
+            // 【HybridCLR 會偷改這個旗標，而且可能還原不回來】
+            // StripAOTDllCommand 為了產生 stripped AOT dll，會把 createSolution 暫時設成 true，
+            // 正常情況在 finally 還原。但 GenerateAll 會改寫 Assets/ 底下的 link.xml 與
+            // AOTGenericReferences.cs，那會觸發 domain reload —— 一旦在 finally 之前重載，
+            // 旗標就永久卡在 true。之後 Unity 會拒絕建置到已存在的輸出目錄，錯誤訊息是
+            // "Build path contains a project previously built without the
+            //  'Create Visual Studio Solution' option."，而且看不出跟 HybridCLR 有關。
+            // 這裡要的一律是純 player build，所以每次都明確關掉。
+#if UNITY_EDITOR_WIN
+            if (target == BuildTarget.StandaloneWindows || target == BuildTarget.StandaloneWindows64)
+                UnityEditor.WindowsStandalone.UserBuildSettings.createSolution = false;
+#endif
+
             // 安全獲取當前 Active 的 Build Profile 名稱
             string profileName = GetActiveProfileName();
 
