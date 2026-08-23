@@ -45,14 +45,46 @@ namespace BMC.UI
             Application.quitting -= Close;
         }
 
+        /// <summary>正在顯示錯誤面板。防止顯示過程中自己再丟錯而無限遞迴。</summary>
+        static bool _showingError;
+
+        // 【為什麼需要兩道防護】這個回呼掛在 Application.logMessageReceived 上，
+        // 任何一則 Error/Exception 都會進來，包含「顯示面板本身失敗」丟出來的那則：
+        //
+        //   1. 補丁流程(下載資源)跑在 UI 之前，那時 globalCanvas 還是 null，直接 ShowPanel
+        //      會丟 NullReferenceException —— 而它本身又是 Exception，於是再次進到這裡，
+        //      變成錯誤風暴。實際踩過：資源初始化失敗時，同一份堆疊在 Player.log 重複好幾輪。
+        //   2. 就算 UI 已就緒，ShowPanel 內部載入失敗時也會 Log.Error，同樣會捲回來。
+        //
+        // 所以：UI 沒就緒就只留 log 不彈面板；顯示期間用旗標擋掉重入。
         static void HandleLog(string logString, string stackTrace, LogType type)
         {
-            if (type == LogType.Error || type == LogType.Exception)
+            if (type != LogType.Error && type != LogType.Exception)
+                return;
+            if (_showingError)
+                return;
+            if (!UIMgr.Instance.IsGlobalCanvasReady)
+                return;
+
+            _showingError = true;
+            ShowErrorPanel(type, logString, stackTrace).Forget();
+        }
+
+        static async UniTaskVoid ShowErrorPanel(LogType type, string logString, string stackTrace)
+        {
+            try
             {
-                UIMgr.Instance.ShowPanel<MsgPanel>(UICanvasType.UI_Debug).ContinueWith((p) =>
-                {
-                    p.Initial($"[{type}] {logString}\n{stackTrace}", "[ERROR]", null, null);
-                }).Forget();
+                var panel = await UIMgr.Instance.ShowPanel<MsgPanel>(UICanvasType.UI_Debug);
+                panel?.Initial($"[{type}] {logString}\n{stackTrace}", "[ERROR]", null, null);
+            }
+            catch (System.Exception e)
+            {
+                // 【這裡只能用 Warning】用 LogError 會直接繞回 HandleLog。
+                Debug.LogWarning($"[UIInputTrigger] 顯示錯誤面板失敗: {e}");
+            }
+            finally
+            {
+                _showingError = false;
             }
         }
 

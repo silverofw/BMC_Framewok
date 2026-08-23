@@ -84,6 +84,12 @@ namespace BMC.UI
         public List<JoypadPanel> joypadPanels = new List<JoypadPanel>();
         public bool IsSceneInit { get; private set; }
 
+        /// <summary>
+        /// 全域 Canvas 是否已就緒。LoadGlobalCanvas 要透過 ResMgr 載入 Canvas 資源，
+        /// 所以在補丁流程跑完之前一直是 false —— 那段期間任何 ShowPanel 都會空引用。
+        /// </summary>
+        public bool IsGlobalCanvasReady => globalCanvas != null;
+
 
         private Transform globalUIRoot;
         private Dictionary<UICanvasType, Transform> globalCanvas;
