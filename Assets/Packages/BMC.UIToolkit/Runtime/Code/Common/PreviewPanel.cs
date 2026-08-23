@@ -14,8 +14,24 @@ namespace BMC.UIToolkit
     {
         public override bool maskControl => true;
 
+        private const string TabActiveClass = "bmc-tab--active";
+        private const string HiddenClass = "bmc-hidden";
+
+        // 字體特效類別，彼此互斥：切換時先全部移除，再加上被按下的那一個
+        private static readonly string[] FxClasses =
+        {
+            "fx-bold", "fx-outline", "fx-shadow", "fx-neon", "fx-spaced", "fx-italic",
+        };
+
         private Label clickCountLabel;
         private int clickCount;
+
+        private UIButton tabBasicButton;
+        private UIButton tabFontFxButton;
+        private VisualElement tabBasicContent;
+        private VisualElement tabFontFxContent;
+
+        private Label fxPreviewLabel;
 
         public static async UniTask<PreviewPanel> Show(UILayer layer = UILayer.UI_Top)
         {
@@ -43,6 +59,9 @@ namespace BMC.UIToolkit
             Root.Q<UIButton>("btn-disabled")?.SetEnabled(false);
 
             // close-button 由 UIPanel.InternalInit 自動綁定關閉，這裡不需處理
+
+            InitTabs();
+            InitFontEffects();
         }
 
         private void HandleCountClicked()
@@ -50,6 +69,65 @@ namespace BMC.UIToolkit
             clickCount++;
             if (clickCountLabel != null)
                 clickCountLabel.text = $"OnClick fired: {clickCount}";
+        }
+
+        private void InitTabs()
+        {
+            tabBasicButton = Root.Q<UIButton>("tab-basic");
+            tabFontFxButton = Root.Q<UIButton>("tab-fontfx");
+            tabBasicContent = Root.Q<VisualElement>("scroll");
+            tabFontFxContent = Root.Q<VisualElement>("scroll-fontfx");
+
+            if (tabBasicButton != null)
+                tabBasicButton.OnClick += () => SelectTab(basic: true);
+            if (tabFontFxButton != null)
+                tabFontFxButton.OnClick += () => SelectTab(basic: false);
+
+            SelectTab(basic: true);
+        }
+
+        private void SelectTab(bool basic)
+        {
+            tabBasicContent?.EnableInClassList(HiddenClass, !basic);
+            tabFontFxContent?.EnableInClassList(HiddenClass, basic);
+
+            tabBasicButton?.EnableInClassList(TabActiveClass, basic);
+            tabFontFxButton?.EnableInClassList(TabActiveClass, !basic);
+        }
+
+        private void InitFontEffects()
+        {
+            fxPreviewLabel = Root.Q<Label>("fx-preview");
+
+            BindFxButton("fx-none", null);
+            BindFxButton("fx-bold", "fx-bold");
+            BindFxButton("fx-outline", "fx-outline");
+            BindFxButton("fx-shadow", "fx-shadow");
+            BindFxButton("fx-neon", "fx-neon");
+            BindFxButton("fx-spaced", "fx-spaced");
+            BindFxButton("fx-italic", "fx-italic");
+        }
+
+        private void BindFxButton(string buttonName, string fxClass)
+        {
+            var button = Root.Q<UIButton>(buttonName);
+            if (button != null)
+                button.OnClick += () => ApplyFontEffect(fxClass);
+        }
+
+        /// <summary>
+        /// 套用字體特效：先清掉所有 fx- 類別再加上指定的一個，null／空字串代表還原成一般樣式。
+        /// </summary>
+        private void ApplyFontEffect(string fxClass)
+        {
+            if (fxPreviewLabel == null)
+                return;
+
+            foreach (var cls in FxClasses)
+                fxPreviewLabel.RemoveFromClassList(cls);
+
+            if (!string.IsNullOrEmpty(fxClass))
+                fxPreviewLabel.AddToClassList(fxClass);
         }
     }
 }

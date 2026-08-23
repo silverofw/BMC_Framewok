@@ -160,6 +160,104 @@
     white-space: normal;
 }
 
+/* ---------- Tab 分頁（PreviewPanel 用） ---------- */
+
+.bmc-hidden {
+    display: none;
+}
+
+.bmc-tab-bar {
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+.bmc-tab {
+    min-width: 96px;
+    height: 30px;
+    margin-left: 4px;
+    margin-right: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-width: 0;
+    border-radius: 15px;
+    background-color: rgb(52, 52, 62);
+    color: rgb(200, 200, 210);
+    font-size: 13px;
+    -unity-text-align: middle-center;
+}
+
+.bmc-tab:hover {
+    background-color: rgb(66, 66, 78);
+}
+
+.bmc-tab--active {
+    background-color: rgb(70, 110, 200);
+    color: rgb(255, 255, 255);
+}
+
+.bmc-tab--active:hover {
+    background-color: rgb(90, 130, 220);
+}
+
+/* ---------- 字體特效展示（PreviewPanel「字體特效」分頁） ---------- */
+
+/* 特效預覽文字：字級拉大方便看清楚效果差異。
+   各 fx- 類別只疊加顏色／外框／陰影／字距等屬性，切換時彼此互斥（一次只留一個）。 */
+.bmc-fx-preview {
+    font-size: 34px;
+    color: rgb(235, 235, 242);
+    -unity-font-style: normal;
+    -unity-text-align: middle-center;
+    margin-top: 12px;
+    margin-bottom: 20px;
+    white-space: normal;
+}
+
+.bmc-fx-button-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.fx-bold {
+    -unity-font-style: bold;
+}
+
+/* 外框描邊：深色描邊 + 亮色文字，常見於遊戲標題，任何背景下都清楚可讀 */
+.fx-outline {
+    -unity-font-style: bold;
+    color: rgb(255, 220, 90);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(40, 30, 10);
+}
+
+/* 陰影浮凸：文字往右下投影，製造立體感 */
+.fx-shadow {
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* 霓虹光暈：飽和亮色文字 + 大範圍模糊陰影模擬發光 */
+.fx-neon {
+    -unity-font-style: bold;
+    color: rgb(130, 255, 235);
+    text-shadow: 0 0 12px rgb(60, 220, 200);
+}
+
+/* 寬字距標題：拉開字距營造質感標題感 */
+.fx-spaced {
+    -unity-font-style: bold;
+    letter-spacing: 8px;
+}
+
+.fx-italic {
+    -unity-font-style: italic;
+    color: rgb(200, 210, 255);
+}
+
 /* ---------- PreviewPanel（元件展示櫃） ---------- */
 
 .bmc-preview-box {
