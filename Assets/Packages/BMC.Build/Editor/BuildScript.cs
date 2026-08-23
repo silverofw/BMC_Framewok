@@ -50,7 +50,7 @@ namespace BMC.Build.Editor
         }
 
         // 修改 BuildForTarget：移除硬編碼的 subfolder，改為自動讀取當前的 Build Profile 名稱
-        private static UnityEditor.Build.Reporting.BuildReport BuildForTarget(BuildTarget target, string fileExtension)
+        internal static UnityEditor.Build.Reporting.BuildReport BuildForTarget(BuildTarget target, string fileExtension)
         {
             // 防呆機制：如果不是透過 "Build Active Platform" 呼叫，確保目前編輯器平台與目標平台一致
             if (EditorUserBuildSettings.activeBuildTarget != target)
@@ -106,7 +106,7 @@ namespace BMC.Build.Editor
         }
 
         // --- 智慧副檔名判斷 ---
-        private static string GetExtensionForTarget(BuildTarget target)
+        internal static string GetExtensionForTarget(BuildTarget target)
         {
             switch (target)
             {
@@ -211,6 +211,24 @@ namespace BMC.Build.Editor
         // 現在改為即時讀取 EditorUserBuildSettings.activeBuildTarget。
 
         /// <summary>
+        /// 建置單一資源包。管線的分派集中在這裡，BuildPatch 與 BuildRunner 共用。
+        /// 不支援的管線回傳 null(呼叫端要當成失敗處理)。
+        /// </summary>
+        public static BuildResult ExecutePackageBuild(string packageName, EBuildPipeline pipeline)
+        {
+            switch (pipeline)
+            {
+                case EBuildPipeline.LegacyBuildPipeline:
+                    return ExecuteLegacyBuild(packageName);
+                case EBuildPipeline.RawFileBuildPipeline:
+                    return ExecuteRawFileBuild(packageName);
+                default:
+                    Debug.LogError($"Unsupported build pipeline: {pipeline}");
+                    return null;
+            }
+        }
+
+        /// <summary>
         /// 建置 Patch 資源包
         /// </summary>
         /// <param name="fastMode">是否開啟快速模式（僅編譯熱更DLL，不重新生成AOT）</param>
@@ -236,19 +254,9 @@ namespace BMC.Build.Editor
             // 3. YooAssets 打包資源
             foreach (var (packageName, pipeline) in list)
             {
-                BuildResult buildResult = null;
-                switch (pipeline)
-                {
-                    case EBuildPipeline.LegacyBuildPipeline:
-                        buildResult = ExecuteLegacyBuild(packageName);
-                        break;
-                    case EBuildPipeline.RawFileBuildPipeline:
-                        buildResult = ExecuteRawFileBuild(packageName);
-                        break;
-                    default:
-                        Debug.LogError($"Unsupported build pipeline: {pipeline}");
-                        continue;
-                }
+                BuildResult buildResult = ExecutePackageBuild(packageName, pipeline);
+                if (buildResult == null)
+                    continue;
 
                 if (buildResult != null && buildResult.Success)
                 {
@@ -295,7 +303,7 @@ namespace BMC.Build.Editor
 
             LegacyBuildPipeline pipeline = new LegacyBuildPipeline();
             var buildResult = pipeline.Run(buildParameters, true);
-            if (buildResult.Success)
+            if (buildResult.Success && !Application.isBatchMode)
                 EditorUtility.RevealInFinder(buildResult.OutputPackageDirectory);
             return buildResult;
         }
@@ -329,7 +337,7 @@ namespace BMC.Build.Editor
 
             RawFileBuildPipeline pipeline = new RawFileBuildPipeline();
             var buildResult = pipeline.Run(buildParameters, true);
-            if (buildResult.Success)
+            if (buildResult.Success && !Application.isBatchMode)
                 EditorUtility.RevealInFinder(buildResult.OutputPackageDirectory);
             return buildResult;
         }
