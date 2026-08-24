@@ -38,7 +38,7 @@ namespace BMC.UIToolkit
                 return;
 
             // 再按一次收起來：熱鍵單鍵開關，不必再去點 Close
-            var open = UIMgr.Instance.GetPanel<DebugPanel>();
+            var open = UITMgr.Instance.GetPanel<DebugPanel>();
             if (open != null && !open.IsClosed)
             {
                 open.ClosePanel();

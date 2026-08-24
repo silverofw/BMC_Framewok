@@ -15,8 +15,8 @@ namespace BMC.UIToolkit
     /// UIEffect 等一整串依賴，核心的 BMC.UIToolkit 不應該為了除錯功能而背上這些。
     /// 不需要這個橋接時，整個 Runtime/Debug 資料夾刪掉即可，核心不受影響。
     ///
-    /// 此處刻意不使用 using BMC.UI，因為兩個套件都有 UIMgr／Toast／MsgPanel 同名型別，
-    /// 全部改為完整名稱以免解析到非預期的那一個。
+    /// 此處刻意不使用 using BMC.UI，因為兩個套件都有 Toast／MsgPanel 同名型別。
+    /// manager 已分為 UIMgr（uGUI）與 UITMgr（UI Toolkit），其餘同名型別一律寫完整名稱。
     /// </summary>
     public static class UIToolkitDebugRegister
     {
@@ -115,7 +115,7 @@ namespace BMC.UIToolkit
         /// </summary>
         private static void CloseDebugPanels(Action next)
         {
-            var uit = UIMgr.Instance.GetPanel<DebugPanel>();
+            var uit = UITMgr.Instance.GetPanel<DebugPanel>();
             if (uit != null && !uit.IsClosed)
                 uit.ClosePanel();
 
@@ -152,12 +152,12 @@ namespace BMC.UIToolkit
         /// </summary>
         private static async UniTaskVoid ShowOnSceneLayer()
         {
-            await UIMgr.Instance.EnsureRuntimeRootAsync();
-            if (!UIMgr.Instance.IsRootReady)
+            await UITMgr.Instance.EnsureRuntimeRootAsync();
+            if (!UITMgr.Instance.IsRootReady)
                 return;
 
-            if (!UIMgr.Instance.IsSceneInit)
-                UIMgr.Instance.CreateSceneRoot();
+            if (!UITMgr.Instance.IsSceneInit)
+                UITMgr.Instance.CreateSceneRoot();
 
             MsgPanel.Show("這則彈窗掛在場景層 SCENE_UI_1。", "Scene Layer",
                 layer: UILayer.SCENE_UI_1).Forget();
@@ -165,18 +165,18 @@ namespace BMC.UIToolkit
 
         private static async UniTaskVoid CreateSceneRoot()
         {
-            await UIMgr.Instance.EnsureRuntimeRootAsync();
-            if (!UIMgr.Instance.IsRootReady)
+            await UITMgr.Instance.EnsureRuntimeRootAsync();
+            if (!UITMgr.Instance.IsRootReady)
                 return;
 
-            UIMgr.Instance.CreateSceneRoot();
+            UITMgr.Instance.CreateSceneRoot();
             Toast.Show("scene root created");
         }
 
         private static async UniTaskVoid ReportRoot()
         {
-            await UIMgr.Instance.EnsureRuntimeRootAsync();
-            Toast.Show($"root: {UIMgr.Instance.IsRootReady} / scene: {UIMgr.Instance.IsSceneInit}");
+            await UITMgr.Instance.EnsureRuntimeRootAsync();
+            Toast.Show($"root: {UITMgr.Instance.IsRootReady} / scene: {UITMgr.Instance.IsSceneInit}");
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace BMC.UIToolkit
         /// </summary>
         private static void ListPanels()
         {
-            var open = UIMgr.Instance.OpenPanels;
+            var open = UITMgr.Instance.OpenPanels;
             if (open.Count == 0)
             {
                 Toast.Show("no open panel");
@@ -246,7 +246,7 @@ namespace BMC.UIToolkit
         {
             // 先快照再關閉：關閉一個面板會連帶關閉它的子面板，
             // 直接走訪即時清單會在中途被改動而漏關或越界。
-            var snapshot = new List<UIPanel>(UIMgr.Instance.OpenPanels);
+            var snapshot = new List<UIPanel>(UITMgr.Instance.OpenPanels);
             foreach (var panel in snapshot)
             {
                 if (!panel.IsClosed)

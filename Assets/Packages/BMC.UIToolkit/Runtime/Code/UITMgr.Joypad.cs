@@ -7,14 +7,14 @@ using UnityEngine.UIElements;
 namespace BMC.UIToolkit
 {
     /// <summary>
-    /// UIMgr 的手把輸入轉發，對應 uGUI 版 BMC.UI.UIMgr 的 RegisterGlobalJoypadEvents 一段。
+    /// UITMgr 的手把輸入轉發，對應 uGUI 版 BMC.UI.UIMgr 的 RegisterGlobalJoypadEvents 一段。
     ///
-    /// 這裡刻意不相依 InputSystem：UIMgr 只負責把 eventHandler 收到的
+    /// 這裡刻意不相依 InputSystem：UITMgr 只負責把 eventHandler 收到的
     /// UIEvent.INPUT_* 轉給最上層的 JoypadPanel，實際去讀手把的程式碼放在
     /// 可選組件 BMC.UIToolkit.Joypad（Runtime/Joypad）。專案若已有自己的輸入層，
     /// 只要對這個 eventHandler 送出同樣的事件即可，不必用附的那一份。
     /// </summary>
-    public partial class UIMgr
+    public partial class UITMgr
     {
         /// <summary>
         /// 用 List 當堆疊使用：最後推入的是最上層，也是唯一會收到輸入的面板。

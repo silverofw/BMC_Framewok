@@ -41,10 +41,10 @@ namespace BMC.UIToolkit
             UILayer layer = UILayer.UI_Top)
         {
             // 專案若尚未建立根節點就地補上，讓彈窗在任何情境都能出現
-            await UIMgr.Instance.EnsureRuntimeRootAsync();
+            await UITMgr.Instance.EnsureRuntimeRootAsync();
 
             // 同時間可能需要疊出多個提示，因此不做重複檢查
-            var panel = await UIMgr.Instance.ShowPanel<MsgPanel>(layer, false);
+            var panel = await UITMgr.Instance.ShowPanel<MsgPanel>(layer, false);
             panel?.Initial(msg, title, action, cancel);
             return panel;
         }
@@ -113,9 +113,9 @@ namespace BMC.UIToolkit
         }
 
         /// <summary>
-        /// B 鍵等同取消。uGUI 版是由 UIMgr 直接關閉面板、不會執行 cancel 委派，
+        /// B 鍵等同取消。uGUI 版是由 BMC.UI.UIMgr 直接關閉面板、不會執行 cancel 委派，
         /// 這裡改成走同一條取消流程，行為比較符合預期
-        /// （UIMgr 看到面板已自行關閉就不會再多關一層）。
+        /// （UITMgr 看到面板已自行關閉就不會再多關一層）。
         /// </summary>
         public override void OnInputB() => HandleCancel();
 

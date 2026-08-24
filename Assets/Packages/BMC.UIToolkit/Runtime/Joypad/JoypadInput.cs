@@ -7,7 +7,7 @@ namespace BMC.UIToolkit
     /// BMC.UIToolkit 的預設手把／鍵盤輸入來源。
     ///
     /// 讀 InputSystem 的 Gamepad 與 Keyboard，轉成 UIEvent.INPUT_* 送進
-    /// UIMgr.Instance.eventHandler，由 UIMgr 轉發給最上層的 JoypadPanel。
+    /// UITMgr.Instance.eventHandler，由 UITMgr 轉發給最上層的 JoypadPanel。
     /// 事件名稱與語意刻意與 uGUI 版 BMC.UI 相同。
     ///
     /// 獨立成 BMC.UIToolkit.Joypad 組件的原因：核心的 BMC.UIToolkit 不相依
@@ -61,11 +61,11 @@ namespace BMC.UIToolkit
                 return;
 
             // 沒有面板在等輸入就不必讀裝置：專案只用 uGUI 那一套時，這裡每幀直接跳過
-            if (!UIMgr.Instance.HasJoypadPanel)
+            if (!UITMgr.Instance.HasJoypadPanel)
                 return;
 
             // 玩家正在輸入框打字時，方向鍵與 Enter 屬於文字編輯，不轉成手把操作
-            if (UIMgr.Instance.IsTextInputFocused())
+            if (UITMgr.Instance.IsTextInputFocused())
             {
                 lastMove = Vector2.zero;
                 return;
@@ -177,7 +177,7 @@ namespace BMC.UIToolkit
 
                 var stickR = pad.rightStick.ReadValue();
                 if (stickR.sqrMagnitude > STICK_DEADZONE * STICK_DEADZONE)
-                    UIMgr.Instance.eventHandler.Send((int)UIEvent.INPUT_STICK_R, stickR);
+                    UITMgr.Instance.eventHandler.Send((int)UIEvent.INPUT_STICK_R, stickR);
             }
 
             var keyboard = Keyboard.current;
@@ -196,6 +196,6 @@ namespace BMC.UIToolkit
             if (keyboard.pageDownKey.wasPressedThisFrame) Send(UIEvent.INPUT_SHOULDER_R);
         }
 
-        private static void Send(UIEvent id) => UIMgr.Instance.eventHandler.Send((int)id);
+        private static void Send(UIEvent id) => UITMgr.Instance.eventHandler.Send((int)id);
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.uitoolkit",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "displayName": "BMC UI Toolkit System",
   "description": "BMC 通用介面系統（UI Toolkit 版）。",
   "unity": "6000.0",

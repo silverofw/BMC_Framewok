@@ -9,11 +9,11 @@ namespace BMC.UIToolkit
     /// UI Toolkit 版手把面板基底，對應 uGUI 版 BMC.UI 的 JoypadPanel。
     ///
     /// 輸入來源與 uGUI 版一致：由外部輸入層把 UIEvent.INPUT_* 送進
-    /// UIMgr.Instance.eventHandler，UIMgr 再轉發給最上層的 JoypadPanel
-    /// （實作見 UIMgr.Joypad.cs）。本套件附了可選組件 BMC.UIToolkit.Joypad
+    /// UITMgr.Instance.eventHandler，UITMgr 再轉發給最上層的 JoypadPanel
+    /// （實作見 UITMgr.Joypad.cs）。本套件附了可選組件 BMC.UIToolkit.Joypad
     /// 當預設輸入來源，專案已有自己的輸入層時可以整個資料夾刪掉。
     ///
-    /// 面板被 UIMgr 建立時會自動推入手把堆疊、關閉時自動移除，
+    /// 面板被 UITMgr 建立時會自動推入手把堆疊、關閉時自動移除，
     /// 子類別不需要（也不應該）自己處理進出堆疊。
     /// </summary>
     public abstract class JoypadPanel : UIPanel
@@ -113,13 +113,13 @@ namespace BMC.UIToolkit
 
         public void CloseTopPanel()
         {
-            if (!UIMgr.Instance.IsTopJoypadPanel(this))
+            if (!UITMgr.Instance.IsTopJoypadPanel(this))
                 return;
             ClosePanel();
         }
 
         // ==========================================
-        // 接收 UIMgr 傳遞過來的輸入指令
+        // 接收 UITMgr 傳遞過來的輸入指令
         // 移動規則與 uGUI 版 JoypadPanel 逐條對應
         // ==========================================
 

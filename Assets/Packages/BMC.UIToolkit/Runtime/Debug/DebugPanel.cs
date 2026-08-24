@@ -16,7 +16,7 @@ namespace BMC.UIToolkit
     /// 2. 本類別的 OnRegisterGroups —— 給只關心 UI Toolkit 面板的訂閱者。
     ///
     /// 操作方式同樣對齊 uGUI 版：繼承 JoypadPanel，方向鍵／十字鍵移動游標、
-    /// A 執行、B 返回、LB／RB 換頁，輸入由 UIMgr 從 UIEvent.INPUT_* 轉發進來
+    /// A 執行、B 返回、LB／RB 換頁，輸入由 UITMgr 從 UIEvent.INPUT_* 轉發進來
     /// （預設來源為可選組件 BMC.UIToolkit.Joypad）。滑鼠點擊仍然可用。
     /// </summary>
     public class DebugPanel : JoypadPanel, BMC.UI.IDebugGroupHost
@@ -51,8 +51,8 @@ namespace BMC.UIToolkit
 
         public static async UniTask<DebugPanel> Show(UILayer layer = UILayer.UI_Debug)
         {
-            await UIMgr.Instance.EnsureRuntimeRootAsync();
-            return await UIMgr.Instance.ShowPanel<DebugPanel>(layer);
+            await UITMgr.Instance.EnsureRuntimeRootAsync();
+            return await UITMgr.Instance.ShowPanel<DebugPanel>(layer);
         }
 
         protected override void OnInit()

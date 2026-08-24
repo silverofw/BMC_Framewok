@@ -50,10 +50,10 @@ namespace BMC.UIToolkit
 
         private static async UniTaskVoid ShowInternal(Action startAction, Action finishAction)
         {
-            await UIMgr.Instance.EnsureRuntimeRootAsync();
+            await UITMgr.Instance.EnsureRuntimeRootAsync();
 
             // 與 uGUI 版相同：不做重複檢查，重複呼叫視為重新讀取
-            var panel = await UIMgr.Instance.ShowPanel<LoadPanel>(UILayer.UI_4, false);
+            var panel = await UITMgr.Instance.ShowPanel<LoadPanel>(UILayer.UI_4, false);
             panel?.Setup(startAction, finishAction);
         }
 

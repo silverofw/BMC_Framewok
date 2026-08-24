@@ -8,7 +8,7 @@ namespace BMC.UIToolkit
 {
     /// <summary>
     /// UI 事件識別碼。INPUT_ 系列刻意與 uGUI 版 BMC.UI.UIEvent 同名同語意，
-    /// 專案既有的輸入層只要多送一份到 BMC.UIToolkit.UIMgr.eventHandler，
+    /// 專案既有的輸入層只要多送一份到 BMC.UIToolkit.UITMgr.eventHandler，
     /// 兩套 UI 的手把操作行為就會一致；本套件也附了 BMC.UIToolkit.Joypad 這個
     /// 可選組件當作預設的輸入來源（見 Runtime/Joypad）。
     /// </summary>
@@ -66,7 +66,11 @@ namespace BMC.UIToolkit
         UI_Debug,
     }
 
-    public partial class UIMgr : Singleton<UIMgr>
+    /// <summary>
+    /// UI Toolkit 版的介面管理員。類別名刻意做成 UITMgr，
+    /// 以免與 uGUI 版 BMC.UI.UIMgr 在同一個檔案裡撞名。
+    /// </summary>
+    public partial class UITMgr : Singleton<UITMgr>
     {
         private static readonly UILayer[] GlobalLayerOrder =
         {
@@ -119,7 +123,7 @@ namespace BMC.UIToolkit
             panels = new List<UIPanel>();
             IsSceneInit = false;
 
-            // 統一在這裡把輸入事件轉發到最上層的 IJoypadPanel（實作見 UIMgr.Joypad.cs）
+            // 統一在這裡把輸入事件轉發到最上層的 IJoypadPanel（實作見 UITMgr.Joypad.cs）
             RegisterGlobalJoypadEvents();
         }
 
@@ -136,7 +140,7 @@ namespace BMC.UIToolkit
             var document = rootGo.GetComponent<UIDocument>();
             if (document == null)
             {
-                Log.Error($"[UIMgr] {ASSET_UI_ROOT} 缺少 UIDocument 元件");
+                Log.Error($"[UITMgr] {ASSET_UI_ROOT} 缺少 UIDocument 元件");
                 return;
             }
 
@@ -213,7 +217,7 @@ namespace BMC.UIToolkit
         {
             if (!ResMgr.Instance.Check(address))
             {
-                Log.Error($"[UIMgr] 資源位址不存在: '{address}'。請確認 BMC.UIToolkit 的 Basic Controls 資源已加入資源收集器。");
+                Log.Error($"[UITMgr] 資源位址不存在: '{address}'。請確認 BMC.UIToolkit 的 Basic Controls 資源已加入資源收集器。");
                 return null;
             }
 
