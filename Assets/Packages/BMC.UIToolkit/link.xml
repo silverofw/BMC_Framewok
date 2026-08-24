@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  UI Toolkit 的 UXML 全部只存在於 AssetBundle 裡，而 UnityLinker 做 managed stripping 時
+  只掃母包（場景 / Resources / 程式碼參考），不會去掃 bundle。
+  結果就是母包沒人用到的內建控制項（ScrollView / Slider / TextField / Toggle ...）
+  連同它的 UxmlSerializedData 巢狀型別一起被剝掉，執行期反序列化 VisualTreeAsset 時
+  丟出 "Unknown managed type referenced: ... /UxmlSerializedData"，
+  LoadAsset 回 null，YooAsset 就報 "Failed to load asset"。
+  編輯器不 stripping，所以只有出版包才會炸。
+
+  這裡整包保留 UIElementsModule：逐一列型別的話，每次 UXML 用到新控制項都要回來補一筆，
+  而且漏掉時的症狀是「出版包才炸」，代價太高。
+-->
+<linker>
+  <assembly fullname="UnityEngine.UIElementsModule" preserve="all" />
+</linker>
