@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="UIT_Common.uss" />
+    <!-- cover：整片遮罩。LoadPanel 加上 shown 修飾 class 觸發 USS 淡入淡出，
+         取代 uGUI 版的 UIEffectTweener 轉場。 -->
+    <ui:VisualElement name="cover" class="bmc-load-cover">
+        <ui:VisualElement name="bar-root" class="bmc-load-bar-root">
+            <ui:VisualElement name="bar-bg" class="bmc-load-bar">
+                <ui:VisualElement name="bar-fill" class="bmc-load-bar__fill" />
+            </ui:VisualElement>
+            <ui:Label text="0" name="progress" class="bmc-load-progress" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

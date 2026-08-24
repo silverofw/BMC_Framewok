@@ -6,11 +6,37 @@ using BMC.Core;
 
 namespace BMC.UIToolkit
 {
+    /// <summary>
+    /// UI 事件識別碼。INPUT_ 系列刻意與 uGUI 版 BMC.UI.UIEvent 同名同語意，
+    /// 專案既有的輸入層只要多送一份到 BMC.UIToolkit.UIMgr.eventHandler，
+    /// 兩套 UI 的手把操作行為就會一致；本套件也附了 BMC.UIToolkit.Joypad 這個
+    /// 可選組件當作預設的輸入來源（見 Runtime/Joypad）。
+    /// </summary>
     public enum UIEvent
     {
         NONE = 0,
 
         AUDIO_BUTTON_CLICK,
+
+        INPUT_UP,
+        INPUT_DOWN,
+        INPUT_LEFT,
+        INPUT_RIGHT,
+
+        INPUT_A,
+        INPUT_B,
+        INPUT_X,
+        INPUT_Y,
+
+        INPUT_SHOULDER_L,
+        INPUT_SHOULDER_R,
+        INPUT_TRIGGER_L,
+        INPUT_TRIGGER_R,
+
+        INPUT_START,
+        INPUT_SELECT,
+
+        INPUT_STICK_R,
     }
 
     /// <summary>
@@ -40,7 +66,7 @@ namespace BMC.UIToolkit
         UI_Debug,
     }
 
-    public class UIMgr : Singleton<UIMgr>
+    public partial class UIMgr : Singleton<UIMgr>
     {
         private static readonly UILayer[] GlobalLayerOrder =
         {
@@ -92,6 +118,9 @@ namespace BMC.UIToolkit
         {
             panels = new List<UIPanel>();
             IsSceneInit = false;
+
+            // 統一在這裡把輸入事件轉發到最上層的 IJoypadPanel（實作見 UIMgr.Joypad.cs）
+            RegisterGlobalJoypadEvents();
         }
 
         /// <summary>

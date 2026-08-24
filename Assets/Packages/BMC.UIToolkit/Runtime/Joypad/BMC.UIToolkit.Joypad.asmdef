@@ -1,11 +1,9 @@
 {
-    "name": "BMC.UIToolkit.Debug",
+    "name": "BMC.UIToolkit.Joypad",
     "rootNamespace": "",
     "references": [
         "BMC.Core",
-        "BMC.UI",
         "BMC.UIToolkit",
-        "UniTask",
         "Unity.InputSystem"
     ],
     "includePlatforms": [],

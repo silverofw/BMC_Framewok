@@ -50,6 +50,10 @@ namespace BMC.UIToolkit
             var mask = Root.Q<VisualElement>("mask");
             mask?.RegisterCallback<ClickEvent>(_ => onMaskClick());
 
+            // 手把面板一律由 UIMgr 統一管理堆疊，子類別不必自己 Push／Pop
+            if (this is JoypadPanel joypadPanel)
+                UIMgr.Instance.PushJoypadPanel(joypadPanel);
+
             animator?.PlayOpen();
         }
 
@@ -91,6 +95,9 @@ namespace BMC.UIToolkit
                     UIMgr.Instance.ClosePanel(panel);
             }
             subPanels.Clear();
+
+            if (this is JoypadPanel joypadPanel)
+                UIMgr.Instance.RemoveJoypadPanel(joypadPanel);
 
             cts.Cancel();
             cts.Dispose();

@@ -12,7 +12,7 @@ namespace BMC.AI
             DebugPanel.OnRegisterGroups += RegisterGroups;
         }
 
-        private static void RegisterGroups(DebugPanel panel)
+        private static void RegisterGroups(IDebugGroupHost panel)
         {
             panel.AddDebugGroup(
                 "AI",

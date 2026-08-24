@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="UIT_Common.uss" />
+    <!-- 版面對齊 uGUI DebugPanel：左直欄分頁、右單欄滿寬按鈕。
+         關閉靠點遮罩或 B／Esc，LB／RB 仍可換頁。 -->
+    <ui:VisualElement name="mask" class="bmc-mask bmc-debug-mask">
+        <ui:VisualElement name="box" class="bmc-debug-box">
+            <ui:VisualElement name="body" class="bmc-debug-body">
+                <ui:ScrollView name="tab-scroll" mode="Vertical" horizontal-scroller-visibility="Hidden" class="bmc-debug-tab-scroll">
+                    <ui:VisualElement name="tab-list" class="bmc-debug-tab-list" />
+                </ui:ScrollView>
+                <ui:ScrollView name="item-scroll" mode="Vertical" horizontal-scroller-visibility="Hidden" class="bmc-debug-scroll">
+                    <ui:VisualElement name="item-grid" class="bmc-debug-grid" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
