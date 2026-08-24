@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2f3beda7022e3f9e1c356d1f374a054, type: 3}
+  m_Name: BMCBuildProfile
+  m_EditorClassIdentifier: BMC.Build::BMC.Build.Editor.BuildProfile
+  packages:
+  - packageName: DefaultPackage
+    pipeline: 1
+    bundledCopyOption: 2
+    bundledCopyParams: BUILTIN
+    compressOption: 2
+    fileNameStyle: 0
+    clearBuildCache: 1
+    useAssetDependencyDB: 0
+  buildOutputRoot: Builds
+  cdnRoot: 
+  platformFolders:
+  - target: 19
+    folderName: WindowsPlayer
+  cdnFileFilters:
+  - .bundle
+  - .bytes
+  - .hash
+  - .version
+  cdnClearBeforeCopy: 1

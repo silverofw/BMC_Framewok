@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using YooAsset;
 using YooAsset.Editor;
 
 namespace BMC.Build.Editor
@@ -94,28 +95,35 @@ namespace BMC.Build.Editor
         // =========================================================
 
         /// <summary>
-        /// 找出專案裡唯一的 profile。
+        /// 找出專案裡唯一的 BMC 出版 profile。
         /// 【為什麼不用固定路徑】不同專案放的位置不一樣，寫死就違背了「換專案只改資產」的目標。
+        /// 【為什麼還要再 Load 一次過濾】Unity 6 內建了 UnityEditor.Build.Profile.BuildProfile
+        /// （Settings/Build Profiles 底下那些）。FindAssets("t:BuildProfile") 只比類別名，
+        /// 會把兩邊都找出來。只接受真的載成我們這個型別的資產，才不會跟編輯器的 profile 撞名。
         /// </summary>
         public static BuildProfile Find()
         {
-            var guids = AssetDatabase.FindAssets($"t:{nameof(BuildProfile)}");
-            if (guids.Length == 0)
+            var profiles = AssetDatabase.FindAssets($"t:{nameof(BuildProfile)}")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(path => AssetDatabase.LoadAssetAtPath<BuildProfile>(path))
+                .Where(p => p != null)
+                .ToArray();
+
+            if (profiles.Length == 0)
             {
                 Debug.LogError($"[BuildProfile] 專案裡找不到任何 {nameof(BuildProfile)}。"
                                + "請用 Assets > Create > BMC > Build Profile 建立一份。");
                 return null;
             }
 
-            var paths = guids.Select(AssetDatabase.GUIDToAssetPath).ToArray();
-            if (paths.Length > 1)
+            if (profiles.Length > 1)
             {
-                Debug.LogError($"[BuildProfile] 找到 {paths.Length} 份 profile，無法判斷要用哪一份：\n  "
-                               + string.Join("\n  ", paths));
+                Debug.LogError($"[BuildProfile] 找到 {profiles.Length} 份 profile，無法判斷要用哪一份：\n  "
+                               + string.Join("\n  ", profiles.Select(AssetDatabase.GetAssetPath)));
                 return null;
             }
 
-            return AssetDatabase.LoadAssetAtPath<BuildProfile>(paths[0]);
+            return profiles[0];
         }
 
         /// <summary>設定有沒有明顯的錯，回傳 false 時 reason 說明原因。建置前先擋，不要等到執行期。</summary>
