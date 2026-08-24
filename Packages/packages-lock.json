@@ -5,7 +5,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "03083ad8f96253f84ed4cf2018c5f32690e29b7b"
+      "hash": "fd32708e7f5106f0ffa375bcfe43342ee594c1e5"
     },
     "com.code-philosophy.luban": {
       "version": "https://github.com/focus-creative-games/luban_unity.git",
