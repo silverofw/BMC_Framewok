@@ -114,6 +114,16 @@ namespace BMC.UIToolkit
         /// </summary>
         private bool IsJoypadInputBlocked(JoypadPanel top)
         {
+            // 【開啟當幀不接受輸入】按鍵可能同時走兩條互不相通的路：一條讓遊戲邏輯把面板
+            // 開起來，另一條是本套件 JoypadInput 每幀自己輪詢 wasPressedThisFrame 送進來的
+            // UI 事件。兩者沒有「事件已被消耗」的協調，於是同一次按壓會被剛開好的面板再吃
+            // 一次，等同玩家一打開就立刻確認了游標所在的項目。
+            // 實際踩過：走到 NPC 旁按 A 叫出環形互動選單，選單第一項是對話，結果一叫出來
+            // 就直接進對話。
+            // 只擋建立的那一幀，代價是最多一幀的延遲，玩家感覺不到。
+            if (top.OpenFrame == Time.frameCount)
+                return true;
+
             int topIndex = panels.IndexOf(top);
             if (topIndex < 0)
                 return false;

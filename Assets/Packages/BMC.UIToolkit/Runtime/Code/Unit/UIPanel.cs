@@ -28,6 +28,12 @@ namespace BMC.UIToolkit
         public UILayer Layer { get; private set; }
         public bool IsClosed { get; private set; }
 
+        /// <summary>
+        /// 面板是在第幾幀建立的。用來擋掉「開啟這個面板的那一次按鍵」，見
+        /// UITMgr.IsJoypadInputBlocked。
+        /// </summary>
+        public int OpenFrame { get; private set; }
+
         public Action hideCallback;
 
         private IUIPanelAnimator animator;
@@ -39,6 +45,8 @@ namespace BMC.UIToolkit
         {
             Root = root;
             Layer = layer;
+            // 這個檔案沒有 using UnityEngine（會讓 Object 跟 System.Object 撞名），寫全名。
+            OpenFrame = UnityEngine.Time.frameCount;
             animator = this as IUIPanelAnimator;
 
             OnInit();
