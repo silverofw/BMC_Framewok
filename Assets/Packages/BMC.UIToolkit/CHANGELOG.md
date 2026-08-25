@@ -3,6 +3,16 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.1.2] - 2026-08-25
+
+### Fixed
+- `ResetSceneRoot` 現在會對場景層的面板走完整的關閉流程，而不只是把它們從 `panels`
+  移除。原本手把面板會永遠留在 `joypadPanels` 裡，`OnClose` 也不會被呼叫，於是接管
+  出去的外部狀態（例如 uGUI 的 `UIMgr.UIMaskControl`）跟著殘留。
+  症狀：從遊戲選單登出回主畫面、再進遊戲，按手把時登出確認視窗又跳一次 ——
+  按鍵打到了殘留在堆疊最上層的舊面板。滑鼠不會重現，因為滑鼠事件走視覺樹，
+  而那棵樹已經隨場景根節點一起移除了。
+
 ## [1.1.1] - 2026-08-25
 
 ### Fixed
