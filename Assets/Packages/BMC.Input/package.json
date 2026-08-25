@@ -1,0 +1,23 @@
+{
+  "name": "com.bmc.input",
+  "version": "1.0.0",
+  "displayName": "BMC Input System",
+  "description": "全域唯一的輸入來源。每幀輪詢 Gamepad／Keyboard，轉成裝置無關的按鍵與方向事件，不依賴 PlayerInput 與 .inputactions 資產，也不綁任何場景。刻意不認識任何 UI 系統：事件送給誰由專案端決定。",
+  "unity": "6000.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/silverofw/BMC_Framewok.git"
+  },
+  "dependencies": {
+    "com.unity.inputsystem": "1.19.0"
+  },
+  "author": {
+    "name": "BMC Studio",
+    "url": "https://github.com/silverofw"
+  },
+  "keywords": [
+    "bmc",
+    "input",
+    "gamepad"
+  ]
+}
