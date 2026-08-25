@@ -192,6 +192,17 @@ namespace BMC.UI
             UnregisterGlobalJoypadEvents();
         }
 
+        /// <summary>
+        /// 最上層 JoypadPanel 是在哪一幀開的，沒有的話回 -1。
+        ///
+        /// 【給誰用】專案同時跑 uGUI 與 UI Toolkit 兩套時，需要判斷「這顆按鍵該給哪一邊」。
+        /// 判斷依據必須是「誰在吃手把輸入」也就是 JoypadPanel，而不是「誰有遮罩」——
+        /// 有遮罩不代表會吃輸入（例如純粹擋住玩家亂點的空殼面板），拿 maskControl 當
+        /// 依據會讓那種面板攔下不屬於它的按鍵。
+        /// UI Toolkit 版可以從 OpenPanels 自行算出同樣的值。
+        /// </summary>
+        public int TopJoypadOpenFrame => GetTopJoypadPanel()?.OpenFrame ?? -1;
+
         // 取得目前最上層的 JoypadPanel
         private JoypadPanel GetTopJoypadPanel()
         {
