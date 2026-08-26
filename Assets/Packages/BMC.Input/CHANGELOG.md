@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.0]
+
+### Added
+- `InputService.ActiveScheme`：玩家最後一次實際操作的 control scheme
+  （`Gamepad` / `Keyboard&Mouse`），按鍵與方向輸入都會更新它，改變時發出
+  `ActiveSchemeChanged`。
+- `InputService.GetDisplayString(InputButton)`：把裝置無關的 `InputButton` 翻成
+  目前裝置上的實體按鍵名（手把 `A`、鍵盤 `J`）。走 InputSystem 內建的
+  `GetBindingDisplayString`，所以鍵位改在 `.inputactions`、或玩家自己重新綁定，
+  畫面上的提示都會跟著變，不必另外維護一張對照表。
+
+用途是畫面上的按鍵提示（「按 A 繼續」這類），提示要能跟著玩家手上的裝置換字。
+需要資產有設定 control scheme 分組，名稱要與 `SchemeGamepad` / `SchemeKeyboard` 一致。
+
 ## [1.1.0]
 
 改用 Unity 6 的 Project-wide Actions，不再自己輪詢裝置。

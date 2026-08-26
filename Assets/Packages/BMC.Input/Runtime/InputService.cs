@@ -88,6 +88,57 @@ namespace BMC
         /// <summary>目前的移動方向，已 snap 成四方向。沒有推動時是 None</summary>
         public static InputDirection Direction { get; private set; }
 
+        // ==========================================
+        // 目前使用中的裝置
+        // ==========================================
+
+        /// <summary>資產裡的 control scheme 名稱，要跟 .inputactions 完全一致</summary>
+        public const string SchemeGamepad = "Gamepad";
+        public const string SchemeKeyboard = "Keyboard&Mouse";
+
+        /// <summary>
+        /// 玩家最後一次實際操作的 control scheme。用來決定畫面上的按鍵提示要寫 A 還是 J。
+        /// 預設先當作鍵盤，直到玩家真的動了某個裝置為止。
+        /// </summary>
+        public static string ActiveScheme { get; private set; } = SchemeKeyboard;
+
+        /// <summary>ActiveScheme 改變時觸發，介面上的按鍵提示可以據此換字</summary>
+        public static event Action<string> ActiveSchemeChanged;
+
+        /// <summary>
+        /// 把裝置無關的 InputButton 翻成目前裝置上的實體按鍵名（手把 "A"／鍵盤 "J"）。
+        ///
+        /// 走 InputSystem 內建的 GetBindingDisplayString，鍵位改了、玩家重新綁定了都會跟著變，
+        /// 不必在畫面這一層另外維護一張對照表。
+        /// </summary>
+        public static string GetDisplayString(InputButton button)
+        {
+            var action = Find(button);
+            if (action == null)
+                return string.Empty;
+
+            var text = action.GetBindingDisplayString(InputBinding.MaskByGroup(ActiveScheme));
+
+            // 這個 scheme 沒綁到（例如 Start 只有手把有），退回任一個綁定，總比空白好
+            return string.IsNullOrEmpty(text) ? action.GetBindingDisplayString() : text;
+        }
+
+        static void UpdateActiveScheme(InputDevice device)
+        {
+            if (device == null)
+                return;
+
+            var scheme = device is Gamepad ? SchemeGamepad
+                       : device is Keyboard || device is Mouse ? SchemeKeyboard
+                       : null;
+
+            if (scheme == null || scheme == ActiveScheme)
+                return;
+
+            ActiveScheme = scheme;
+            ActiveSchemeChanged?.Invoke(scheme);
+        }
+
         public static bool IsPressed(InputButton button)
         {
             var action = Find(button);
@@ -137,7 +188,11 @@ namespace BMC
 
                 buttons[i] = action;
                 var button = (InputButton)i;
-                action.started += _ => Raise(ButtonDown, button);
+                action.started += ctx =>
+                {
+                    UpdateActiveScheme(ctx.control?.device);
+                    Raise(ButtonDown, button);
+                };
                 action.canceled += _ => Raise(ButtonUp, button);
             }
 
@@ -168,6 +223,7 @@ namespace BMC
             StickRDown = null;
             StickRMoved = null;
             Ticked = null;
+            ActiveSchemeChanged = null;
             ShouldSuspend = null;
         }
 
@@ -245,6 +301,9 @@ namespace BMC
                 move += dpadAction.ReadValue<Vector2>();
 
             MoveRaw = move;
+
+            if (move != Vector2.zero)
+                UpdateActiveScheme(moveAction?.activeControl?.device ?? dpadAction?.activeControl?.device);
 
             // 只取絕對值較大的那一軸，避免斜推同時往兩個方向跑
             if (Mathf.Abs(move.x) > Mathf.Abs(move.y))
