@@ -10,8 +10,20 @@ namespace BMC.Story.Editor
     public static class StoryEditorContext
     {
         private const string PREF_KEY_ID = "BMC_Story_CurrentChapterID";
-        public const string BASE_FOLDER = "Assets/yoo/DefaultPackage/Proto";
-        private const string FILE_FORMAT = "StoryPackage_{0}.bytes";
+
+        // 編輯用的來源格式：JSON，可讀、可 diff、可進 git review
+        public const string BASE_FOLDER = "Assets/yoo/DefaultPackage/Json";
+        private const string FILE_FORMAT = "StoryPackage_{0}.json";
+
+        // 執行期用的產出格式：protobuf 二進位，StoryPlayer.LoadStory(byte[]) 讀的就是這份，
+        // 也是 YooAsset AssetBundleCollectorSetting 實際收集進資源包的資料夾（Json 資料夾不會被收）
+        public const string COMPILED_FOLDER = "Assets/yoo/DefaultPackage/Proto";
+        private const string COMPILED_FILE_FORMAT = "StoryPackage_{0}.bytes";
+
+        // 與 StroyMenuTool 的批次匯出/匯入共用同一套格式設定，兩邊產出的 JSON 才不會互相打架造成假 diff
+        private static readonly JsonFormatter _jsonFormatter = new JsonFormatter(
+            JsonFormatter.Settings.Default.WithFormatDefaultValues(true).WithIndentation("  "));
+        private static readonly JsonParser _jsonParser = new JsonParser(JsonParser.Settings.Default);
 
         public static int CurrentChapterId
         {
@@ -27,6 +39,18 @@ namespace BMC.Story.Editor
             return Path.Combine(BASE_FOLDER, fileName);
         }
 
+        public static string GetCompiledPathById(int id)
+        {
+            string fileName = string.Format(COMPILED_FILE_FORMAT, id);
+            return Path.Combine(COMPILED_FOLDER, fileName);
+        }
+
+        private static string ToCompiledPath(string jsonPath)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(jsonPath);
+            return Path.Combine(COMPILED_FOLDER, fileName + ".bytes");
+        }
+
         // ===================================================================================
         // IO Operations
         // ===================================================================================
@@ -36,8 +60,8 @@ namespace BMC.Story.Editor
             if (!File.Exists(path)) return null;
             try
             {
-                byte[] bytes = File.ReadAllBytes(path);
-                return StoryPackage.Parser.ParseFrom(bytes);
+                string json = File.ReadAllText(path);
+                return _jsonParser.Parse<StoryPackage>(json);
             }
             catch (System.Exception e)
             {
@@ -53,6 +77,10 @@ namespace BMC.Story.Editor
             return package?.Nodes.FirstOrDefault(n => n.Id == nodeId);
         }
 
+        /// <summary>
+        /// 存檔會同時寫兩份：JSON（人看、進 git）跟同名的 .bytes（執行期真正讀的檔案），
+        /// 兩者永遠同步，不用另外手動跑 StroyMenuTool 的 Import 才能讓遊戲吃到最新內容。
+        /// </summary>
         public static void SavePackage(StoryPackage package, string path)
         {
             if (package == null) return;
@@ -63,7 +91,14 @@ namespace BMC.Story.Editor
 
                 if (File.Exists(path)) PerformBackup(path);
 
-                using (var output = File.Create(path)) package.WriteTo(output);
+                File.WriteAllText(path, _jsonFormatter.Format(package));
+                AssetDatabase.ImportAsset(path);
+
+                string compiledPath = ToCompiledPath(path);
+                string compiledDirectory = Path.GetDirectoryName(compiledPath);
+                if (!Directory.Exists(compiledDirectory)) Directory.CreateDirectory(compiledDirectory);
+                using (var output = File.Create(compiledPath)) package.WriteTo(output);
+                AssetDatabase.ImportAsset(compiledPath);
             }
             catch (System.Exception e)
             {
