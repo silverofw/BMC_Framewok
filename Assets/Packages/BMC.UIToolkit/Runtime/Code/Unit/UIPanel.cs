@@ -18,7 +18,7 @@ namespace BMC.UIToolkit
     /// <summary>
     /// UI Toolkit 版面板基底類別，對應 uGUI 版 BMC.UI 的 UIPanel。
     /// 不繼承 MonoBehaviour：面板本體是由 UXML CloneTree 產生的 VisualElement，
-    /// 生命週期（建立／關閉／子面板管理）改由 UIMgr 統一驅動。
+    /// 生命週期（建立／關閉／子面板管理）改由 UITMgr 統一驅動。
     /// </summary>
     public abstract class UIPanel
     {
@@ -27,6 +27,12 @@ namespace BMC.UIToolkit
         public VisualElement Root { get; private set; }
         public UILayer Layer { get; private set; }
         public bool IsClosed { get; private set; }
+
+        /// <summary>
+        /// 面板是在第幾幀建立的。用來擋掉「開啟這個面板的那一次按鍵」，見
+        /// UITMgr.IsJoypadInputBlocked。
+        /// </summary>
+        public int OpenFrame { get; private set; }
 
         public Action hideCallback;
 
@@ -39,6 +45,8 @@ namespace BMC.UIToolkit
         {
             Root = root;
             Layer = layer;
+            // 這個檔案沒有 using UnityEngine（會讓 Object 跟 System.Object 撞名），寫全名。
+            OpenFrame = UnityEngine.Time.frameCount;
             animator = this as IUIPanelAnimator;
 
             OnInit();
@@ -49,6 +57,10 @@ namespace BMC.UIToolkit
 
             var mask = Root.Q<VisualElement>("mask");
             mask?.RegisterCallback<ClickEvent>(_ => onMaskClick());
+
+            // 手把面板一律由 UITMgr 統一管理堆疊，子類別不必自己 Push／Pop
+            if (this is JoypadPanel joypadPanel)
+                UITMgr.Instance.PushJoypadPanel(joypadPanel);
 
             animator?.PlayOpen();
         }
@@ -62,7 +74,7 @@ namespace BMC.UIToolkit
         public virtual void HidePanel() => Root.style.display = DisplayStyle.None;
 
         /// <summary>
-        /// 關閉介面：等待動畫播放完畢後，再交由 UIMgr 從畫面與清單中移除。
+        /// 關閉介面：等待動畫播放完畢後，再交由 UITMgr 從畫面與清單中移除。
         /// </summary>
         public virtual async void ClosePanel(Action callback = null)
         {
@@ -77,7 +89,7 @@ namespace BMC.UIToolkit
             catch (OperationCanceledException) { /* 忽略取消 */ }
             finally
             {
-                UIMgr.Instance.ClosePanel(this);
+                UITMgr.Instance.ClosePanel(this);
                 callback?.Invoke();
             }
         }
@@ -88,9 +100,12 @@ namespace BMC.UIToolkit
             foreach (var panel in subPanels)
             {
                 if (panel != null && !panel.IsClosed)
-                    UIMgr.Instance.ClosePanel(panel);
+                    UITMgr.Instance.ClosePanel(panel);
             }
             subPanels.Clear();
+
+            if (this is JoypadPanel joypadPanel)
+                UITMgr.Instance.RemoveJoypadPanel(joypadPanel);
 
             cts.Cancel();
             cts.Dispose();
@@ -108,14 +123,14 @@ namespace BMC.UIToolkit
 
         protected async UniTask<T> OpenSubPanel<T>(UILayer layer) where T : UIPanel, new()
         {
-            var panel = await UIMgr.Instance.ShowPanel<T>(layer);
+            var panel = await UITMgr.Instance.ShowPanel<T>(layer);
             subPanels.Add(panel);
             return panel;
         }
 
         protected async UniTask<T> OpenSubPanel<T>() where T : UIPanel, new()
         {
-            var panel = await UIMgr.Instance.ShowPanel<T>(Layer);
+            var panel = await UITMgr.Instance.ShowPanel<T>(Layer);
             subPanels.Add(panel);
             return panel;
         }

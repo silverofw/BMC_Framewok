@@ -5,7 +5,7 @@ namespace BMC.UIToolkit.Samples.BasicUIFlow
 {
     /// <summary>
     /// 範例場景的啟動腳本：不依賴 ResMgr／YooAsset 資源系統，
-    /// 直接建立 UIDocument + PanelSettings，示範 UIMgr 最基礎的顯示流程。
+    /// 直接建立 UIDocument + PanelSettings，示範 UITMgr 最基礎的顯示流程。
     /// 掛在場景中任一 GameObject 上即可執行（場景已預先掛好）。
     /// </summary>
     public class UIToolkitSampleBootstrap : MonoBehaviour
@@ -19,7 +19,7 @@ namespace BMC.UIToolkit.Samples.BasicUIFlow
             if (document.panelSettings == null)
                 document.panelSettings = CreateDefaultPanelSettings();
 
-            UIMgr.Instance.UseRootDocument(document);
+            UITMgr.Instance.UseRootDocument(document);
 
             var panelAsset = Resources.Load<VisualTreeAsset>("SamplePanel");
             if (panelAsset == null)
@@ -28,7 +28,7 @@ namespace BMC.UIToolkit.Samples.BasicUIFlow
                 return;
             }
 
-            UIMgr.Instance.ShowPanel<SamplePanel>(panelAsset, UILayer.UI_1);
+            UITMgr.Instance.ShowPanel<SamplePanel>(panelAsset, UILayer.UI_1);
         }
 
         private static PanelSettings CreateDefaultPanelSettings()

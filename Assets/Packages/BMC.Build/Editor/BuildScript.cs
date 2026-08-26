@@ -50,7 +50,7 @@ namespace BMC.Build.Editor
         }
 
         // 修改 BuildForTarget：移除硬編碼的 subfolder，改為自動讀取當前的 Build Profile 名稱
-        private static UnityEditor.Build.Reporting.BuildReport BuildForTarget(BuildTarget target, string fileExtension)
+        internal static UnityEditor.Build.Reporting.BuildReport BuildForTarget(BuildTarget target, string fileExtension)
         {
             // 防呆機制：如果不是透過 "Build Active Platform" 呼叫，確保目前編輯器平台與目標平台一致
             if (EditorUserBuildSettings.activeBuildTarget != target)
@@ -58,6 +58,19 @@ namespace BMC.Build.Editor
                 Debug.LogError($"[打包失敗] 嘗試打包的目標是 {target}，但目前編輯器處於 {EditorUserBuildSettings.activeBuildTarget} 平台！請先切換平台。");
                 return null;
             }
+
+            // 【HybridCLR 會偷改這個旗標，而且可能還原不回來】
+            // StripAOTDllCommand 為了產生 stripped AOT dll，會把 createSolution 暫時設成 true，
+            // 正常情況在 finally 還原。但 GenerateAll 會改寫 Assets/ 底下的 link.xml 與
+            // AOTGenericReferences.cs，那會觸發 domain reload —— 一旦在 finally 之前重載，
+            // 旗標就永久卡在 true。之後 Unity 會拒絕建置到已存在的輸出目錄，錯誤訊息是
+            // "Build path contains a project previously built without the
+            //  'Create Visual Studio Solution' option."，而且看不出跟 HybridCLR 有關。
+            // 這裡要的一律是純 player build，所以每次都明確關掉。
+#if UNITY_EDITOR_WIN
+            if (target == BuildTarget.StandaloneWindows || target == BuildTarget.StandaloneWindows64)
+                UnityEditor.WindowsStandalone.UserBuildSettings.createSolution = false;
+#endif
 
             // 安全獲取當前 Active 的 Build Profile 名稱
             string profileName = GetActiveProfileName();
@@ -93,7 +106,7 @@ namespace BMC.Build.Editor
         }
 
         // --- 智慧副檔名判斷 ---
-        private static string GetExtensionForTarget(BuildTarget target)
+        internal static string GetExtensionForTarget(BuildTarget target)
         {
             switch (target)
             {
@@ -198,6 +211,24 @@ namespace BMC.Build.Editor
         // 現在改為即時讀取 EditorUserBuildSettings.activeBuildTarget。
 
         /// <summary>
+        /// 建置單一資源包。管線的分派集中在這裡，BuildPatch 與 BuildRunner 共用。
+        /// 不支援的管線回傳 null(呼叫端要當成失敗處理)。
+        /// </summary>
+        public static BuildResult ExecutePackageBuild(string packageName, EBuildPipeline pipeline)
+        {
+            switch (pipeline)
+            {
+                case EBuildPipeline.LegacyBuildPipeline:
+                    return ExecuteLegacyBuild(packageName);
+                case EBuildPipeline.RawFileBuildPipeline:
+                    return ExecuteRawFileBuild(packageName);
+                default:
+                    Debug.LogError($"Unsupported build pipeline: {pipeline}");
+                    return null;
+            }
+        }
+
+        /// <summary>
         /// 建置 Patch 資源包
         /// </summary>
         /// <param name="fastMode">是否開啟快速模式（僅編譯熱更DLL，不重新生成AOT）</param>
@@ -223,19 +254,9 @@ namespace BMC.Build.Editor
             // 3. YooAssets 打包資源
             foreach (var (packageName, pipeline) in list)
             {
-                BuildResult buildResult = null;
-                switch (pipeline)
-                {
-                    case EBuildPipeline.LegacyBuildPipeline:
-                        buildResult = ExecuteLegacyBuild(packageName);
-                        break;
-                    case EBuildPipeline.RawFileBuildPipeline:
-                        buildResult = ExecuteRawFileBuild(packageName);
-                        break;
-                    default:
-                        Debug.LogError($"Unsupported build pipeline: {pipeline}");
-                        continue;
-                }
+                BuildResult buildResult = ExecutePackageBuild(packageName, pipeline);
+                if (buildResult == null)
+                    continue;
 
                 if (buildResult != null && buildResult.Success)
                 {
@@ -282,7 +303,7 @@ namespace BMC.Build.Editor
 
             LegacyBuildPipeline pipeline = new LegacyBuildPipeline();
             var buildResult = pipeline.Run(buildParameters, true);
-            if (buildResult.Success)
+            if (buildResult.Success && !Application.isBatchMode)
                 EditorUtility.RevealInFinder(buildResult.OutputPackageDirectory);
             return buildResult;
         }
@@ -316,7 +337,7 @@ namespace BMC.Build.Editor
 
             RawFileBuildPipeline pipeline = new RawFileBuildPipeline();
             var buildResult = pipeline.Run(buildParameters, true);
-            if (buildResult.Success)
+            if (buildResult.Success && !Application.isBatchMode)
                 EditorUtility.RevealInFinder(buildResult.OutputPackageDirectory);
             return buildResult;
         }

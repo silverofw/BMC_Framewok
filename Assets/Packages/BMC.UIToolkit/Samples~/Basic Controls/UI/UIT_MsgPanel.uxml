@@ -5,8 +5,10 @@
             <bmc:UILabel name="title" class="bmc-title" />
             <bmc:UILabel name="info" class="bmc-text" />
             <ui:VisualElement name="button-row" class="bmc-button-row">
-                <bmc:UIButton name="cancel-button" text="Cancel" local-key="COMMON_CANCEL" class="bmc-button" />
-                <bmc:UIButton name="confirm-button" text="OK" local-key="COMMON_OK" class="bmc-button bmc-button--primary" />
+                <!-- 必須是 JoypadItem：MsgPanel 靠它做左右選取／A 確認／B 取消。
+                     順序與 uGUI 版相同：[0] 取消、[1] 確認，開啟時預設停在取消。 -->
+                <bmc:JoypadItem name="cancel-button" text="Cancel" local-key="COMMON_CANCEL" class="bmc-button" />
+                <bmc:JoypadItem name="confirm-button" text="OK" local-key="COMMON_OK" class="bmc-button bmc-button--primary" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

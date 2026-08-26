@@ -7,8 +7,8 @@ namespace BMC.UIToolkit
     /// UI Toolkit 版元件展示櫃，對應 uGUI 版 BMC.UI 的 PreviewPanel。
     ///
     /// 與 uGUI 版相同定位：內容主要寫在 UXML 裡，程式只負責互動驗證。
-    /// 用途是快速確認三件事——主題字型有沒有掛上、UIButton 的按壓回饋與
-    /// 啟用狀態是否正常、共用樣式類別（bmc-title／bmc-text／bmc-button）長什麼樣。
+    /// 用途是快速確認：主題字型、UIButton 按壓回饋、UIToggle／UIToggleGroup、
+    /// 以及共用樣式類別（bmc-title／bmc-text／bmc-button）長什麼樣。
     /// </summary>
     public class PreviewPanel : UIPanel
     {
@@ -35,8 +35,8 @@ namespace BMC.UIToolkit
 
         public static async UniTask<PreviewPanel> Show(UILayer layer = UILayer.UI_Top)
         {
-            await UIMgr.Instance.EnsureRuntimeRootAsync();
-            return await UIMgr.Instance.ShowPanel<PreviewPanel>(layer);
+            await UITMgr.Instance.EnsureRuntimeRootAsync();
+            return await UITMgr.Instance.ShowPanel<PreviewPanel>(layer);
         }
 
         protected override void OnInit()
@@ -62,6 +62,7 @@ namespace BMC.UIToolkit
 
             InitTabs();
             InitFontEffects();
+            InitToggles();
         }
 
         private void HandleCountClicked()
@@ -113,6 +114,35 @@ namespace BMC.UIToolkit
             var button = Root.Q<UIButton>(buttonName);
             if (button != null)
                 button.OnClick += () => ApplyFontEffect(fxClass);
+        }
+
+        private void InitToggles()
+        {
+            var toggle = Root.Q<UIToggle>("preview-toggle");
+            var toggleState = Root.Q<Label>("toggle-state");
+            if (toggle != null && toggleState != null)
+            {
+                toggleState.text = $"UIToggle isOn: {toggle.IsOn}";
+                toggle.OnValueChanged += on => toggleState.text = $"UIToggle isOn: {on}";
+            }
+
+            var group = Root.Q<UIToggleGroup>("preview-toggle-group");
+            var groupState = Root.Q<Label>("toggle-group-state");
+            if (group == null || groupState == null)
+                return;
+
+            void RefreshGroupState()
+            {
+                var active = group.GetActiveToggle();
+                groupState.text = active != null ? $"Active: {active.text}" : "Active: (none)";
+            }
+
+            foreach (var child in group.Query<UIToggle>().ToList())
+                child.OnValueChanged += _ => RefreshGroupState();
+
+            // 群組在掛上 panel 後才校正單選，那一幀的 GetActiveToggle 可能還是多顆開著，
+            // 延後到下一幀再讀一次才是校正後的結果。
+            group.schedule.Execute(RefreshGroupState).ExecuteLater(0);
         }
 
         /// <summary>

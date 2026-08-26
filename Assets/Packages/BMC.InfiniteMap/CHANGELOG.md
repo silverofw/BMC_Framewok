@@ -1,7 +1,22 @@
-# Changelog
+﻿# Changelog
 
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
+
+## [1.0.16] - 2026-08-23
+
+### Removed
+- 拆掉 chunk 載入流程的 `[DIAG]` 診斷鷹架(`InfiniteWorldController.LoadChunkFromDiskAsync`
+  六處、`World.DoUpdateFocusAsync` 兩處)。這批 log 是先前排查 chunk 漏載/黑塊問題時加的，
+  功能穩定後就只剩噪音，其中兩處特別吵：
+  - `data 為空/解析失敗，改用 OnGenerateEmptyChunk` 用的是 `LogWarning`，但走
+    `OnGenerateEmptyChunk` 是**正常路徑** —— Gate 場景的無邊際海洋就是這樣即時生成、
+    不存檔的，一進場就固定噴滿載入半徑內的每一個 chunk。
+  - `World.DoUpdateFocusAsync` 那兩行每次焦點更新都印，其中一行還把整個 `neededChunks`
+    集合 join 成字串，角色每跨一格 chunk 就吐一次。
+  順手把只為了餵這些 log 而拆出來的 `localExists`、`locationValid` 兩個暫存變數收回
+  `if` 條件裡。真正的錯誤處理(`[IO]` 讀檔/解析失敗、`[Generator]` 產生器例外、
+  未註冊 `OnEntitySpawn` 的警告)全部保留。
 
 ## [1.0.15] - 2026-08-14
 

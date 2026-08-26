@@ -36,8 +36,17 @@ namespace BMC.UI
 
         public bool IsHide => !rootPanel?.activeSelf ?? false;
 
+        /// <summary>
+        /// 這個面板是在哪一幀開啟的。用來跟其他 UI 系統的面板比較先後 ——
+        /// 專案同時跑 uGUI 與 UI Toolkit 兩套時，「輸入該給誰」的答案是
+        /// 「誰比較晚開就給誰」，而兩邊的畫布沒有共同的 z 序可以比。
+        /// UI Toolkit 版 BMC.UIToolkit.UIPanel 有同名的欄位，語意一致。
+        /// </summary>
+        public int OpenFrame { get; private set; }
+
         public void Init(UICanvasType uICanvasType = UICanvasType.SCENE_UI_1)
         {
+            OpenFrame = Time.frameCount;
             crtCanvasType = uICanvasType;
             // 初始化時取得動畫組件
             _animator = GetComponent<IUIPanelAnimator>();

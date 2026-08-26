@@ -6,11 +6,37 @@ using BMC.Core;
 
 namespace BMC.UIToolkit
 {
+    /// <summary>
+    /// UI 事件識別碼。INPUT_ 系列刻意與 uGUI 版 BMC.UI.UIEvent 同名同語意，
+    /// 專案既有的輸入層只要多送一份到 BMC.UIToolkit.UITMgr.eventHandler，
+    /// 兩套 UI 的手把操作行為就會一致；本套件也附了 BMC.UIToolkit.Joypad 這個
+    /// 可選組件當作預設的輸入來源（見 Runtime/Joypad）。
+    /// </summary>
     public enum UIEvent
     {
         NONE = 0,
 
         AUDIO_BUTTON_CLICK,
+
+        INPUT_UP,
+        INPUT_DOWN,
+        INPUT_LEFT,
+        INPUT_RIGHT,
+
+        INPUT_A,
+        INPUT_B,
+        INPUT_X,
+        INPUT_Y,
+
+        INPUT_SHOULDER_L,
+        INPUT_SHOULDER_R,
+        INPUT_TRIGGER_L,
+        INPUT_TRIGGER_R,
+
+        INPUT_START,
+        INPUT_SELECT,
+
+        INPUT_STICK_R,
     }
 
     /// <summary>
@@ -40,7 +66,11 @@ namespace BMC.UIToolkit
         UI_Debug,
     }
 
-    public class UIMgr : Singleton<UIMgr>
+    /// <summary>
+    /// UI Toolkit 版的介面管理員。類別名刻意做成 UITMgr，
+    /// 以免與 uGUI 版 BMC.UI.UIMgr 在同一個檔案裡撞名。
+    /// </summary>
+    public partial class UITMgr : Singleton<UITMgr>
     {
         private static readonly UILayer[] GlobalLayerOrder =
         {
@@ -92,6 +122,9 @@ namespace BMC.UIToolkit
         {
             panels = new List<UIPanel>();
             IsSceneInit = false;
+
+            // 統一在這裡把輸入事件轉發到最上層的 IJoypadPanel（實作見 UITMgr.Joypad.cs）
+            RegisterGlobalJoypadEvents();
         }
 
         /// <summary>
@@ -107,7 +140,7 @@ namespace BMC.UIToolkit
             var document = rootGo.GetComponent<UIDocument>();
             if (document == null)
             {
-                Log.Error($"[UIMgr] {ASSET_UI_ROOT} 缺少 UIDocument 元件");
+                Log.Error($"[UITMgr] {ASSET_UI_ROOT} 缺少 UIDocument 元件");
                 return;
             }
 
@@ -184,7 +217,7 @@ namespace BMC.UIToolkit
         {
             if (!ResMgr.Instance.Check(address))
             {
-                Log.Error($"[UIMgr] 資源位址不存在: '{address}'。請確認 BMC.UIToolkit 的 Basic Controls 資源已加入資源收集器。");
+                Log.Error($"[UITMgr] 資源位址不存在: '{address}'。請確認 BMC.UIToolkit 的 Basic Controls 資源已加入資源收集器。");
                 return null;
             }
 
@@ -209,7 +242,28 @@ namespace BMC.UIToolkit
 
         public void ResetSceneRoot()
         {
-            panels.RemoveAll(p => IsSceneLayer(p.Layer));
+            // 【要走完整的關閉流程，不能只把清單清掉】場景層的面板可能同時是手把面板
+            // （會留在 joypadPanels 裡）、可能接管了外部狀態（例如把 uGUI 的
+            // UIMgr.UIMaskControl 換掉）、也可能有排程或 CancellationToken 要收。
+            // 只從 panels 移除的話這些全部殘留。
+            //
+            // 實際踩過：從遊戲選單登出回主畫面、再進遊戲，殘留的舊 GamePanel 還在手把堆疊
+            // 最上層，按鍵打到它，登出確認視窗又跳一次。滑鼠不會有這個症狀 ——
+            // 滑鼠事件走視覺樹，而那棵樹已經隨場景根節點移除了；手把是查堆疊，查得到。
+            //
+            // 先收集再關閉：InternalClose 會回頭動 panels（它要關掉自己的子面板），
+            // 不能邊走訪邊改。
+            var closing = new List<UIPanel>();
+            for (int i = panels.Count - 1; i >= 0; i--)
+            {
+                if (!IsSceneLayer(panels[i].Layer))
+                    continue;
+                closing.Add(panels[i]);
+                panels.RemoveAt(i);
+            }
+
+            foreach (var panel in closing)
+                panel.InternalClose();
 
             sceneRoot?.RemoveFromHierarchy();
             sceneRoot = null;

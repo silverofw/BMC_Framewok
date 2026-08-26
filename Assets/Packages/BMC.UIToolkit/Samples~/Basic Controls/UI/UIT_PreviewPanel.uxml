@@ -24,6 +24,20 @@
                 </ui:VisualElement>
                 <ui:Label text="OnClick fired: 0" name="click-count" class="bmc-hint" />
 
+                <ui:Label text="UIToggle" class="bmc-section-title" />
+                <ui:VisualElement class="bmc-button-row">
+                    <bmc:UIToggle text="Toggle" name="preview-toggle" class="bmc-toggle" />
+                </ui:VisualElement>
+                <ui:Label text="UIToggle isOn: true" name="toggle-state" class="bmc-hint" />
+
+                <ui:Label text="UIToggleGroup（單選）" class="bmc-section-title" />
+                <bmc:UIToggleGroup name="preview-toggle-group" class="bmc-toggle-group">
+                    <bmc:UIToggle text="A" name="toggle-a" is-on="true" class="bmc-toggle" />
+                    <bmc:UIToggle text="B" name="toggle-b" is-on="false" class="bmc-toggle" />
+                    <bmc:UIToggle text="C" name="toggle-c" is-on="false" class="bmc-toggle" />
+                </bmc:UIToggleGroup>
+                <ui:Label text="Active: A" name="toggle-group-state" class="bmc-hint" />
+
                 <ui:Label text="內建控制項（驗證主題）" class="bmc-section-title" />
                 <ui:Toggle label="Toggle" name="preview-toggle" />
                 <ui:Slider label="Slider" name="preview-slider" low-value="0" high-value="100" value="40" />

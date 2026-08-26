@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.uitoolkit",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "displayName": "BMC UI Toolkit System",
   "description": "BMC 通用介面系統（UI Toolkit 版）。",
   "unity": "6000.0",
@@ -14,7 +14,7 @@
   "samples": [
     {
       "displayName": "Basic Controls",
-      "description": "套件內建的通用介面資源（MsgPanel／Toast 的 UXML、共用樣式與預設主題）。資源位址一律以 UIT_ 為前綴，避免與 uGUI 版 BMC.UI 的同名資源衝突。",
+      "description": "套件內建的通用介面資源（MsgPanel／Toast／LoadPanel 的 UXML、共用樣式、預設主題與基礎元件）。資源位址一律以 UIT_ 為前綴，避免與 uGUI 版 BMC.UI 的同名資源衝突。",
       "path": "Samples~/Basic Controls"
     },
     {

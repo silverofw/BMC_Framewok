@@ -1,4 +1,4 @@
-using BMC.Core;
+﻿using BMC.Core;
 using Cysharp.Threading.Tasks;
 using Google.Protobuf;
 using InfiniteMap.Proto;
@@ -509,8 +509,6 @@ namespace InfiniteMap.Unity
 
         private async UniTask<Chunk> LoadChunkFromDiskAsync(CPos cPos)
         {
-            Debug.Log($"[DIAG][LoadChunk] 開始載入 {cPos} (WorldId={WorldId}, IsEditorMode={IsEditorMode})");
-
             foreach(var s in _subSystem)
             {
                 s.OnChunkLoaded(cPos);
@@ -521,10 +519,7 @@ namespace InfiniteMap.Unity
             string localFilePath = Path.Combine(_saveDirectory, preferredFileName);
             byte[] data = null;
 
-            bool localExists = File.Exists(localFilePath);
-            Debug.Log($"[DIAG][LoadChunk] {cPos} 本地存檔路徑: {localFilePath} 存在={localExists}");
-
-            if (localExists)
+            if (File.Exists(localFilePath))
             {
                 var fileLock = GetFileLock(localFilePath);
                 await fileLock.WaitAsync();
@@ -536,13 +531,10 @@ namespace InfiniteMap.Unity
             {
                 try
                 {
-                    bool locationValid = ResMgr.Instance.Check(location);
-                    Debug.Log($"[DIAG][LoadChunk] {cPos} 改查 YooAsset 預設資源: location={location} valid={locationValid}");
-                    if (locationValid)
+                    if (ResMgr.Instance.Check(location))
                     {
                         var asset = await ResMgr.Instance.LoadAssetAsync<TextAsset>(location);
                         if (asset != null) data = asset.bytes;
-                        Debug.Log($"[DIAG][LoadChunk] {cPos} YooAsset 讀取結果: asset={(asset != null ? "OK" : "NULL")} bytes={(data?.Length ?? -1)}");
                     }
                 }
                 catch (Exception e)
@@ -575,12 +567,9 @@ namespace InfiniteMap.Unity
 
             if (proto == null && OnGenerateEmptyChunk != null)
             {
-                Debug.LogWarning($"[DIAG][LoadChunk] {cPos} data 為空/解析失敗，改用 OnGenerateEmptyChunk 產生預設區塊！");
                 try { proto = OnGenerateEmptyChunk.Invoke(WorldId, cPos); }
                 catch (Exception e) { Debug.LogError($"[Generator] 呼叫 OnGenerateEmptyChunk 發生錯誤 {cPos}: {e}"); }
             }
-
-            Debug.Log($"[DIAG][LoadChunk] {cPos} proto={(proto != null ? $"OK entities={proto.Entities.Count}" : "NULL")}");
 
             if (proto != null)
             {

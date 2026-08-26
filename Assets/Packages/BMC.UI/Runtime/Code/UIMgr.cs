@@ -84,6 +84,12 @@ namespace BMC.UI
         public List<JoypadPanel> joypadPanels = new List<JoypadPanel>();
         public bool IsSceneInit { get; private set; }
 
+        /// <summary>
+        /// 全域 Canvas 是否已就緒。LoadGlobalCanvas 要透過 ResMgr 載入 Canvas 資源，
+        /// 所以在補丁流程跑完之前一直是 false —— 那段期間任何 ShowPanel 都會空引用。
+        /// </summary>
+        public bool IsGlobalCanvasReady => globalCanvas != null;
+
 
         private Transform globalUIRoot;
         private Dictionary<UICanvasType, Transform> globalCanvas;
@@ -186,6 +192,17 @@ namespace BMC.UI
             UnregisterGlobalJoypadEvents();
         }
 
+        /// <summary>
+        /// 最上層 JoypadPanel 是在哪一幀開的，沒有的話回 -1。
+        ///
+        /// 【給誰用】專案同時跑 uGUI 與 UI Toolkit 兩套時，需要判斷「這顆按鍵該給哪一邊」。
+        /// 判斷依據必須是「誰在吃手把輸入」也就是 JoypadPanel，而不是「誰有遮罩」——
+        /// 有遮罩不代表會吃輸入（例如純粹擋住玩家亂點的空殼面板），拿 maskControl 當
+        /// 依據會讓那種面板攔下不屬於它的按鍵。
+        /// UI Toolkit 版可以從 OpenPanels 自行算出同樣的值。
+        /// </summary>
+        public int TopJoypadOpenFrame => GetTopJoypadPanel()?.OpenFrame ?? -1;
+
         // 取得目前最上層的 JoypadPanel
         private JoypadPanel GetTopJoypadPanel()
         {
@@ -265,6 +282,21 @@ namespace BMC.UI
 
         public void ResetSceneUIRoot()
         {
+            // 【場景面板要先從遮罩計數裡拿掉】下面的 Destroy(sceneUIRoot) 只是把物件毀掉，
+            // uiMaskControlCount 裡的參考不會自己消失；而 Destroy 是延後到當幀結尾才生效，
+            // 所以當下也不能靠 p == null 篩。必須趁還掛在場景根節點底下時先移除。
+            //
+            // 不清的話 Count 會永遠停在 > 0，之後任何「讀這個計數來決定要不要放開輸入」的
+            // 地方都會拿到 true。實際踩過：UI Toolkit 的面板在關閉時會用
+            // uiMaskControlCount.Count > 0 回推遊戲層的輸入遮罩旗標，換場景之後那個旗標
+            // 就再也回不去 false，手把按鍵整個失效。
+            //
+            // 這裡刻意不呼叫 UIMaskControl?.Invoke(false)：換場景流程可能剛剛才刻意關掉
+            // 輸入(見呼叫端的 CloseInput)，在這裡放開會讓玩家在清場中途又能操作。
+            // 只把計數修正成真實值，要不要放開由呼叫端決定。
+            if (sceneUIRoot != null)
+                uiMaskControlCount.RemoveAll(p => p == null || p.transform.IsChildOf(sceneUIRoot));
+
             joypadPanels = new();
             sceneCanvas = new();
             if (sceneUIRoot != null)

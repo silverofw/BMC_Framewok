@@ -1,0 +1,24 @@
+{
+  "name": "com.bmc.build",
+  "version": "1.0.0",
+  "displayName": "BMC Build",
+  "description": "BMC 出版流程：HybridCLR 熱更 DLL、YooAsset 資源包、CDN 部署資料夾與母包，一鍵完成。專案專屬設定集中在一份 BuildProfile 資產裡，另提供 batchmode 進入點做不開 Unity 的打包。",
+  "unity": "6000.0",
+  "type": "library",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/silverofw/BMC_Framewok.git",
+    "directory": "Assets/Packages/BMC.Build"
+  },
+  "author": {
+    "name": "BMC Studio",
+    "url": "https://github.com/silverofw"
+  },
+  "keywords": [
+    "bmc",
+    "build",
+    "hybridclr",
+    "yooasset",
+    "ci"
+  ]
+}

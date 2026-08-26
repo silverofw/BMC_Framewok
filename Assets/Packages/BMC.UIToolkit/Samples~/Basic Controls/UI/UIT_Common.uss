@@ -508,3 +508,255 @@ MultiListView .unity-collection-view__item:focus {
 .bmc-chat-input-row .bmc-button {
     flex-shrink: 0;
 }
+
+/* ---------- 除錯面板 ---------- */
+
+/* 對齊 uGUI 版 DebugPanel：左直欄分頁、右單欄滿寬按鈕，
+   選取狀態用白框而不是藍色底。不走 .bmc-panel-box，避免卡片外框。 */
+.bmc-debug-mask {
+    background-color: rgb(0, 0, 0);
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-left: 48px;
+    padding-top: 72px;
+}
+
+.bmc-debug-box {
+    width: 720px;
+    max-width: 90%;
+    max-height: 80%;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.bmc-debug-body {
+    flex-direction: row;
+    flex-grow: 1;
+    min-height: 0;
+    align-items: stretch;
+}
+
+.bmc-debug-tab-scroll {
+    width: 168px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    min-height: 0;
+}
+
+.bmc-debug-tab-list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.bmc-debug-tab {
+    width: 100%;
+    height: 40px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 2px;
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0);
+    background-color: rgb(54, 54, 54);
+    color: rgb(235, 235, 235);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+}
+
+.bmc-debug-tab:hover {
+    background-color: rgb(70, 70, 70);
+}
+
+.bmc-debug-tab--active {
+    border-color: rgb(255, 255, 255);
+}
+
+.bmc-debug-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    min-width: 0;
+    margin-left: 20px;
+}
+
+.bmc-debug-grid {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+/* 單欄滿寬：gridWidth = 1，上下移動一次一顆。 */
+.bmc-debug-item {
+    width: auto;
+    min-width: 0;
+    height: 40px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 2px;
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0);
+    background-color: rgb(54, 54, 54);
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.bmc-debug-item.bmc-joypad-item--selected {
+    background-color: rgb(54, 54, 54);
+    color: rgb(255, 255, 255);
+    border-color: rgb(255, 255, 255);
+}
+
+.bmc-debug-item.bmc-joypad-item--selected:hover {
+    background-color: rgb(70, 70, 70);
+}
+
+/* ---------- 手把游標 ---------- */
+
+/* JoypadItem 的選取狀態。UI Toolkit 內建的焦點框在部分主題下幾乎看不見，
+   而且我們刻意讓 JoypadItem 不可聚焦（避免與內建焦點導覽搶游標），
+   所以選取一律由這個 class 表達。 */
+.bmc-joypad-item--selected {
+    background-color: rgb(70, 110, 200);
+    color: rgb(255, 255, 255);
+    border-width: 1px;
+    border-color: rgb(150, 180, 255);
+}
+
+.bmc-joypad-item--selected:hover {
+    background-color: rgb(90, 130, 220);
+}
+
+/* ---------- LoadPanel ---------- */
+
+/* 整片遮罩。起始為全透明，加上 --shown 後由 transition 淡入；
+   時間 0.5s 必須與 LoadPanel.ANIMATION_TIME 一致，否則會出現
+   「動畫還沒播完就開始跑進度」或「黑畫面多停一下」。 */
+.bmc-load-cover {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(12, 12, 16);
+
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-in-out;
+}
+
+.bmc-load-cover--shown {
+    opacity: 1;
+}
+
+.bmc-load-bar-root {
+    width: 46%;
+    min-width: 320px;
+    align-items: center;
+}
+
+/* 進度條底槽 */
+.bmc-load-bar {
+    width: 100%;
+    height: 14px;
+    background-color: rgb(38, 38, 46);
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+/* 實際進度：寬度由 LoadPanel 以百分比逐幀寫入，
+   這裡不設 transition，平滑已經由 MoveTowards 做過了，
+   再疊一層補間會讓進度看起來慢半拍。 */
+.bmc-load-bar__fill {
+    width: 0;
+    height: 100%;
+    background-color: rgb(70, 110, 200);
+    border-radius: 7px;
+}
+
+.bmc-load-progress {
+    font-size: 16px;
+    color: rgb(230, 230, 238);
+    -unity-font-style: bold;
+    margin-top: 10px;
+}
+
+/* ---------- UIToggle ---------- */
+
+.bmc-toggle-group {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.bmc-toggle {
+    /* 勾選框用 absolute 浮在左側 padding，不跟 Button 自己畫的文字搶 flex 排版 */
+    min-width: 104px;
+    height: 34px;
+    margin-left: 6px;
+    margin-right: 6px;
+    padding-left: 32px;
+    padding-right: 12px;
+    border-width: 0;
+    border-radius: 4px;
+    background-color: rgb(70, 70, 80);
+    color: rgb(240, 240, 245);
+    font-size: 14px;
+    -unity-text-align: middle-left;
+}
+
+.bmc-toggle:hover {
+    background-color: rgb(90, 90, 102);
+}
+
+.bmc-toggle:active {
+    background-color: rgb(55, 55, 64);
+}
+
+.bmc-toggle--on {
+    background-color: rgb(70, 110, 200);
+    color: rgb(255, 255, 255);
+}
+
+.bmc-toggle--on:hover {
+    background-color: rgb(90, 130, 220);
+}
+
+.bmc-toggle__box {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    width: 18px;
+    height: 18px;
+    align-items: center;
+    justify-content: center;
+    border-width: 1px;
+    border-color: rgb(150, 150, 160);
+    border-radius: 3px;
+    background-color: rgb(30, 30, 36);
+}
+
+.bmc-toggle--on .bmc-toggle__box {
+    border-color: rgb(150, 180, 255);
+    background-color: rgb(40, 70, 150);
+}
+
+.bmc-toggle__mark {
+    font-size: 13px;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
+}

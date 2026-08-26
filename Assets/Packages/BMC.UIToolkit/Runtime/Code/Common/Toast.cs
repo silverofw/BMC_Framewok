@@ -40,10 +40,10 @@ namespace BMC.UIToolkit
 
         private static async UniTaskVoid ShowInternal(string info, float staySeconds)
         {
-            await UIMgr.Instance.EnsureRuntimeRootAsync();
+            await UITMgr.Instance.EnsureRuntimeRootAsync();
 
             // 允許同時存在多則提示，因此關閉重複檢查
-            var panel = await UIMgr.Instance.ShowPanel<Toast>(UILayer.UI_Debug, false);
+            var panel = await UITMgr.Instance.ShowPanel<Toast>(UILayer.UI_Debug, false);
             panel?.Play(info, staySeconds);
         }
 

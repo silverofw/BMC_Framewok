@@ -27,7 +27,7 @@ MonoBehaviour:
     Groups:
     - GroupName: UI
       GroupDesc: 
-      AssetTags: 
+      AssetTags: BUILTIN
       ActiveRuleName: EnableGroup
       Collectors:
       - CollectPath: Assets/Packages/BMC.UI/Samples/Basic Controls/Prefabs
@@ -56,7 +56,7 @@ MonoBehaviour:
         UserData: 
     - GroupName: DLL
       GroupDesc: 
-      AssetTags: 
+      AssetTags: BUILTIN
       ActiveRuleName: EnableGroup
       Collectors:
       - CollectPath: Assets/yoo/DefaultPackage/DLL
@@ -69,7 +69,7 @@ MonoBehaviour:
         UserData: 
     - GroupName: Scene
       GroupDesc: 
-      AssetTags: 
+      AssetTags: BUILTIN
       ActiveRuleName: EnableGroup
       Collectors:
       - CollectPath: Assets/yoo/DefaultPackage/Scene
@@ -82,7 +82,7 @@ MonoBehaviour:
         UserData: 
     - GroupName: Config
       GroupDesc: 
-      AssetTags: 
+      AssetTags: BUILTIN
       ActiveRuleName: EnableGroup
       Collectors:
       - CollectPath: Assets/yoo/DefaultPackage/Config
@@ -95,7 +95,7 @@ MonoBehaviour:
         UserData: 
     - GroupName: Audio
       GroupDesc: 
-      AssetTags: 
+      AssetTags: BUILTIN
       ActiveRuleName: EnableGroup
       Collectors:
       - CollectPath: Assets/yoo/DefaultPackage/Audio

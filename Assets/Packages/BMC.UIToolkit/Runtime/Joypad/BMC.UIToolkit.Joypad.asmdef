@@ -1,0 +1,18 @@
+{
+    "name": "BMC.UIToolkit.Joypad",
+    "rootNamespace": "",
+    "references": [
+        "BMC.Core",
+        "BMC.UIToolkit",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

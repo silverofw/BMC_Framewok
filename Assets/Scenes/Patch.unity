@@ -364,11 +364,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cae8146cb7585947be7c267dace2834, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Code::Patch
-  playMode: 0
+  playMode: 1
+  buildPlayMode: 2
   patchWindow: {fileID: 4607067772088851818}
   cdnUrl: https://cdn.pages.dev/
   packages:
   - DefaultPackage
+  patchDlls:
+  - BMC.Patch.Core.dll
+  - CodePatch.dll
 --- !u!4 &1769982884
 Transform:
   m_ObjectHideFlags: 0

@@ -77,3 +77,10 @@ crashlytics-build.properties
 .utmp
 /HybridCLRData
 /yoo
+# YooAsset 內建資源：每次出版由 TaskCopyBuildinFiles 清空重寫，是建置產物不是原始碼
+/[Aa]ssets/[Ss]treamingAssets/yoo.meta
+/[Aa]ssets/[Ss]treamingAssets/yoo/*
+/[Aa]ssets/[Ss]treamingAssets.meta
+
+# VSCode 個人設定
+.vscode/

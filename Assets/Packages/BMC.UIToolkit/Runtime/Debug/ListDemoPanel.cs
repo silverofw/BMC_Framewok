@@ -35,8 +35,8 @@ namespace BMC.UIToolkit
 
         public static async UniTask<ListDemoPanel> Show(UILayer layer = UILayer.UI_Top)
         {
-            await UIMgr.Instance.EnsureRuntimeRootAsync();
-            return await UIMgr.Instance.ShowPanel<ListDemoPanel>(layer);
+            await UITMgr.Instance.EnsureRuntimeRootAsync();
+            return await UITMgr.Instance.ShowPanel<ListDemoPanel>(layer);
         }
 
         protected override void OnInit()
