@@ -38,8 +38,7 @@ namespace BMC.Build.Editor
             var profile = BuildProfile.Find();
             if (profile == null) return;
 
-            if (BuildAll(profile, fastMode: true, buildPlayer: true))
-                CdnSync.Deploy(profile);
+            BuildAll(profile, fastMode: true, buildPlayer: true);
         }
 
         [MenuItem("BMC/Build/2b. 只出資源與 CDN 資料夾 (不出母包)", false, 202)]
@@ -48,8 +47,28 @@ namespace BMC.Build.Editor
             var profile = BuildProfile.Find();
             if (profile == null) return;
 
-            if (BuildAll(profile, fastMode: true, buildPlayer: false))
-                CdnSync.Deploy(profile);
+            BuildAll(profile, fastMode: true, buildPlayer: false);
+        }
+
+        /// <summary>
+        /// 【為什麼上傳要獨立成一個選單，而不是接在出版後面】Cloudflare Pages 免費方案
+        /// 每月 500 次 deployment，Direct Upload 也計入。反覆測試打包很容易吃掉配額，
+        /// 所以出版只負責把本機的 CDN 資料夾整理好，要不要送上去由人決定。
+        /// </summary>
+        [MenuItem("BMC/Build/3. 上傳 CDN 到 Cloudflare Pages", false, 203)]
+        public static void MenuDeployCdn()
+        {
+            var profile = BuildProfile.Find();
+            if (profile == null) return;
+
+            if (!EditorUtility.DisplayDialog("上傳 CDN",
+                    $"要把 {profile.cdnRoot} 上傳到 Cloudflare Pages 專案 "
+                    + $"\"{profile.cdnProjectName}\" 嗎？" + System.Environment.NewLine
+                    + System.Environment.NewLine
+                    + "會計入該專案每月的 deployment 配額。", "上傳", "取消"))
+                return;
+
+            CdnSync.Deploy(profile);
         }
 
         [MenuItem("BMC/Build/產生 build.bat (不開 Unity 打包用)", false, 300)]
