@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Cysharp.Threading.Tasks;
@@ -72,14 +72,27 @@ namespace BMC.UIToolkit
     /// </summary>
     public partial class UITMgr : Singleton<UITMgr>
     {
-        private static readonly UILayer[] GlobalLayerOrder =
+        /// <summary>
+        /// 所有分層容器，**照 UILayer 的宣告順序**建立，越後面越上層。
+        ///
+        /// 【為什麼不把場景層另外掛成一棵子樹】原本的做法是把整個 sceneRoot 塞進
+        /// 全域 UI_1 底下，結果是「任何 SCENE_* 都在全域 UI_2 以下」——
+        /// 跟 enum 的順序完全對不上。實際症狀：從 UI_2 的面板開一張 SCENE_UI_2 的面板，
+        /// 輸入正常（手把堆疊看的是開啟順序）但畫面被蓋在後面，看起來像沒開起來。
+        ///
+        /// uGUI 版是每一層各自一個 Canvas、用 sortingOrder 排，層級本來就照 enum 交錯。
+        /// 這裡改成同一套語意：全部拉平成兄弟節點，場景層只是「換場景時要清掉的那幾層」，
+        /// 不再是結構上的巢狀關係。
+        /// </summary>
+        private static readonly UILayer[] AllLayerOrder =
         {
-            UILayer.UI_0, UILayer.UI_1, UILayer.UI_2, UILayer.UI_3, UILayer.UI_4, UILayer.UI_Top, UILayer.UI_Debug,
-        };
-
-        private static readonly UILayer[] SceneLayerOrder =
-        {
-            UILayer.SCENE_UI_0, UILayer.SCENE_UI_1, UILayer.SCENE_UI_2, UILayer.SCENE_UI_3, UILayer.SCENE_UI_4, UILayer.SCENE_UI_TOP,
+            UILayer.UI_0, UILayer.SCENE_UI_0,
+            UILayer.UI_1, UILayer.SCENE_UI_1,
+            UILayer.UI_2, UILayer.SCENE_UI_2,
+            UILayer.UI_3, UILayer.SCENE_UI_3,
+            UILayer.UI_4, UILayer.SCENE_UI_4,
+            UILayer.UI_Top, UILayer.SCENE_UI_TOP,
+            UILayer.UI_Debug,
         };
 
         private const string ASSET_UI_ROOT = "UIDocumentRoot";
@@ -110,10 +123,7 @@ namespace BMC.UIToolkit
 
         private GameObject rootGo;
         private UIDocument rootDocument;
-        private Dictionary<UILayer, VisualElement> globalLayers;
-
-        private VisualElement sceneRoot;
-        private Dictionary<UILayer, VisualElement> sceneLayers;
+        private Dictionary<UILayer, VisualElement> layers;
         public bool IsSceneInit { get; private set; }
 
         private List<UIPanel> panels;
@@ -162,7 +172,7 @@ namespace BMC.UIToolkit
             rootDocument.rootVisualElement.style.width = Length.Percent(100);
             rootDocument.rootVisualElement.style.height = Length.Percent(100);
 
-            globalLayers = BuildLayers(rootDocument.rootVisualElement, GlobalLayerOrder);
+            layers = BuildLayers(rootDocument.rootVisualElement, AllLayerOrder);
         }
 
         /// <summary>
@@ -229,14 +239,9 @@ namespace BMC.UIToolkit
         /// </summary>
         public void CreateSceneRoot()
         {
+            // 分層容器在 UseRootDocument 就全部建好了（含場景層），這裡只要把上一個場景
+            // 留下的東西清乾淨再標記可用 —— 容器本身不重建，順序才不會跑掉。
             ResetSceneRoot();
-
-            sceneRoot = new VisualElement { name = "Scene_UIRoot" };
-            sceneRoot.StretchToParentSize();
-            sceneRoot.pickingMode = PickingMode.Ignore;
-            globalLayers[UILayer.UI_1].Add(sceneRoot);
-
-            sceneLayers = BuildLayers(sceneRoot, SceneLayerOrder);
             IsSceneInit = true;
         }
 
@@ -265,9 +270,14 @@ namespace BMC.UIToolkit
             foreach (var panel in closing)
                 panel.InternalClose();
 
-            sceneRoot?.RemoveFromHierarchy();
-            sceneRoot = null;
-            sceneLayers = null;
+            // 容器留著（順序由 AllLayerOrder 決定），只清掉裡面的東西
+            if (layers != null)
+            {
+                foreach (var layer in AllLayerOrder)
+                    if (IsSceneLayer(layer) && layers.TryGetValue(layer, out var ve))
+                        ve.Clear();
+            }
+
             IsSceneInit = false;
         }
 
@@ -303,22 +313,19 @@ namespace BMC.UIToolkit
 
         private VisualElement GetLayer(UILayer layer)
         {
-            if (IsSceneLayer(layer))
-            {
-                if (!IsSceneInit)
-                {
-                    Log.Error($"[UILayer] 場景尚未初始化: {layer}");
-                    return null;
-                }
-                return sceneLayers[layer];
-            }
-
-            if (globalLayers == null)
+            if (layers == null)
             {
                 Log.Error($"[UILayer] 全域根節點尚未建立，請先呼叫 LoadGlobalRoot／UseRootDocument／EnsureRuntimeRootAsync: {layer}");
                 return null;
             }
-            return globalLayers[layer];
+
+            if (IsSceneLayer(layer) && !IsSceneInit)
+            {
+                Log.Error($"[UILayer] 場景尚未初始化: {layer}");
+                return null;
+            }
+
+            return layers[layer];
         }
 
         /// <summary>
@@ -375,8 +382,23 @@ namespace BMC.UIToolkit
         private bool TryGetExisting<T>(out T panel) where T : UIPanel
         {
             panel = GetPanel<T>();
+            if (panel != null)
+                BringToFront(panel);
             return panel != null;
         }
+
+        /// <summary>
+        /// 把已經開著的面板拉到同一層的最上面。
+        ///
+        /// 【為什麼需要】同一層之內是「後加入的畫在上面」，但重複開啟同一張面板時是
+        /// 沿用既有實例、不會重新加入，於是它會停在當初的位置 ——
+        /// 中間若有別的面板開在同一層，再開一次也蓋不過去。
+        /// 有了這一條，「越後面開的越上層」在同層內才真的成立
+        /// （跨層的順序由 UILayer 的宣告順序決定，見 AllLayerOrder）。
+        ///
+        /// 場景層的面板沒有初始化時 Root 會是 null，所以要防呆。
+        /// </summary>
+        public void BringToFront(UIPanel panel) => panel?.Root?.BringToFront();
 
         private T CreatePanel<T>(VisualTreeAsset asset, UILayer layer) where T : UIPanel, new()
         {
