@@ -180,34 +180,51 @@ namespace BMC.Story
             itemTemplate = await ResMgr.Instance.LoadAssetAsync<VisualTreeAsset>(StoryLineItem.TemplateAddress, false);
         }
 
+        private UniTask refreshQueue = UniTask.CompletedTask;
+
+        /// <summary>
+        /// 確認過的真實案例：同一次點擊，觸發面板開啟的按鈕 OnPointerUp 有時會被送出兩次
+        /// (舊有的 uGUI 按鈕/輸入系統行為，不是這裡能處理的範圍)，導致這個方法被重疊呼叫——
+        /// 後面那次的 ClearOldLayout 會把前面那次還在非同步載入預覽圖的節點項目從視覺樹上
+        /// 拔掉，載入完成時只能拿到 panel==null。與其去堵輸入端的重複事件，這裡直接讓自己
+        /// 對重疊呼叫具備韌性：用一個簡單的非同步佇列，確保永遠是「前一次完全跑完，才開始
+        /// 清空重建下一次」，不管重疊呼叫的來源是什麼。
+        /// </summary>
         public async UniTask RefreshStoryLayout(StoryNode startNode, StoryPackage package)
         {
             if (startNode == null || package == null)
                 return;
 
-            // 暫時性診斷：Log.Warning 會印呼叫堆疊，用來確認同一次開啟面板期間
-            // RefreshStoryLayout 是不是被呼叫了不只一次(懷疑後面呼叫的 ClearOldLayout
-            // 把前面那次還在非同步載入中的節點項目從視覺樹上拔掉，才會拿到 panel==null)。
-            Log.Warning($"[StoryGraphView] RefreshStoryLayout 呼叫 (startNode={startNode.Id}, nodeCount={package.Nodes.Count})");
+            var previous = refreshQueue;
+            var tcs = new UniTaskCompletionSource();
+            refreshQueue = tcs.Task;
+            await previous;
 
-            await EnsureItemTemplateAsync();
-
-            ClearOldLayout();
-
-            Dictionary<string, StoryNode> idLookup = new Dictionary<string, StoryNode>();
-            foreach (var node in package.Nodes)
+            try
             {
-                if (!string.IsNullOrEmpty(node.Id) && !idLookup.ContainsKey(node.Id))
-                    idLookup.Add(node.Id, node);
+                await EnsureItemTemplateAsync();
+
+                ClearOldLayout();
+
+                Dictionary<string, StoryNode> idLookup = new Dictionary<string, StoryNode>();
+                foreach (var node in package.Nodes)
+                {
+                    if (!string.IsNullOrEmpty(node.Id) && !idLookup.ContainsKey(node.Id))
+                        idLookup.Add(node.Id, node);
+                }
+
+                GenerateNodesBFS(startNode, idLookup);
+                DrawConnections(idLookup);
+
+                if (StoryPlayer.Instance.CrtNode != null)
+                    await ScrollToNode(StoryPlayer.Instance.CrtNode);
+                else
+                    await ScrollToNode(startNode);
             }
-
-            GenerateNodesBFS(startNode, idLookup);
-            DrawConnections(idLookup);
-
-            if (StoryPlayer.Instance.CrtNode != null)
-                await ScrollToNode(StoryPlayer.Instance.CrtNode);
-            else
-                await ScrollToNode(startNode);
+            finally
+            {
+                tcs.TrySetResult();
+            }
         }
 
         private void GenerateNodesBFS(StoryNode startNode, Dictionary<string, StoryNode> idLookup)
