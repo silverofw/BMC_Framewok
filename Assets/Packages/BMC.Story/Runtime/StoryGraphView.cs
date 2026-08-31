@@ -33,6 +33,12 @@ namespace BMC.Story
 
         private VisualTreeAsset itemTemplate;
 
+        /// <summary>
+        /// 已載入的節點項目模板(EnsureItemTemplateAsync 完成後才有值)，供覆寫 ItemFactory 的消費端
+        /// 重複使用同一份模板建立自己的項目子類別，不用另外再載一次。
+        /// </summary>
+        public VisualTreeAsset ItemTemplate => itemTemplate;
+
         public StoryGraphView()
         {
             AddToClassList("story-graph-view");

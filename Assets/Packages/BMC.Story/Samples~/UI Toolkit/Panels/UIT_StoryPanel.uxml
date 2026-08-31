@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" editor-extension-mode="False">
-    <Style src="UIT_StoryPanel.uss" />
+    <Style src="UIT_StoryPanelStyle.uss" />
     <ui:VisualElement name="root" picking-mode="Ignore" class="story-panel">
         <bmc:UILabel name="info-label" class="story-panel__info" />
         <ui:VisualElement name="choice-container" class="story-panel__choices" />

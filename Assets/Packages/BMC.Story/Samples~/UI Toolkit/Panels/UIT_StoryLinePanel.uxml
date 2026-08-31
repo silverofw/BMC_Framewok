@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" editor-extension-mode="False">
-    <Style src="UIT_StoryLinePanel.uss" />
-    <Style src="../Fragments/UIT_StoryLineItem.uss" />
+    <Style src="UIT_StoryLinePanelStyle.uss" />
+    <Style src="../Fragments/UIT_StoryLineItemStyle.uss" />
     <ui:VisualElement name="root" picking-mode="Ignore" class="story-line-panel">
         <ui:VisualElement name="header" picking-mode="Ignore" class="story-line-panel__header">
             <bmc:UIButton name="chapter-button" text="章節" class="story-line-panel__chapter-button" />
