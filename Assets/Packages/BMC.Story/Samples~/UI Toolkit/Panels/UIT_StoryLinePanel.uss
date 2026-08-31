@@ -1,0 +1,75 @@
+.story-line-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(20, 20, 24);
+}
+
+.story-line-panel__header {
+    flex-direction: row;
+    align-items: center;
+    padding: 16px;
+}
+
+.story-line-panel__chapter-button {
+    margin-right: 12px;
+}
+
+.story-line-panel__chapter-text {
+    color: rgb(255, 255, 255);
+    font-size: 20px;
+    -unity-font-style: bold;
+}
+
+.story-line-panel__graph-container {
+    flex-grow: 1;
+}
+
+.story-graph-view {
+    flex-grow: 1;
+}
+
+.story-graph-view__scroll {
+    flex-grow: 1;
+}
+
+.story-graph-view__content {
+    flex-direction: row;
+    padding: 24px;
+}
+
+.story-graph-view__connections {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.story-graph-view__column {
+    flex-direction: column;
+}
+
+.story-line-panel__chapter-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+}
+
+.story-line-panel__chapter-list {
+    flex-direction: column;
+    background-color: rgb(34, 35, 43);
+    padding: 16px;
+    min-width: 320px;
+}
+
+.story-line-panel__chapter-close-button {
+    margin-top: 12px;
+}

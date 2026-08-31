@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit">
+    <ui:Image name="preview-image" picking-mode="Ignore" class="story-line-item__preview" />
+    <bmc:UILabel name="info-label" picking-mode="Ignore" class="story-line-item__label" />
+    <ui:VisualElement name="current-highlight" picking-mode="Ignore" class="story-line-item__highlight" />
+    <ui:VisualElement name="extra-slot" picking-mode="Ignore" class="story-line-item__extra-slot" />
+</ui:UXML>
