@@ -45,7 +45,8 @@ namespace BMC.Build.Editor
                     fastMode: !HasFlag("-bmcFullGenerate"),
                     buildPlayer: !HasFlag("-bmcNoPlayer"));
 
-                if (ok) CdnSync.Deploy(profile);
+                // 上傳要明確指定，理由見 BuildRunner.MenuDeployCdn（deployment 配額）
+                if (ok && HasFlag("-bmcDeploy")) CdnSync.Deploy(profile);
                 return ok;
             });
         }

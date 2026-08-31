@@ -90,6 +90,11 @@ namespace BMC.Build.Editor
                  + "資源升級後那些檔案永遠不會再被下載，只是佔空間。")]
         public bool cdnClearBeforeCopy = true;
 
+        [Tooltip("Cloudflare Pages 的專案名稱（就是 <名稱>.pages.dev 的那一段）。"
+                 + "留空 = 不上傳，只整理本機資料夾。名稱打錯 wrangler 會建立一個新專案"
+                 + "而不是更新既有的，所以要跟後台完全一致。")]
+        public string cdnProjectName = "";
+
         // =========================================================
         // 取得
         // =========================================================

@@ -77,21 +77,135 @@ namespace BMC.Build.Editor
         }
 
         /// <summary>
-        /// 上傳到 Cloudflare Pages。目前只印出該怎麼做 —— 憑證與 wrangler 還沒接。
+        /// 上傳到 Cloudflare Pages（Direct Upload）。
         ///
-        /// 之後要接的話：npx wrangler pages deploy &lt;資料夾&gt; --project-name=&lt;專案名&gt;，
-        /// 需要環境變數 CLOUDFLARE_API_TOKEN 與 CLOUDFLARE_ACCOUNT_ID。
-        /// wrangler 會自己算差異、只上傳變更的檔案，比整包拖曳快得多。
+        /// 走 npx wrangler，不需要全域安裝。wrangler 會比對雜湊、只上傳變更過的檔案，
+        /// 所以雖然每次都指定整個資料夾，實際傳輸量遠小於資料夾大小。
+        ///
+        /// 【憑證】不在這裡處理，交給 wrangler 自己解析：有 CLOUDFLARE_API_TOKEN
+        /// 環境變數就用它，否則用 `npx wrangler login` 存在使用者家目錄的 OAuth 憑證。
+        /// 兩種都不會進版控。
+        ///
+        /// 【為什麼不預設在每次出版時上傳】Cloudflare Pages 免費方案每月 500 次
+        /// deployment，Direct Upload 也計入。反覆測試打包很容易吃掉配額，所以要明確
+        /// 指定才會傳（選單的「上傳 CDN」或批次的 -bmcDeploy）。
         /// </summary>
-        public static void Deploy(BuildProfile profile)
+        /// <returns>成功回傳 true；沒設定專案名稱視為刻意跳過，回傳 false。</returns>
+        public static bool Deploy(BuildProfile profile)
         {
             if (profile == null || string.IsNullOrWhiteSpace(profile.cdnRoot))
-                return;
+                return false;
 
+            if (string.IsNullOrWhiteSpace(profile.cdnProjectName))
+            {
+                Debug.LogWarning("[CdnSync] profile 沒有設定 cdnProjectName，略過上傳。"
+                                 + "（Cloudflare Pages 後台的專案名稱，就是 <名稱>.pages.dev 那一段）");
+                return false;
+            }
+
+            // cdnRoot 指到的是「平台/版本」的上一層（例如 bmc-meow-siege-cdn/CDN），
+            // 而 Pages 要的是站台根目錄，也就是再往上一層。
             string projectRoot = Directory.GetParent(Application.dataPath).FullName;
-            string root = Path.Combine(projectRoot, profile.cdnRoot, "..");
-            Debug.Log($"[CdnSync] CDN 資料夾已就緒，可以直接部署：\n  {Path.GetFullPath(root)}\n"
-                      + "  (自動上傳尚未接上，目前請手動拖曳到 Cloudflare Pages)");
+            string siteRoot = Path.GetFullPath(Path.Combine(projectRoot, profile.cdnRoot, ".."));
+
+            if (!Directory.Exists(siteRoot))
+            {
+                Debug.LogError($"[CdnSync] 要上傳的資料夾不存在：{siteRoot}");
+                return false;
+            }
+
+            string args = $"wrangler pages deploy \"{siteRoot}\" "
+                        + $"--project-name={profile.cdnProjectName} --commit-dirty=true";
+
+            Debug.Log($"[CdnSync] 開始上傳 -> {profile.cdnProjectName}"
+                             + System.Environment.NewLine + "  " + siteRoot);
+            return RunNpx(args, projectRoot);
         }
+
+        /// <summary>
+        /// 執行 npx。Windows 的 npx 是批次檔，不能直接當成執行檔啟動，要透過 cmd。
+        /// </summary>
+        static bool RunNpx(string arguments, string workingDirectory)
+        {
+            var info = new System.Diagnostics.ProcessStartInfo
+            {
+                WorkingDirectory = workingDirectory,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                StandardOutputEncoding = System.Text.Encoding.UTF8,
+                StandardErrorEncoding = System.Text.Encoding.UTF8,
+            };
+
+#if UNITY_EDITOR_WIN
+            info.FileName = "cmd.exe";
+            info.Arguments = "/c npx " + arguments;
+#else
+            info.FileName = "npx";
+            info.Arguments = arguments;
+#endif
+
+            try
+            {
+                using (var process = System.Diagnostics.Process.Start(info))
+                {
+                    if (process == null)
+                    {
+                        Debug.LogError("[CdnSync] 無法啟動 npx，請確認已安裝 Node.js。");
+                        return false;
+                    }
+
+                    // 【一定要非同步讀】ReadToEnd() 會阻塞到程序結束，那樣底下的
+                    // WaitForExit(逾時) 永遠等不到機會執行，逾時形同虛設 ——
+                    // 而卡在等登入正是最需要逾時的情況。
+                    var stdoutBuffer = new System.Text.StringBuilder();
+                    var stderrBuffer = new System.Text.StringBuilder();
+                    process.OutputDataReceived += (_, e) => { if (e.Data != null) stdoutBuffer.AppendLine(e.Data); };
+                    process.ErrorDataReceived += (_, e) => { if (e.Data != null) stderrBuffer.AppendLine(e.Data); };
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+
+                    // wrangler 在沒有憑證時會想開瀏覽器做 OAuth，批次模式下會一直等下去。
+                    // 給一個上限，逾時就中止並說明原因，而不是讓打包流程整個卡住。
+                    if (!process.WaitForExit(TimeoutMs))
+                    {
+                        try { process.Kill(); } catch { }
+                        Debug.LogError($"[CdnSync] 上傳逾時（{TimeoutMs / 60000} 分鐘）。"
+                                       + "常見原因是還沒登入而 wrangler 在等瀏覽器授權 —— "
+                                       + "請先在終端機執行一次 npx wrangler login，或設定 CLOUDFLARE_API_TOKEN。");
+                        return false;
+                    }
+
+                    var stdout = stdoutBuffer.ToString();
+                    var stderr = stderrBuffer.ToString();
+
+                    if (!string.IsNullOrWhiteSpace(stdout))
+                        Debug.Log("[CdnSync] " + stdout.Trim());
+
+                    if (process.ExitCode != 0)
+                    {
+                        Debug.LogError($"[CdnSync] 上傳失敗（exit {process.ExitCode}）"
+                                               + System.Environment.NewLine + stderr.Trim());
+                        return false;
+                    }
+
+                    // wrangler 把進度訊息寫在 stderr，成功時那不是錯誤
+                    if (!string.IsNullOrWhiteSpace(stderr))
+                        Debug.Log("[CdnSync] " + stderr.Trim());
+
+                    Debug.Log("[CdnSync] 上傳完成。");
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[CdnSync] 執行 npx 失敗：{e.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>上傳的時間上限。大部分只會傳變更的少數檔案，真的跑滿通常代表卡在等登入。</summary>
+        const int TimeoutMs = 10 * 60 * 1000;
     }
 }
