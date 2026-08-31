@@ -42,17 +42,27 @@ namespace BMC.Story
         public StoryGraphView()
         {
             AddToClassList("story-graph-view");
+            style.flexGrow = 1f;
 
             scrollView = new ScrollView(ScrollViewMode.Horizontal) { name = "graph-scroll" };
             scrollView.AddToClassList("story-graph-view__scroll");
+            scrollView.style.flexGrow = 1f;
             Add(scrollView);
 
             contentRoot = new VisualElement { name = "graph-content" };
             contentRoot.AddToClassList("story-graph-view__content");
+            // 分欄佈局是結構性需求(不是外觀細節)，直接寫死在 C# 裡，不依賴消費端的 UXML 有沒有帶對應
+            // 樣式表——漏接樣式表時，VisualElement 預設的 flex-direction 是 column，欄位會全部疊成一直排。
+            contentRoot.style.flexDirection = FlexDirection.Row;
             scrollView.Add(contentRoot);
 
             connectionCanvas = new ConnectionCanvas { name = "graph-connections" };
             connectionCanvas.AddToClassList("story-graph-view__connections");
+            connectionCanvas.style.position = Position.Absolute;
+            connectionCanvas.style.left = 0;
+            connectionCanvas.style.top = 0;
+            connectionCanvas.style.right = 0;
+            connectionCanvas.style.bottom = 0;
             contentRoot.Add(connectionCanvas);
             contentRoot.RegisterCallback<GeometryChangedEvent>(_ => connectionCanvas.MarkDirtyRepaint());
 
@@ -155,6 +165,7 @@ namespace BMC.Story
 
             var column = new VisualElement { name = $"Column_Depth_{depth}" };
             column.AddToClassList("story-graph-view__column");
+            column.style.flexDirection = FlexDirection.Column;
             column.style.width = itemWidth;
             column.style.marginRight = depthSpacing - itemWidth;
 
