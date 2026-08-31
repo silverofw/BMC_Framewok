@@ -185,6 +185,11 @@ namespace BMC.Story
             if (startNode == null || package == null)
                 return;
 
+            // 暫時性診斷：Log.Warning 會印呼叫堆疊，用來確認同一次開啟面板期間
+            // RefreshStoryLayout 是不是被呼叫了不只一次(懷疑後面呼叫的 ClearOldLayout
+            // 把前面那次還在非同步載入中的節點項目從視覺樹上拔掉，才會拿到 panel==null)。
+            Log.Warning($"[StoryGraphView] RefreshStoryLayout 呼叫 (startNode={startNode.Id}, nodeCount={package.Nodes.Count})");
+
             await EnsureItemTemplateAsync();
 
             ClearOldLayout();
