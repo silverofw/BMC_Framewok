@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Cysharp.Threading.Tasks;
@@ -127,6 +128,15 @@ namespace BMC.UIToolkit
         public bool IsSceneInit { get; private set; }
 
         private List<UIPanel> panels;
+
+        /// <summary>
+        /// 追蹤還在載入中的 ShowPanel&lt;T&gt; 請求(鍵為面板型別，值為 UniTask&lt;T&gt;.Preserve() 過的
+        /// 可重複等待版本)。ShowPanel 內部要 await 資源載入才會把面板加進 panels 清單，
+        /// 在那之前 checkSame 完全看不到「已經在開了」——同一顆按鈕在極短時間內被觸發兩次
+        /// (例如輸入事件重複派送)就會建出兩份面板、各自搶同一批資源。這裡讓載入中的重複請求
+        /// 直接等同一份 task，而不是各自起一份新的。
+        /// </summary>
+        private readonly Dictionary<Type, object> pendingShowTasks = new();
 
         protected override void Init()
         {
@@ -353,6 +363,29 @@ namespace BMC.UIToolkit
             if (checkSame && TryGetExisting<T>(out var exist))
                 return exist;
 
+            if (checkSame && pendingShowTasks.TryGetValue(typeof(T), out var pendingObj))
+                return await (UniTask<T>)pendingObj;
+
+            var task = ShowPanelCore<T>(layer);
+            if (checkSame)
+            {
+                task = task.Preserve();
+                pendingShowTasks[typeof(T)] = task;
+            }
+
+            try
+            {
+                return await task;
+            }
+            finally
+            {
+                if (checkSame)
+                    pendingShowTasks.Remove(typeof(T));
+            }
+        }
+
+        private async UniTask<T> ShowPanelCore<T>(UILayer layer) where T : UIPanel, new()
+        {
             var address = GetPanelAddress(typeof(T));
             var vta = await LoadAsset<VisualTreeAsset>(address);
             if (vta == null)

@@ -33,6 +33,15 @@ namespace BMC.Story
 
         private VisualTreeAsset itemTemplate;
 
+        /// <summary>拖曳判定為滾動的位移門檻(像素)，比照 BMC.UIToolkit.MultiListView 的 dragThreshold。</summary>
+        public float dragThreshold = 10f;
+
+        private Vector2 dragStartPointer;
+        private float dragStartOffsetX;
+        private int dragPointerId = -1;
+        private bool isPointerDown;
+        private bool isDragging;
+
         /// <summary>
         /// 已載入的節點項目模板(EnsureItemTemplateAsync 完成後才有值)，供覆寫 ItemFactory 的消費端
         /// 重複使用同一份模板建立自己的項目子類別，不用另外再載一次。
@@ -54,7 +63,18 @@ namespace BMC.Story
             // 分欄佈局是結構性需求(不是外觀細節)，直接寫死在 C# 裡，不依賴消費端的 UXML 有沒有帶對應
             // 樣式表——漏接樣式表時，VisualElement 預設的 flex-direction 是 column，欄位會全部疊成一直排。
             contentRoot.style.flexDirection = FlexDirection.Row;
+            // 內容通常比可視高度矮，預設會貼在頂端；圖表垂直置中比較符合直覺。
+            contentRoot.style.alignSelf = Align.Center;
             scrollView.Add(contentRoot);
+
+            // UI Toolkit 的 ScrollView 預設只吃滾輪與捲軸，滑鼠在內容上拖曳不會平移
+            // (跟 BMC.UIToolkit.MultiListView 需要自己接手拖曳捲動的原因一樣)。
+            // 用 TrickleDown 在節點項目(UIButton)之前先看到事件，超過門檻才攔截為拖曳，
+            // 門檻內的按放仍會正常觸發節點點擊。
+            RegisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
+            RegisterCallback<PointerMoveEvent>(OnPointerMove, TrickleDown.TrickleDown);
+            RegisterCallback<PointerUpEvent>(OnPointerUp, TrickleDown.TrickleDown);
+            RegisterCallback<PointerCaptureOutEvent>(_ => ResetDrag());
 
             connectionCanvas = new ConnectionCanvas { name = "graph-connections" };
             connectionCanvas.AddToClassList("story-graph-view__connections");
@@ -70,6 +90,77 @@ namespace BMC.Story
         }
 
         private StoryLineItem DefaultCreateItem() => new StoryLineItem(itemTemplate);
+
+        #region 拖曳捲動
+
+        private void OnPointerDown(PointerDownEvent evt)
+        {
+            if (evt.button != 0)
+                return;
+
+            isPointerDown = true;
+            isDragging = false;
+            dragPointerId = evt.pointerId;
+            dragStartPointer = evt.position;
+            dragStartOffsetX = scrollView.scrollOffset.x;
+        }
+
+        private void OnPointerMove(PointerMoveEvent evt)
+        {
+            if (!isPointerDown || evt.pointerId != dragPointerId)
+                return;
+
+            float delta = evt.position.x - dragStartPointer.x;
+
+            if (!isDragging)
+            {
+                if (Mathf.Abs(delta) < dragThreshold)
+                    return;
+
+                isDragging = true;
+                // 擷取指標後續事件：節點項目(UIButton)收不到 PointerUp 就不會合成出 ClickEvent，
+                // 拖曳結束後才不會誤觸點擊。門檻內的按放則完全不受影響，正常觸發節點點擊。
+                this.CapturePointer(evt.pointerId);
+            }
+
+            var offset = scrollView.scrollOffset;
+            offset.x = ClampScrollX(dragStartOffsetX - delta);
+            scrollView.scrollOffset = offset;
+
+            evt.StopPropagation();
+        }
+
+        private void OnPointerUp(PointerUpEvent evt)
+        {
+            if (!isPointerDown || evt.pointerId != dragPointerId)
+                return;
+
+            bool wasDragging = isDragging;
+            if (wasDragging && this.HasPointerCapture(evt.pointerId))
+                this.ReleasePointer(evt.pointerId);
+
+            ResetDrag();
+
+            if (wasDragging)
+                evt.StopPropagation();
+        }
+
+        private void ResetDrag()
+        {
+            isPointerDown = false;
+            isDragging = false;
+            dragPointerId = -1;
+        }
+
+        private float ClampScrollX(float value)
+        {
+            float viewportWidth = scrollView.contentViewport.resolvedStyle.width;
+            float contentWidth = contentRoot.resolvedStyle.width;
+            float maxScrollX = Mathf.Max(0f, contentWidth - viewportWidth);
+            return Mathf.Clamp(value, 0f, maxScrollX);
+        }
+
+        #endregion
 
         /// <summary>
         /// 預先載入節點項目的 UXML 模板(有快取，重複呼叫安全)。子類若換了 ItemFactory 用自己的項目型別，
