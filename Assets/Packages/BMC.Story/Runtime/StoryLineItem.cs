@@ -91,13 +91,24 @@ namespace BMC.Story
             }
 
             var sprite = await ResMgr.Instance.LoadAssetAsync<Sprite>(address, false);
-            if (panel == null || PreviewImage == null || sprite == null)
+            if (sprite == null)
             {
-                Log.Warning($"[StoryLineItem] 載入預覽圖 Sprite 失敗 '{address}' (NodeID: {NodeId})");
+                Log.Warning($"[StoryLineItem] LoadAssetAsync<Sprite> 回傳 null '{address}' (NodeID: {NodeId})");
+                return;
+            }
+            if (panel == null)
+            {
+                Log.Warning($"[StoryLineItem] 載入完成時已離開視覺樹(panel==null) '{address}' (NodeID: {NodeId})");
+                return;
+            }
+            if (PreviewImage == null)
+            {
+                Log.Warning($"[StoryLineItem] 載入完成時 preview-image 元件已不存在 '{address}' (NodeID: {NodeId})");
                 return;
             }
 
             PreviewImage.sprite = sprite;
+            Log.Info($"[StoryLineItem] 預覽圖套用成功 '{address}' (NodeID: {NodeId}), sprite={sprite.name}, texture={(sprite.texture != null ? sprite.texture.name : "null")}");
         }
     }
 }
