@@ -265,8 +265,12 @@ namespace BMC.Story
             VisualElement column = GetColumnForDepth(depth);
 
             StoryLineItem item = ItemFactory != null ? ItemFactory() : DefaultCreateItem();
-            item.Init(node, () => NodeClicked?.Invoke(node));
+            // 先掛上視覺樹再 Init：YooAsset 資源第二次以後多半是快取命中，LoadAssetAsync 會
+            // 同步完成而不是真的讓出流程，Init() 內部的 LoadPreview 整段(包含最後檢查
+            // panel==null)會在這裡就跑完，早於 column.Add(item)——順序顛倒會讓每一個
+            // 「其實載入成功」的項目都因為當下還沒掛上視覺樹而被誤判成失敗。
             column.Add(item);
+            item.Init(node, () => NodeClicked?.Invoke(node));
 
             nodeToElementMap[node] = item;
         }
