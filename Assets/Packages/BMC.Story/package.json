@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.story",
-  "version": "1.0.27",
+  "version": "1.1.0",
   "displayName": "BMC Story System",
   "description": "BMC 劇情與對話節點系統。",
   "unity": "6000.0",
@@ -10,13 +10,14 @@
   },
   "dependencies": {
     "com.bmc.core": "1.0.0",
-    "com.bmc.ui": "1.0.0"
+    "com.bmc.ui": "1.0.0",
+    "com.bmc.uitoolkit": "1.1.2"
   },
   "samples": [
     {
-      "displayName": "Basic Controls",
-      "description": "基礎元件 的預製物件範本。",
-      "path": "Samples~/Basic Controls"
+      "displayName": "UI Toolkit Controls",
+      "description": "節點地圖／對話框的 UXML／USS 範本(UI Toolkit 版)。匯入後請直接複製到專案自己的 Assets 底下修改，不要留在原地改——套件版號一變，這份匯入的複製品會被整個重新覆蓋。",
+      "path": "Samples~/UI Toolkit"
     }
   ],
   "author": {

@@ -1,0 +1,414 @@
+using BMC.Core;
+using Cysharp.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace BMC.Story
+{
+    /// <summary>
+    /// UI Toolkit 版節點圖(BFS 分欄佈局＋連線特效＋捲動)，從 uGUI 版 StoryLinePanel 抽出來的部分——
+    /// 純 VisualElement，不是 UIPanel，讓消費端可以用「組合」的方式把它嵌進自己的面板版面裡
+    /// (取代舊版 EFMStoryLinePanel 用 [SerializeField] 持有一整個 StoryLinePanel 的做法)。
+    /// </summary>
+    public class StoryGraphView : VisualElement
+    {
+        /// <summary>建立節點項目的工廠方法，換掉這個就能換整個節點項目的型別(取代舊版換 prefab 參考)。</summary>
+        public Func<StoryLineItem> ItemFactory { get; set; }
+
+        public event Action<StoryNode> NodeClicked;
+
+        public float itemWidth = 300f;
+        public float depthSpacing = 500f;
+
+        private readonly ScrollView scrollView;
+        private readonly VisualElement contentRoot;
+        private readonly ConnectionCanvas connectionCanvas;
+
+        private readonly Dictionary<int, VisualElement> depthColumns = new Dictionary<int, VisualElement>();
+        private readonly Dictionary<StoryNode, VisualElement> nodeToElementMap = new Dictionary<StoryNode, VisualElement>();
+        private readonly Dictionary<StoryNode, int> nodeDepthMap = new Dictionary<StoryNode, int>();
+        private int currentMaxDepth;
+
+        private VisualTreeAsset itemTemplate;
+
+        /// <summary>拖曳判定為滾動的位移門檻(像素)，比照 BMC.UIToolkit.MultiListView 的 dragThreshold。</summary>
+        public float dragThreshold = 10f;
+
+        private Vector2 dragStartPointer;
+        private float dragStartOffsetX;
+        private int dragPointerId = -1;
+        private bool isPointerDown;
+        private bool isDragging;
+
+        /// <summary>
+        /// 已載入的節點項目模板(EnsureItemTemplateAsync 完成後才有值)，供覆寫 ItemFactory 的消費端
+        /// 重複使用同一份模板建立自己的項目子類別，不用另外再載一次。
+        /// </summary>
+        public VisualTreeAsset ItemTemplate => itemTemplate;
+
+        public StoryGraphView()
+        {
+            AddToClassList("story-graph-view");
+            style.flexGrow = 1f;
+
+            scrollView = new ScrollView(ScrollViewMode.Horizontal) { name = "graph-scroll" };
+            scrollView.AddToClassList("story-graph-view__scroll");
+            scrollView.style.flexGrow = 1f;
+            Add(scrollView);
+
+            contentRoot = new VisualElement { name = "graph-content" };
+            contentRoot.AddToClassList("story-graph-view__content");
+            // 分欄佈局是結構性需求(不是外觀細節)，直接寫死在 C# 裡，不依賴消費端的 UXML 有沒有帶對應
+            // 樣式表——漏接樣式表時，VisualElement 預設的 flex-direction 是 column，欄位會全部疊成一直排。
+            contentRoot.style.flexDirection = FlexDirection.Row;
+            // 內容通常比可視高度矮，預設會貼在頂端；圖表垂直置中比較符合直覺。
+            contentRoot.style.alignSelf = Align.Center;
+            scrollView.Add(contentRoot);
+
+            // UI Toolkit 的 ScrollView 預設只吃滾輪與捲軸，滑鼠在內容上拖曳不會平移
+            // (跟 BMC.UIToolkit.MultiListView 需要自己接手拖曳捲動的原因一樣)。
+            // 用 TrickleDown 在節點項目(UIButton)之前先看到事件，超過門檻才攔截為拖曳，
+            // 門檻內的按放仍會正常觸發節點點擊。
+            RegisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
+            RegisterCallback<PointerMoveEvent>(OnPointerMove, TrickleDown.TrickleDown);
+            RegisterCallback<PointerUpEvent>(OnPointerUp, TrickleDown.TrickleDown);
+            RegisterCallback<PointerCaptureOutEvent>(_ => ResetDrag());
+
+            connectionCanvas = new ConnectionCanvas { name = "graph-connections" };
+            connectionCanvas.AddToClassList("story-graph-view__connections");
+            connectionCanvas.style.position = Position.Absolute;
+            connectionCanvas.style.left = 0;
+            connectionCanvas.style.top = 0;
+            connectionCanvas.style.right = 0;
+            connectionCanvas.style.bottom = 0;
+            contentRoot.Add(connectionCanvas);
+            contentRoot.RegisterCallback<GeometryChangedEvent>(_ => connectionCanvas.MarkDirtyRepaint());
+
+            ItemFactory = DefaultCreateItem;
+        }
+
+        private StoryLineItem DefaultCreateItem() => new StoryLineItem(itemTemplate);
+
+        #region 拖曳捲動
+
+        private void OnPointerDown(PointerDownEvent evt)
+        {
+            if (evt.button != 0)
+                return;
+
+            isPointerDown = true;
+            isDragging = false;
+            dragPointerId = evt.pointerId;
+            dragStartPointer = evt.position;
+            dragStartOffsetX = scrollView.scrollOffset.x;
+        }
+
+        private void OnPointerMove(PointerMoveEvent evt)
+        {
+            if (!isPointerDown || evt.pointerId != dragPointerId)
+                return;
+
+            float delta = evt.position.x - dragStartPointer.x;
+
+            if (!isDragging)
+            {
+                if (Mathf.Abs(delta) < dragThreshold)
+                    return;
+
+                isDragging = true;
+                // 擷取指標後續事件：節點項目(UIButton)收不到 PointerUp 就不會合成出 ClickEvent，
+                // 拖曳結束後才不會誤觸點擊。門檻內的按放則完全不受影響，正常觸發節點點擊。
+                this.CapturePointer(evt.pointerId);
+            }
+
+            var offset = scrollView.scrollOffset;
+            offset.x = ClampScrollX(dragStartOffsetX - delta);
+            scrollView.scrollOffset = offset;
+
+            evt.StopPropagation();
+        }
+
+        private void OnPointerUp(PointerUpEvent evt)
+        {
+            if (!isPointerDown || evt.pointerId != dragPointerId)
+                return;
+
+            bool wasDragging = isDragging;
+            if (wasDragging && this.HasPointerCapture(evt.pointerId))
+                this.ReleasePointer(evt.pointerId);
+
+            ResetDrag();
+
+            if (wasDragging)
+                evt.StopPropagation();
+        }
+
+        private void ResetDrag()
+        {
+            isPointerDown = false;
+            isDragging = false;
+            dragPointerId = -1;
+        }
+
+        private float ClampScrollX(float value)
+        {
+            float viewportWidth = scrollView.contentViewport.resolvedStyle.width;
+            float contentWidth = contentRoot.resolvedStyle.width;
+            float maxScrollX = Mathf.Max(0f, contentWidth - viewportWidth);
+            return Mathf.Clamp(value, 0f, maxScrollX);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// 預先載入節點項目的 UXML 模板(有快取，重複呼叫安全)。子類若換了 ItemFactory 用自己的項目型別，
+        /// 需要自己保證對應模板在 RefreshStoryLayout 呼叫前已經就緒。
+        /// </summary>
+        public async UniTask EnsureItemTemplateAsync()
+        {
+            if (itemTemplate != null)
+                return;
+
+            if (!ResMgr.Instance.Check(StoryLineItem.TemplateAddress))
+            {
+                Log.Error($"[StoryGraphView] 找不到節點項目模板位址: '{StoryLineItem.TemplateAddress}'");
+                return;
+            }
+
+            itemTemplate = await ResMgr.Instance.LoadAssetAsync<VisualTreeAsset>(StoryLineItem.TemplateAddress, false);
+        }
+
+        private UniTask refreshQueue = UniTask.CompletedTask;
+
+        /// <summary>
+        /// 確認過的真實案例：同一次點擊，觸發面板開啟的按鈕 OnPointerUp 有時會被送出兩次
+        /// (舊有的 uGUI 按鈕/輸入系統行為，不是這裡能處理的範圍)，導致這個方法被重疊呼叫——
+        /// 後面那次的 ClearOldLayout 會把前面那次還在非同步載入預覽圖的節點項目從視覺樹上
+        /// 拔掉，載入完成時只能拿到 panel==null。與其去堵輸入端的重複事件，這裡直接讓自己
+        /// 對重疊呼叫具備韌性：用一個簡單的非同步佇列，確保永遠是「前一次完全跑完，才開始
+        /// 清空重建下一次」，不管重疊呼叫的來源是什麼。
+        /// </summary>
+        public async UniTask RefreshStoryLayout(StoryNode startNode, StoryPackage package)
+        {
+            if (startNode == null || package == null)
+                return;
+
+            var previous = refreshQueue;
+            var tcs = new UniTaskCompletionSource();
+            refreshQueue = tcs.Task;
+            await previous;
+
+            try
+            {
+                await EnsureItemTemplateAsync();
+
+                ClearOldLayout();
+
+                Dictionary<string, StoryNode> idLookup = new Dictionary<string, StoryNode>();
+                foreach (var node in package.Nodes)
+                {
+                    if (!string.IsNullOrEmpty(node.Id) && !idLookup.ContainsKey(node.Id))
+                        idLookup.Add(node.Id, node);
+                }
+
+                GenerateNodesBFS(startNode, idLookup);
+                DrawConnections(idLookup);
+
+                if (StoryPlayer.Instance.CrtNode != null)
+                    await ScrollToNode(StoryPlayer.Instance.CrtNode);
+                else
+                    await ScrollToNode(startNode);
+            }
+            finally
+            {
+                tcs.TrySetResult();
+            }
+        }
+
+        private void GenerateNodesBFS(StoryNode startNode, Dictionary<string, StoryNode> idLookup)
+        {
+            Queue<(StoryNode node, int depth)> queue = new Queue<(StoryNode, int)>();
+            HashSet<StoryNode> visited = new HashSet<StoryNode>();
+
+            queue.Enqueue((startNode, 0));
+            visited.Add(startNode);
+            nodeDepthMap[startNode] = 0;
+            currentMaxDepth = 0;
+
+            while (queue.Count > 0)
+            {
+                var (currentNode, currentDepth) = queue.Dequeue();
+
+                CreateNodeUI(currentNode, currentDepth);
+
+                foreach (string targetId in GetTargetNodeIds(currentNode))
+                {
+                    if (string.IsNullOrEmpty(targetId))
+                        continue;
+
+                    if (idLookup.TryGetValue(targetId, out StoryNode nextNode) && !visited.Contains(nextNode))
+                    {
+                        queue.Enqueue((nextNode, currentDepth + 1));
+                        visited.Add(nextNode);
+
+                        nodeDepthMap[nextNode] = currentDepth + 1;
+                        currentMaxDepth = Mathf.Max(currentMaxDepth, currentDepth + 1);
+                    }
+                }
+            }
+        }
+
+        private void CreateNodeUI(StoryNode node, int depth)
+        {
+            VisualElement column = GetColumnForDepth(depth);
+
+            StoryLineItem item = ItemFactory != null ? ItemFactory() : DefaultCreateItem();
+            // 先掛上視覺樹再 Init：YooAsset 資源第二次以後多半是快取命中，LoadAssetAsync 會
+            // 同步完成而不是真的讓出流程，Init() 內部的 LoadPreview 整段(包含最後檢查
+            // panel==null)會在這裡就跑完，早於 column.Add(item)——順序顛倒會讓每一個
+            // 「其實載入成功」的項目都因為當下還沒掛上視覺樹而被誤判成失敗。
+            column.Add(item);
+            item.Init(node, () => NodeClicked?.Invoke(node));
+
+            nodeToElementMap[node] = item;
+        }
+
+        private VisualElement GetColumnForDepth(int depth)
+        {
+            if (depthColumns.TryGetValue(depth, out var existing))
+                return existing;
+
+            var column = new VisualElement { name = $"Column_Depth_{depth}" };
+            column.AddToClassList("story-graph-view__column");
+            column.style.flexDirection = FlexDirection.Column;
+            column.style.width = itemWidth;
+            column.style.marginRight = depthSpacing - itemWidth;
+
+            // index 0 是 connectionCanvas，欄位一律排在它後面、依深度遞增排序
+            contentRoot.Insert(depth + 1, column);
+
+            depthColumns.Add(depth, column);
+            return column;
+        }
+
+        private void DrawConnections(Dictionary<string, StoryNode> idLookup)
+        {
+            List<ConnectionCanvas.Connection> links = new List<ConnectionCanvas.Connection>();
+            foreach (var kvp in nodeToElementMap)
+            {
+                StoryNode parentNode = kvp.Key;
+                VisualElement parentElement = kvp.Value;
+
+                foreach (string targetId in GetTargetNodeIds(parentNode))
+                {
+                    if (string.IsNullOrEmpty(targetId))
+                        continue;
+
+                    if (idLookup.TryGetValue(targetId, out StoryNode childNode) &&
+                        nodeToElementMap.TryGetValue(childNode, out VisualElement childElement))
+                    {
+                        links.Add(new ConnectionCanvas.Connection { start = parentElement, end = childElement });
+                    }
+                }
+            }
+            connectionCanvas.SetConnections(links);
+        }
+
+        public async UniTask ScrollToNode(StoryNode targetNode)
+        {
+            if (targetNode == null || !nodeDepthMap.ContainsKey(targetNode))
+                return;
+
+            await WaitForLayoutAsync();
+
+            int targetDepth = nodeDepthMap[targetNode];
+
+            float viewportWidth = scrollView.contentViewport.resolvedStyle.width;
+            float contentWidth = contentRoot.resolvedStyle.width;
+            float maxScrollX = Mathf.Max(0f, contentWidth - viewportWidth);
+
+            float normalizedPos = currentMaxDepth > 0 ? Mathf.Clamp01((float)targetDepth / currentMaxDepth) : 0f;
+            scrollView.scrollOffset = new Vector2(normalizedPos * maxScrollX, scrollView.scrollOffset.y);
+        }
+
+        /// <summary>
+        /// 等 Yoga 版面算完一次。UI Toolkit 的佈局是非同步的，跟 uGUI 的
+        /// Canvas.ForceUpdateCanvases() 同步佈局不一樣，捲動位置要算對寬度必須先等這個。
+        /// </summary>
+        private UniTask WaitForLayoutAsync()
+        {
+            if (contentRoot.resolvedStyle.width > 0f)
+                return UniTask.CompletedTask;
+
+            var tcs = new UniTaskCompletionSource();
+            void Handler(GeometryChangedEvent e)
+            {
+                contentRoot.UnregisterCallback<GeometryChangedEvent>(Handler);
+                tcs.TrySetResult();
+            }
+            contentRoot.RegisterCallback<GeometryChangedEvent>(Handler);
+            return tcs.Task;
+        }
+
+        public void ClearOldLayout()
+        {
+            contentRoot.Clear();
+            contentRoot.Add(connectionCanvas);
+
+            depthColumns.Clear();
+            nodeToElementMap.Clear();
+            nodeDepthMap.Clear();
+            currentMaxDepth = 0;
+            connectionCanvas.SetConnections(new List<ConnectionCanvas.Connection>());
+        }
+
+        public static IEnumerable<string> GetTargetNodeIds(StoryNode node)
+        {
+            if (!string.IsNullOrEmpty(node.AutoJumpNodeId)) yield return node.AutoJumpNodeId;
+            if (node.AutoJumpAffectionRules != null)
+                foreach (var rule in node.AutoJumpAffectionRules)
+                    if (!string.IsNullOrEmpty(rule.TargetNodeId)) yield return rule.TargetNodeId;
+            if (node.OnEnterEvents != null)
+                foreach (var evt in node.OnEnterEvents)
+                    foreach (var id in GetTargetsFromEvent(evt)) yield return id;
+            if (node.OnExitEvents != null)
+                foreach (var evt in node.OnExitEvents)
+                    foreach (var id in GetTargetsFromEvent(evt)) yield return id;
+        }
+
+        public static IEnumerable<string> GetTargetsFromEvent(StoryEvent evt)
+        {
+            switch (evt.ActionCase)
+            {
+                case StoryEvent.ActionOneofCase.ShowChoices:
+                    foreach (var c in evt.ShowChoices.Choices)
+                        if (!string.IsNullOrEmpty(c.TargetNodeId)) yield return c.TargetNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GameDice:
+                    if (!string.IsNullOrEmpty(evt.GameDice.SuccessNodeId)) yield return evt.GameDice.SuccessNodeId;
+                    if (!string.IsNullOrEmpty(evt.GameDice.FailNodeId)) yield return evt.GameDice.FailNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GameRussianRoulette:
+                    if (!string.IsNullOrEmpty(evt.GameRussianRoulette.WinNodeId)) yield return evt.GameRussianRoulette.WinNodeId;
+                    if (!string.IsNullOrEmpty(evt.GameRussianRoulette.LoseNodeId)) yield return evt.GameRussianRoulette.LoseNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GameQte:
+                    if (!string.IsNullOrEmpty(evt.GameQte.SuccessNodeId)) yield return evt.GameQte.SuccessNodeId;
+                    if (!string.IsNullOrEmpty(evt.GameQte.FailNodeId)) yield return evt.GameQte.FailNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.GamePuzzle:
+                    if (!string.IsNullOrEmpty(evt.GamePuzzle.SuccessNodeId)) yield return evt.GamePuzzle.SuccessNodeId;
+                    if (!string.IsNullOrEmpty(evt.GamePuzzle.FailNodeId)) yield return evt.GamePuzzle.FailNodeId;
+                    break;
+                case StoryEvent.ActionOneofCase.PlayAvgDialog:
+                    if (evt.PlayAvgDialog.Frames != null)
+                        foreach (var frame in evt.PlayAvgDialog.Frames)
+                            if (frame.FrameType == DialogFrame.Types.FrameType.WithJumpNode && !string.IsNullOrEmpty(frame.TargetNodeId))
+                                yield return frame.TargetNodeId;
+                    break;
+            }
+        }
+    }
+}

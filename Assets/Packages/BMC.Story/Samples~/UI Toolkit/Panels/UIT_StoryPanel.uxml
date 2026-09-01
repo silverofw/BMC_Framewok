@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" editor-extension-mode="False">
+    <Style src="UIT_StoryPanelStyle.uss" />
+    <ui:VisualElement name="root" picking-mode="Ignore" class="story-panel">
+        <bmc:UILabel name="info-label" class="story-panel__info" />
+        <ui:VisualElement name="choice-container" class="story-panel__choices" />
+        <bmc:UIButton name="line-panel-button" text="節點地圖" class="story-panel__line-panel-button" />
+    </ui:VisualElement>
+</ui:UXML>

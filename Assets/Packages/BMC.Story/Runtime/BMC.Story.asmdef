@@ -3,6 +3,7 @@
     "rootNamespace": "",
     "references": [
         "BMC.UI",
+        "BMC.UIToolkit",
         "BMC.Core",
         "UniTask"
     ],

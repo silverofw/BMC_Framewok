@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bmc="BMC.UIToolkit" editor-extension-mode="False">
+    <Style src="UIT_StoryLinePanelStyle.uss" />
+    <Style src="../Fragments/UIT_StoryLineItemStyle.uss" />
+    <ui:VisualElement name="root" picking-mode="Ignore" class="story-line-panel">
+        <ui:VisualElement name="header" picking-mode="Ignore" class="story-line-panel__header">
+            <bmc:UIButton name="chapter-button" text="章節" class="story-line-panel__chapter-button" />
+            <bmc:UILabel name="chapter-text" class="story-line-panel__chapter-text" />
+        </ui:VisualElement>
+        <ui:VisualElement name="graph-view-container" picking-mode="Ignore" class="story-line-panel__graph-container" />
+        <ui:VisualElement name="chapter-root" class="story-line-panel__chapter-root">
+            <ui:VisualElement name="chapter-list-root" class="story-line-panel__chapter-list" />
+            <bmc:UIButton name="chapter-close-button" text="關閉" class="story-line-panel__chapter-close-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
