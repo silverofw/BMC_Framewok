@@ -24,6 +24,14 @@ namespace BMC.UIToolkit
     {
         public virtual bool maskControl => false;
 
+        /// <summary>
+        /// 點到面板內容（按鈕、盒子）算不算「點了遮罩」。
+        ///
+        /// 預設 false —— 遮罩的語意是「點空白處關掉」，點到內容就該讓內容自己處理。
+        /// 只有「點畫面任何地方就繼續」的面板（對話框、過場）才覆寫成 true。
+        /// </summary>
+        protected virtual bool maskClickAnywhere => false;
+
         public VisualElement Root { get; private set; }
         public UILayer Layer { get; private set; }
         public bool IsClosed { get; private set; }
@@ -56,7 +64,17 @@ namespace BMC.UIToolkit
                 closeBtn.OnClick += () => ClosePanel();
 
             var mask = Root.Q<VisualElement>("mask");
-            mask?.RegisterCallback<ClickEvent>(_ => onMaskClick());
+            mask?.RegisterCallback<ClickEvent>(e =>
+            {
+                // 【一定要確認點到的就是遮罩本身】ClickEvent 會冒泡：點面板裡任何一顆
+                // 按鈕，事件都會一路傳上來打到這裡。舊寫法不看 target，所以
+                // 「用滑鼠點按鈕」= 按鈕做了它的事、然後面板馬上被關掉 ——
+                // 症狀是每一張有 mask 的面板都不能用滑鼠操作。
+                // 遮罩的語意本來就是「點空白處關掉」，點到內容不該算。
+                if (!maskClickAnywhere && !ReferenceEquals(e.target, mask))
+                    return;
+                onMaskClick();
+            });
 
             // 手把面板一律由 UITMgr 統一管理堆疊，子類別不必自己 Push／Pop
             if (this is JoypadPanel joypadPanel)
