@@ -1,6 +1,6 @@
 {
   "name": "com.bmc.input",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "displayName": "BMC Input System",
   "description": "全域唯一的輸入來源。建立在 Unity 6 的 Project-wide Actions 之上，不使用 PlayerInput，不綁任何場景。把 action 轉成裝置無關的按鍵與方向事件。刻意不認識任何 UI 系統：事件送給誰由專案端決定。",
   "unity": "6000.0",

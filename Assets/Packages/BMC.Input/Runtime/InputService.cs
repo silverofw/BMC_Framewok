@@ -165,6 +165,22 @@ namespace BMC
         static InputAction[] buttons;
         static InputAction moveAction, dpadAction, stickRAction;
 
+        /// <summary>
+        /// 上層目前認為哪幾顆是按著的。這是**我們送出去的事件**的狀態，
+        /// 不等於 action.IsPressed()（暫停時會先補送 ButtonUp，那時實體鍵還按著）。
+        ///
+        /// 【為什麼需要這一份】類比扳機（LT／RT）一次壓到底再放開，會收到兩次 started。
+        /// 數位鍵的值是 0→1 一步到底，中間沒有其他值；扳機是連續的，
+        /// 「開始被推動」與「越過 press point」是兩個不同的時刻，中途的值變化也還在繼續。
+        /// 結果就是同一次按放被算成兩次 —— 舉起的下一瞬間又放下、
+        /// 背包收進去又拿出來，玩家看到的是「什麼都沒發生」。
+        ///
+        /// 與其去猜 InputSystem 內部怎麼分相位，不如在這一層把契約講死：
+        /// **一次按住只送一次 ButtonDown，一次放開只送一次 ButtonUp**。
+        /// 重複的 started／canceled 一律丟掉，數位鍵與類比軸的行為因此一致。
+        /// </summary>
+        static bool[] down;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Bind()
         {
@@ -177,6 +193,7 @@ namespace BMC
             }
 
             buttons = new InputAction[ActionNames.Length];
+            down = new bool[ActionNames.Length];
             for (int i = 1; i < ActionNames.Length; i++)
             {
                 var action = asset.FindAction($"{Map}/{ActionNames[i]}");
@@ -188,12 +205,24 @@ namespace BMC
 
                 buttons[i] = action;
                 var button = (InputButton)i;
+                int index = i;
                 action.started += ctx =>
                 {
+                    // 裝置判定要在邊緣檢查之前 —— 玩家換手把的那一下也算「動了裝置」
                     UpdateActiveScheme(ctx.control?.device);
+
+                    if (down[index])
+                        return;                 // 同一次按住的第二次 started，理由見 down 的註解
+                    down[index] = true;
                     Raise(ButtonDown, button);
                 };
-                action.canceled += _ => Raise(ButtonUp, button);
+                action.canceled += _ =>
+                {
+                    if (!down[index])
+                        return;                 // 沒送過 ButtonDown 就不該送 ButtonUp
+                    down[index] = false;
+                    Raise(ButtonUp, button);
+                };
             }
 
             moveAction = asset.FindAction($"{Map}/StickMove_L");
@@ -215,6 +244,10 @@ namespace BMC
         {
             Application.quitting -= Unbind;
             InputSystem.onAfterUpdate -= Tick;
+
+            // 下一輪 Play Mode 會重新 Bind，殘留的按住狀態會讓第一次按下被吃掉
+            if (down != null)
+                System.Array.Clear(down, 0, down.Length);
 
             ButtonDown = null;
             ButtonUp = null;
@@ -280,10 +313,15 @@ namespace BMC
             if (!now)
                 return;
 
+            // 【看 down 而不是 IsPressed】要補的是「上層以為還按著」的那幾顆。
+            // 補完就清掉：恢復之後那顆鍵要等玩家真的放開再按下才會重新生效，
+            // 而不是拿一個沒有對應 ButtonDown 的 ButtonUp 去對消。
             for (int i = 1; i < buttons.Length; i++)
             {
-                if (buttons[i] != null && buttons[i].IsPressed())
-                    ButtonUp?.Invoke((InputButton)i);
+                if (!down[i])
+                    continue;
+                down[i] = false;
+                ButtonUp?.Invoke((InputButton)i);
             }
 
             MoveRaw = Vector2.zero;
