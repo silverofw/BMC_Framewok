@@ -35,6 +35,17 @@ namespace BMC.UIToolkit
 
         public UIButton()
         {
+            // 【不吃焦點】原生 Button 預設是可聚焦的，滑鼠點過之後那顆就一直握著焦點；
+            // 而 UI Toolkit 對聚焦中的 Button 收到 NavigationSubmitEvent（手把 A／Enter）
+            // 會直接再觸發一次 clicked —— 症狀是「按 A 就重複執行上一次用滑鼠點的那顆鈕」，
+            // 而且滑鼠移開也沒用，因為那是焦點不是 hover。
+            // 實際踩到的是暫停鈕：滑鼠點一次之後，之後每按一次 A 就暫停／繼續一次。
+            //
+            // 這個介面的游標一律由 JoypadPanel 管，UI Toolkit 內建的焦點導覽是第二套游標，
+            // 本來就不該存在。JoypadItem 早就為了同一個理由關掉它，這裡補齊。
+            // 輸入框不受影響（TextField 不是 Button）。
+            focusable = false;
+
             clicked += HandleClicked;
             this.BindLocalization(ApplyLocalization);
         }
