@@ -82,7 +82,7 @@ namespace BMC.Story {
             "b24SFAoMbG9ja19tZXNzYWdlGAogASgJGkAKEFZhcmlhYmxlSnVtcFJ1bGUS",
             "EwoLdmFyaWFibGVfaWQYASABKAkSFwoPdGFyZ2V0X2ZyYW1lX2lkGAIgASgJ",
             "IjMKCkNob2ljZVR5cGUSDgoKSlVNUF9GUkFNRRAAEhUKEU1BWF9WQVJJQUJM",
-            "RV9KVU1QEAEivAcKC0RpYWxvZ0ZyYW1lEhQKDGNoYXJhY3Rlcl9pZBgBIAEo",
+            "RV9KVU1QEAEi/AcKC0RpYWxvZ0ZyYW1lEhQKDGNoYXJhY3Rlcl9pZBgBIAEo",
             "BRILCgNrZXkYAiABKAkSLgoIcG9zaXRpb24YAyABKA4yHC5CTUMuU3Rvcnku",
             "Q2hhcmFjdGVyUG9zaXRpb24SEgoKYXNzZXRfbmFtZRgEIAEoCRIQCghmcmFt",
             "ZV9pZBgFIAEoCRI0CgpmcmFtZV90eXBlGAYgASgOMiAuQk1DLlN0b3J5LkRp",
@@ -91,66 +91,69 @@ namespace BMC.Story {
             "bl9lbmRfZXZlbnRzGAkgAygLMhUuQk1DLlN0b3J5LlN0b3J5RXZlbnQSNgoL",
             "dmlzdWFsX3R5cGUYCiABKA4yIS5CTUMuU3RvcnkuRGlhbG9nRnJhbWUuVmlz",
             "dWFsVHlwZRJGChRhZmZlY3Rpb25fanVtcF9ydWxlcxgLIAMoCzIoLkJNQy5T",
-            "dG9yeS5EaWFsb2dGcmFtZS5BZmZlY3Rpb25KdW1wUnVsZRJEChN2YXJpYWJs",
-            "ZV9qdW1wX3J1bGVzGA0gAygLMicuQk1DLlN0b3J5LkRpYWxvZ0ZyYW1lLlZh",
-            "cmlhYmxlSnVtcFJ1bGUSGQoRZmFsbGJhY2tfZnJhbWVfaWQYDCABKAkakAEK",
-            "EUFmZmVjdGlvbkp1bXBSdWxlEhQKDGNoYXJhY3Rlcl9pZBgBIAEoBRI2Cgxj",
-            "b21wYXJlX3R5cGUYAiABKA4yIC5CTUMuU3RvcnkuQ29uZGl0aW9uLkNvbXBh",
-            "cmVUeXBlEhQKDHRhcmdldF92YWx1ZRgDIAEoBRIXCg90YXJnZXRfZnJhbWVf",
-            "aWQYBCABKAkahAEKEFZhcmlhYmxlSnVtcFJ1bGUSFQoNY29uZGl0aW9uX2tl",
-            "eRgBIAEoCRIXCg9jb25kaXRpb25fdmFsdWUYAiABKAkSFwoPdGFyZ2V0X2Zy",
-            "YW1lX2lkGAMgASgJEicKBXNjb3BlGAQgASgOMhguQk1DLlN0b3J5LlZhcmlh",
-            "YmxlU2NvcGUibgoJRnJhbWVUeXBlEgoKBk5PUk1BTBAAEhAKDFdJVEhfQ0hP",
-            "SUNFUxABEhIKDldJVEhfSlVNUF9OT0RFEAISFwoTV0lUSF9BRkZFQ1RJT05f",
-            "SlVNUBADEhYKEldJVEhfVkFSSUFCTEVfSlVNUBAEIiMKClZpc3VhbFR5cGUS",
-            "CgoGU1BSSVRFEAASCQoFVklERU8QASJXChNQbGF5QXZnRGlhbG9nQWN0aW9u",
-            "EhgKEGJhY2tncm91bmRfaW1hZ2UYASABKAkSJgoGZnJhbWVzGAIgAygLMhYu",
-            "Qk1DLlN0b3J5LkRpYWxvZ0ZyYW1lIpYGCgpTdG9yeUV2ZW50EhUKDWRlbGF5",
-            "X3NlY29uZHMYASABKAISGAoQd2FpdF9mb3JfdHJpZ2dlchgCIAEoCBIwCgpw",
-            "bGF5X3ZpZGVvGAogASgLMhouQk1DLlN0b3J5LlBsYXlWaWRlb0FjdGlvbkgA",
-            "EjsKC3VwZGF0ZV9zdGF0GAsgASgLMiQuQk1DLlN0b3J5LlVwZGF0ZUNoYXJh",
-            "Y3RlclN0YXRBY3Rpb25IABI0CgxzZXRfdmFyaWFibGUYDCABKAsyHC5CTUMu",
-            "U3RvcnkuU2V0VmFyaWFibGVBY3Rpb25IABI4CghwbGF5X2JnbRgNIAEoCzIk",
-            "LkJNQy5TdG9yeS5QbGF5QmFja2dyb3VuZE11c2ljQWN0aW9uSAASNAoIcGxh",
-            "eV9zZngYDiABKAsyIC5CTUMuU3RvcnkuUGxheVNvdW5kRWZmZWN0QWN0aW9u",
-            "SAASMAoKcGxheV92b2ljZRgPIAEoCzIaLkJNQy5TdG9yeS5QbGF5Vm9pY2VB",
-            "Y3Rpb25IABIyCglnYW1lX2RpY2UYECABKAsyHS5CTUMuU3RvcnkuR2FtZURp",
-            "Y2VSb2xsQWN0aW9uSAASRQoVZ2FtZV9ydXNzaWFuX3JvdWxldHRlGBEgASgL",
-            "MiQuQk1DLlN0b3J5LkdhbWVSdXNzaWFuUm91bGV0dGVBY3Rpb25IABIsCghn",
-            "YW1lX3F0ZRgSIAEoCzIYLkJNQy5TdG9yeS5HYW1lUVRFQWN0aW9uSAASMgoL",
-            "Z2FtZV9wdXp6bGUYFSABKAsyGy5CTUMuU3RvcnkuR2FtZVB1enpsZUFjdGlv",
-            "bkgAEjQKDHNob3dfY2hvaWNlcxgTIAEoCzIcLkJNQy5TdG9yeS5TaG93Q2hv",
-            "aWNlc0FjdGlvbkgAEjkKD3BsYXlfYXZnX2RpYWxvZxgUIAEoCzIeLkJNQy5T",
-            "dG9yeS5QbGF5QXZnRGlhbG9nQWN0aW9uSAASOAoOZGlzcGF0Y2hfZXZlbnQY",
-            "FiABKAsyHi5CTUMuU3RvcnkuRGlzcGF0Y2hFdmVudEFjdGlvbkgAQggKBmFj",
-            "dGlvbiLWAQoGQ2hvaWNlEgwKBHRleHQYASABKAkSFgoOdGFyZ2V0X25vZGVf",
-            "aWQYAiABKAkSLwoQb25fc2VsZWN0X2V2ZW50cxgDIAMoCzIVLkJNQy5TdG9y",
-            "eS5TdG9yeUV2ZW50EjAKEnZpc2libGVfY29uZGl0aW9ucxgFIAMoCzIULkJN",
-            "Qy5TdG9yeS5Db25kaXRpb24SLQoPbG9ja19jb25kaXRpb25zGAYgAygLMhQu",
-            "Qk1DLlN0b3J5LkNvbmRpdGlvbhIUCgxsb2NrX21lc3NhZ2UYByABKAkinQUK",
-            "CVN0b3J5Tm9kZRIKCgJpZBgBIAEoCRINCgV0aXRsZRgCIAEoCRIuCg9vbl9l",
-            "bnRlcl9ldmVudHMYBCADKAsyFS5CTUMuU3RvcnkuU3RvcnlFdmVudBItCg5v",
-            "bl9leGl0X2V2ZW50cxgFIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50EhkK",
-            "EWF1dG9fanVtcF9ub2RlX2lkGAcgASgJEhcKD2F1dG9fanVtcF9kZWxheRgI",
-            "IAEoAhIaChJwcmV2aWV3X2ltYWdlX3BhdGgYCSABKAkSCgoCcHMYCiABKAkS",
-            "TQoZYXV0b19qdW1wX2FmZmVjdGlvbl9ydWxlcxgLIAMoCzIqLkJNQy5TdG9y",
-            "eS5TdG9yeU5vZGUuTm9kZUFmZmVjdGlvbkp1bXBSdWxlEksKGGF1dG9fanVt",
-            "cF92YXJpYWJsZV9ydWxlcxgMIAMoCzIpLkJNQy5TdG9yeS5TdG9yeU5vZGUu",
-            "Tm9kZVZhcmlhYmxlSnVtcFJ1bGUakwEKFU5vZGVBZmZlY3Rpb25KdW1wUnVs",
-            "ZRIUCgxjaGFyYWN0ZXJfaWQYASABKAUSNgoMY29tcGFyZV90eXBlGAIgASgO",
-            "MiAuQk1DLlN0b3J5LkNvbmRpdGlvbi5Db21wYXJlVHlwZRIUCgx0YXJnZXRf",
-            "dmFsdWUYAyABKAUSFgoOdGFyZ2V0X25vZGVfaWQYBCABKAkahwEKFE5vZGVW",
-            "YXJpYWJsZUp1bXBSdWxlEhUKDWNvbmRpdGlvbl9rZXkYASABKAkSFwoPY29u",
-            "ZGl0aW9uX3ZhbHVlGAIgASgJEhYKDnRhcmdldF9ub2RlX2lkGAMgASgJEicK",
-            "BXNjb3BlGAQgASgOMhguQk1DLlN0b3J5LlZhcmlhYmxlU2NvcGUiygEKDFN0",
-            "b3J5UGFja2FnZRISCgpjaGFwdGVyX2lkGAEgASgJEiMKBW5vZGVzGAIgAygL",
-            "MhQuQk1DLlN0b3J5LlN0b3J5Tm9kZRJIChFpbml0aWFsX3ZhcmlhYmxlcxgD",
-            "IAMoCzItLkJNQy5TdG9yeS5TdG9yeVBhY2thZ2UuSW5pdGlhbFZhcmlhYmxl",
-            "c0VudHJ5GjcKFUluaXRpYWxWYXJpYWJsZXNFbnRyeRILCgNrZXkYASABKAkS",
-            "DQoFdmFsdWUYAiABKAU6AjgBKi8KCFN0YXRUeXBlEggKBE5PTkUQABIHCgNT",
-            "VFIQARIHCgNBR0kQAhIHCgNJTlQQAyo0ChFDaGFyYWN0ZXJQb3NpdGlvbhII",
-            "CgRMRUZUEAASCgoGQ0VOVEVSEAESCQoFUklHSFQQAiotCg1WYXJpYWJsZVNj",
-            "b3BlEgwKCFNBVkVfS0VZEAASDgoKR0xPQkFMX0tFWRABYgZwcm90bzM="));
+            "dG9yeS5EaWFsb2dGcmFtZS5BZmZlY3Rpb25KdW1wUnVsZRIZChFmYWxsYmFj",
+            "a19mcmFtZV9pZBgMIAEoCRJEChN2YXJpYWJsZV9qdW1wX3J1bGVzGA0gAygL",
+            "MicuQk1DLlN0b3J5LkRpYWxvZ0ZyYW1lLlZhcmlhYmxlSnVtcFJ1bGUSGAoQ",
+            "YmFja2dyb3VuZF9pbWFnZRgOIAEoCRISCgpleHByZXNzaW9uGA8gASgJEhAK",
+            "CGNnX2ltYWdlGBAgASgJGpABChFBZmZlY3Rpb25KdW1wUnVsZRIUCgxjaGFy",
+            "YWN0ZXJfaWQYASABKAUSNgoMY29tcGFyZV90eXBlGAIgASgOMiAuQk1DLlN0",
+            "b3J5LkNvbmRpdGlvbi5Db21wYXJlVHlwZRIUCgx0YXJnZXRfdmFsdWUYAyAB",
+            "KAUSFwoPdGFyZ2V0X2ZyYW1lX2lkGAQgASgJGoQBChBWYXJpYWJsZUp1bXBS",
+            "dWxlEhUKDWNvbmRpdGlvbl9rZXkYASABKAkSFwoPY29uZGl0aW9uX3ZhbHVl",
+            "GAIgASgJEhcKD3RhcmdldF9mcmFtZV9pZBgDIAEoCRInCgVzY29wZRgEIAEo",
+            "DjIYLkJNQy5TdG9yeS5WYXJpYWJsZVNjb3BlIm4KCUZyYW1lVHlwZRIKCgZO",
+            "T1JNQUwQABIQCgxXSVRIX0NIT0lDRVMQARISCg5XSVRIX0pVTVBfTk9ERRAC",
+            "EhcKE1dJVEhfQUZGRUNUSU9OX0pVTVAQAxIWChJXSVRIX1ZBUklBQkxFX0pV",
+            "TVAQBCIjCgpWaXN1YWxUeXBlEgoKBlNQUklURRAAEgkKBVZJREVPEAEibgoT",
+            "UGxheUF2Z0RpYWxvZ0FjdGlvbhIYChBiYWNrZ3JvdW5kX2ltYWdlGAEgASgJ",
+            "EiYKBmZyYW1lcxgCIAMoCzIWLkJNQy5TdG9yeS5EaWFsb2dGcmFtZRIVCg1p",
+            "c19jaGF0X3N0eWxlGAMgASgIIpYGCgpTdG9yeUV2ZW50EhUKDWRlbGF5X3Nl",
+            "Y29uZHMYASABKAISGAoQd2FpdF9mb3JfdHJpZ2dlchgCIAEoCBIwCgpwbGF5",
+            "X3ZpZGVvGAogASgLMhouQk1DLlN0b3J5LlBsYXlWaWRlb0FjdGlvbkgAEjsK",
+            "C3VwZGF0ZV9zdGF0GAsgASgLMiQuQk1DLlN0b3J5LlVwZGF0ZUNoYXJhY3Rl",
+            "clN0YXRBY3Rpb25IABI0CgxzZXRfdmFyaWFibGUYDCABKAsyHC5CTUMuU3Rv",
+            "cnkuU2V0VmFyaWFibGVBY3Rpb25IABI4CghwbGF5X2JnbRgNIAEoCzIkLkJN",
+            "Qy5TdG9yeS5QbGF5QmFja2dyb3VuZE11c2ljQWN0aW9uSAASNAoIcGxheV9z",
+            "ZngYDiABKAsyIC5CTUMuU3RvcnkuUGxheVNvdW5kRWZmZWN0QWN0aW9uSAAS",
+            "MAoKcGxheV92b2ljZRgPIAEoCzIaLkJNQy5TdG9yeS5QbGF5Vm9pY2VBY3Rp",
+            "b25IABIyCglnYW1lX2RpY2UYECABKAsyHS5CTUMuU3RvcnkuR2FtZURpY2VS",
+            "b2xsQWN0aW9uSAASRQoVZ2FtZV9ydXNzaWFuX3JvdWxldHRlGBEgASgLMiQu",
+            "Qk1DLlN0b3J5LkdhbWVSdXNzaWFuUm91bGV0dGVBY3Rpb25IABIsCghnYW1l",
+            "X3F0ZRgSIAEoCzIYLkJNQy5TdG9yeS5HYW1lUVRFQWN0aW9uSAASNAoMc2hv",
+            "d19jaG9pY2VzGBMgASgLMhwuQk1DLlN0b3J5LlNob3dDaG9pY2VzQWN0aW9u",
+            "SAASOQoPcGxheV9hdmdfZGlhbG9nGBQgASgLMh4uQk1DLlN0b3J5LlBsYXlB",
+            "dmdEaWFsb2dBY3Rpb25IABIyCgtnYW1lX3B1enpsZRgVIAEoCzIbLkJNQy5T",
+            "dG9yeS5HYW1lUHV6emxlQWN0aW9uSAASOAoOZGlzcGF0Y2hfZXZlbnQYFiAB",
+            "KAsyHi5CTUMuU3RvcnkuRGlzcGF0Y2hFdmVudEFjdGlvbkgAQggKBmFjdGlv",
+            "biLWAQoGQ2hvaWNlEgwKBHRleHQYASABKAkSFgoOdGFyZ2V0X25vZGVfaWQY",
+            "AiABKAkSLwoQb25fc2VsZWN0X2V2ZW50cxgDIAMoCzIVLkJNQy5TdG9yeS5T",
+            "dG9yeUV2ZW50EjAKEnZpc2libGVfY29uZGl0aW9ucxgFIAMoCzIULkJNQy5T",
+            "dG9yeS5Db25kaXRpb24SLQoPbG9ja19jb25kaXRpb25zGAYgAygLMhQuQk1D",
+            "LlN0b3J5LkNvbmRpdGlvbhIUCgxsb2NrX21lc3NhZ2UYByABKAkinQUKCVN0",
+            "b3J5Tm9kZRIKCgJpZBgBIAEoCRINCgV0aXRsZRgCIAEoCRIuCg9vbl9lbnRl",
+            "cl9ldmVudHMYBCADKAsyFS5CTUMuU3RvcnkuU3RvcnlFdmVudBItCg5vbl9l",
+            "eGl0X2V2ZW50cxgFIAMoCzIVLkJNQy5TdG9yeS5TdG9yeUV2ZW50EhkKEWF1",
+            "dG9fanVtcF9ub2RlX2lkGAcgASgJEhcKD2F1dG9fanVtcF9kZWxheRgIIAEo",
+            "AhIaChJwcmV2aWV3X2ltYWdlX3BhdGgYCSABKAkSCgoCcHMYCiABKAkSTQoZ",
+            "YXV0b19qdW1wX2FmZmVjdGlvbl9ydWxlcxgLIAMoCzIqLkJNQy5TdG9yeS5T",
+            "dG9yeU5vZGUuTm9kZUFmZmVjdGlvbkp1bXBSdWxlEksKGGF1dG9fanVtcF92",
+            "YXJpYWJsZV9ydWxlcxgMIAMoCzIpLkJNQy5TdG9yeS5TdG9yeU5vZGUuTm9k",
+            "ZVZhcmlhYmxlSnVtcFJ1bGUakwEKFU5vZGVBZmZlY3Rpb25KdW1wUnVsZRIU",
+            "CgxjaGFyYWN0ZXJfaWQYASABKAUSNgoMY29tcGFyZV90eXBlGAIgASgOMiAu",
+            "Qk1DLlN0b3J5LkNvbmRpdGlvbi5Db21wYXJlVHlwZRIUCgx0YXJnZXRfdmFs",
+            "dWUYAyABKAUSFgoOdGFyZ2V0X25vZGVfaWQYBCABKAkahwEKFE5vZGVWYXJp",
+            "YWJsZUp1bXBSdWxlEhUKDWNvbmRpdGlvbl9rZXkYASABKAkSFwoPY29uZGl0",
+            "aW9uX3ZhbHVlGAIgASgJEhYKDnRhcmdldF9ub2RlX2lkGAMgASgJEicKBXNj",
+            "b3BlGAQgASgOMhguQk1DLlN0b3J5LlZhcmlhYmxlU2NvcGUiygEKDFN0b3J5",
+            "UGFja2FnZRISCgpjaGFwdGVyX2lkGAEgASgJEiMKBW5vZGVzGAIgAygLMhQu",
+            "Qk1DLlN0b3J5LlN0b3J5Tm9kZRJIChFpbml0aWFsX3ZhcmlhYmxlcxgDIAMo",
+            "CzItLkJNQy5TdG9yeS5TdG9yeVBhY2thZ2UuSW5pdGlhbFZhcmlhYmxlc0Vu",
+            "dHJ5GjcKFUluaXRpYWxWYXJpYWJsZXNFbnRyeRILCgNrZXkYASABKAkSDQoF",
+            "dmFsdWUYAiABKAU6AjgBKi8KCFN0YXRUeXBlEggKBE5PTkUQABIHCgNTVFIQ",
+            "ARIHCgNBR0kQAhIHCgNJTlQQAyo0ChFDaGFyYWN0ZXJQb3NpdGlvbhIICgRM",
+            "RUZUEAASCgoGQ0VOVEVSEAESCQoFUklHSFQQAiotCg1WYXJpYWJsZVNjb3Bl",
+            "EgwKCFNBVkVfS0VZEAASDgoKR0xPQkFMX0tFWRABQgyqAglCTUMuU3Rvcnli",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::BMC.Story.StatType), typeof(global::BMC.Story.CharacterPosition), typeof(global::BMC.Story.VariableScope), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -168,10 +171,10 @@ namespace BMC.Story {
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.ShowChoicesAction), global::BMC.Story.ShowChoicesAction.Parser, new[]{ "Choices", "AppendMode" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DispatchEventAction), global::BMC.Story.DispatchEventAction.Parser, new[]{ "EventType", "EventParam" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice), global::BMC.Story.DialogChoice.Parser, new[]{ "Text", "Type", "TargetFrameId", "VariableRules", "OnSelectEvents", "VisibleConditions", "LockConditions", "LockMessage" }, null, new[]{ typeof(global::BMC.Story.DialogChoice.Types.ChoiceType) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogChoice.Types.VariableJumpRule), global::BMC.Story.DialogChoice.Types.VariableJumpRule.Parser, new[]{ "VariableId", "TargetFrameId" }, null, null, null, null)}),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame), global::BMC.Story.DialogFrame.Parser, new[]{ "CharacterId", "Key", "Position", "AssetName", "FrameId", "FrameType", "Choices", "TargetNodeId", "OnEndEvents", "VisualType", "AffectionJumpRules", "VariableJumpRules", "FallbackFrameId" }, null, new[]{ typeof(global::BMC.Story.DialogFrame.Types.FrameType), typeof(global::BMC.Story.DialogFrame.Types.VisualType) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame.Types.AffectionJumpRule), global::BMC.Story.DialogFrame.Types.AffectionJumpRule.Parser, new[]{ "CharacterId", "CompareType", "TargetValue", "TargetFrameId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame), global::BMC.Story.DialogFrame.Parser, new[]{ "CharacterId", "Key", "Position", "AssetName", "FrameId", "FrameType", "Choices", "TargetNodeId", "OnEndEvents", "VisualType", "AffectionJumpRules", "FallbackFrameId", "VariableJumpRules", "BackgroundImage", "Expression", "CgImage" }, null, new[]{ typeof(global::BMC.Story.DialogFrame.Types.FrameType), typeof(global::BMC.Story.DialogFrame.Types.VisualType) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame.Types.AffectionJumpRule), global::BMC.Story.DialogFrame.Types.AffectionJumpRule.Parser, new[]{ "CharacterId", "CompareType", "TargetValue", "TargetFrameId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.DialogFrame.Types.VariableJumpRule), global::BMC.Story.DialogFrame.Types.VariableJumpRule.Parser, new[]{ "ConditionKey", "ConditionValue", "TargetFrameId", "Scope" }, null, null, null, null)}),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayAvgDialogAction), global::BMC.Story.PlayAvgDialogAction.Parser, new[]{ "BackgroundImage", "Frames" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "WaitForTrigger", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "GamePuzzle", "ShowChoices", "PlayAvgDialog", "DispatchEvent" }, new[]{ "Action" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.PlayAvgDialogAction), global::BMC.Story.PlayAvgDialogAction.Parser, new[]{ "BackgroundImage", "Frames", "IsChatStyle" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryEvent), global::BMC.Story.StoryEvent.Parser, new[]{ "DelaySeconds", "WaitForTrigger", "PlayVideo", "UpdateStat", "SetVariable", "PlayBgm", "PlaySfx", "PlayVoice", "GameDice", "GameRussianRoulette", "GameQte", "ShowChoices", "PlayAvgDialog", "GamePuzzle", "DispatchEvent" }, new[]{ "Action" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.Choice), global::BMC.Story.Choice.Parser, new[]{ "Text", "TargetNodeId", "OnSelectEvents", "VisibleConditions", "LockConditions", "LockMessage" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryNode), global::BMC.Story.StoryNode.Parser, new[]{ "Id", "Title", "OnEnterEvents", "OnExitEvents", "AutoJumpNodeId", "AutoJumpDelay", "PreviewImagePath", "Ps", "AutoJumpAffectionRules", "AutoJumpVariableRules" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryNode.Types.NodeAffectionJumpRule), global::BMC.Story.StoryNode.Types.NodeAffectionJumpRule.Parser, new[]{ "CharacterId", "CompareType", "TargetValue", "TargetNodeId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BMC.Story.StoryNode.Types.NodeVariableJumpRule), global::BMC.Story.StoryNode.Types.NodeVariableJumpRule.Parser, new[]{ "ConditionKey", "ConditionValue", "TargetNodeId", "Scope" }, null, null, null, null)}),
@@ -195,17 +198,8 @@ namespace BMC.Story {
     [pbr::OriginalName("RIGHT")] Right = 2,
   }
 
-  /// <summary>
-  /// [新增] 定義變數的生命週期範圍
-  /// </summary>
   public enum VariableScope {
-    /// <summary>
-    /// 會寫入遊戲實體存檔的變數
-    /// </summary>
     [pbr::OriginalName("SAVE_KEY")] SaveKey = 0,
-    /// <summary>
-    /// 只在本次 Runtime 存活的黑板變數
-    /// </summary>
     [pbr::OriginalName("GLOBAL_KEY")] GlobalKey = 1,
   }
 
@@ -542,11 +536,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -589,11 +579,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -639,9 +625,6 @@ namespace BMC.Story {
         [pbr::OriginalName("GLOBAL_VARIABLE")] GlobalVariable = 0,
         [pbr::OriginalName("CHARACTER_STAT")] CharacterStat = 1,
         [pbr::OriginalName("CHARACTER_AFFECTION")] CharacterAffection = 2,
-        /// <summary>
-        /// [新增] 存檔變數判定
-        /// </summary>
         [pbr::OriginalName("SAVE_VARIABLE")] SaveVariable = 3,
       }
 
@@ -873,11 +856,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -904,11 +883,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1174,11 +1149,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1209,11 +1180,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1454,11 +1421,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1485,11 +1448,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1697,11 +1656,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1724,11 +1679,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -1961,11 +1912,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -1992,11 +1939,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -2233,11 +2176,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -2264,11 +2203,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -2650,11 +2585,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -2701,11 +2632,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3139,11 +3066,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3195,11 +3118,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3606,11 +3525,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3657,11 +3572,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -3942,11 +3853,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -3973,11 +3880,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4174,11 +4077,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4201,11 +4100,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4409,11 +4304,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4436,11 +4327,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -4774,11 +4661,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -4825,11 +4708,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -5065,11 +4944,7 @@ namespace BMC.Story {
         #else
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
                 break;
@@ -5092,11 +4967,7 @@ namespace BMC.Story {
         void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
                 break;
@@ -5166,8 +5037,11 @@ namespace BMC.Story {
       onEndEvents_ = other.onEndEvents_.Clone();
       visualType_ = other.visualType_;
       affectionJumpRules_ = other.affectionJumpRules_.Clone();
-      variableJumpRules_ = other.variableJumpRules_.Clone();
       fallbackFrameId_ = other.fallbackFrameId_;
+      variableJumpRules_ = other.variableJumpRules_.Clone();
+      backgroundImage_ = other.backgroundImage_;
+      expression_ = other.expression_;
+      cgImage_ = other.cgImage_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -5306,6 +5180,18 @@ namespace BMC.Story {
       get { return affectionJumpRules_; }
     }
 
+    /// <summary>Field number for the "fallback_frame_id" field.</summary>
+    public const int FallbackFrameIdFieldNumber = 12;
+    private string fallbackFrameId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string FallbackFrameId {
+      get { return fallbackFrameId_; }
+      set {
+        fallbackFrameId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     /// <summary>Field number for the "variable_jump_rules" field.</summary>
     public const int VariableJumpRulesFieldNumber = 13;
     private static readonly pb::FieldCodec<global::BMC.Story.DialogFrame.Types.VariableJumpRule> _repeated_variableJumpRules_codec
@@ -5317,15 +5203,48 @@ namespace BMC.Story {
       get { return variableJumpRules_; }
     }
 
-    /// <summary>Field number for the "fallback_frame_id" field.</summary>
-    public const int FallbackFrameIdFieldNumber = 12;
-    private string fallbackFrameId_ = "";
+    /// <summary>Field number for the "background_image" field.</summary>
+    public const int BackgroundImageFieldNumber = 14;
+    private string backgroundImage_ = "";
+    /// <summary>
+    /// 本拍要換的背景圖，空字串＝沿用前一拍(或 PlayAvgDialogAction.background_image 的整段預設)背景
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string FallbackFrameId {
-      get { return fallbackFrameId_; }
+    public string BackgroundImage {
+      get { return backgroundImage_; }
       set {
-        fallbackFrameId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        backgroundImage_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "expression" field.</summary>
+    public const int ExpressionFieldNumber = 15;
+    private string expression_ = "";
+    /// <summary>
+    /// 角色表情/立繪變化，對應圖集裡的 "Char_{character_id}_{expression}"；空字串＝用預設立繪 "Char_{character_id}"
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Expression {
+      get { return expression_; }
+      set {
+        expression_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "cg_image" field.</summary>
+    public const int CgImageFieldNumber = 16;
+    private string cgImage_ = "";
+    /// <summary>
+    /// 全螢幕 CG 插圖位址，非空時蓋掉角色立繪顯示這張圖(對話框文字仍照常顯示)；空字串＝不顯示 CG
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string CgImage {
+      get { return cgImage_; }
+      set {
+        cgImage_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -5355,8 +5274,11 @@ namespace BMC.Story {
       if(!onEndEvents_.Equals(other.onEndEvents_)) return false;
       if (VisualType != other.VisualType) return false;
       if(!affectionJumpRules_.Equals(other.affectionJumpRules_)) return false;
-      if(!variableJumpRules_.Equals(other.variableJumpRules_)) return false;
       if (FallbackFrameId != other.FallbackFrameId) return false;
+      if(!variableJumpRules_.Equals(other.variableJumpRules_)) return false;
+      if (BackgroundImage != other.BackgroundImage) return false;
+      if (Expression != other.Expression) return false;
+      if (CgImage != other.CgImage) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -5375,8 +5297,11 @@ namespace BMC.Story {
       hash ^= onEndEvents_.GetHashCode();
       if (VisualType != global::BMC.Story.DialogFrame.Types.VisualType.Sprite) hash ^= VisualType.GetHashCode();
       hash ^= affectionJumpRules_.GetHashCode();
-      hash ^= variableJumpRules_.GetHashCode();
       if (FallbackFrameId.Length != 0) hash ^= FallbackFrameId.GetHashCode();
+      hash ^= variableJumpRules_.GetHashCode();
+      if (BackgroundImage.Length != 0) hash ^= BackgroundImage.GetHashCode();
+      if (Expression.Length != 0) hash ^= Expression.GetHashCode();
+      if (CgImage.Length != 0) hash ^= CgImage.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -5435,6 +5360,18 @@ namespace BMC.Story {
         output.WriteString(FallbackFrameId);
       }
       variableJumpRules_.WriteTo(output, _repeated_variableJumpRules_codec);
+      if (BackgroundImage.Length != 0) {
+        output.WriteRawTag(114);
+        output.WriteString(BackgroundImage);
+      }
+      if (Expression.Length != 0) {
+        output.WriteRawTag(122);
+        output.WriteString(Expression);
+      }
+      if (CgImage.Length != 0) {
+        output.WriteRawTag(130, 1);
+        output.WriteString(CgImage);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5485,6 +5422,18 @@ namespace BMC.Story {
         output.WriteString(FallbackFrameId);
       }
       variableJumpRules_.WriteTo(ref output, _repeated_variableJumpRules_codec);
+      if (BackgroundImage.Length != 0) {
+        output.WriteRawTag(114);
+        output.WriteString(BackgroundImage);
+      }
+      if (Expression.Length != 0) {
+        output.WriteRawTag(122);
+        output.WriteString(Expression);
+      }
+      if (CgImage.Length != 0) {
+        output.WriteRawTag(130, 1);
+        output.WriteString(CgImage);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5522,9 +5471,18 @@ namespace BMC.Story {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) VisualType);
       }
       size += affectionJumpRules_.CalculateSize(_repeated_affectionJumpRules_codec);
-      size += variableJumpRules_.CalculateSize(_repeated_variableJumpRules_codec);
       if (FallbackFrameId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(FallbackFrameId);
+      }
+      size += variableJumpRules_.CalculateSize(_repeated_variableJumpRules_codec);
+      if (BackgroundImage.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(BackgroundImage);
+      }
+      if (Expression.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Expression);
+      }
+      if (CgImage.Length != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeStringSize(CgImage);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -5565,9 +5523,18 @@ namespace BMC.Story {
         VisualType = other.VisualType;
       }
       affectionJumpRules_.Add(other.affectionJumpRules_);
-      variableJumpRules_.Add(other.variableJumpRules_);
       if (other.FallbackFrameId.Length != 0) {
         FallbackFrameId = other.FallbackFrameId;
+      }
+      variableJumpRules_.Add(other.variableJumpRules_);
+      if (other.BackgroundImage.Length != 0) {
+        BackgroundImage = other.BackgroundImage;
+      }
+      if (other.Expression.Length != 0) {
+        Expression = other.Expression;
+      }
+      if (other.CgImage.Length != 0) {
+        CgImage = other.CgImage;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -5580,11 +5547,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -5640,6 +5603,18 @@ namespace BMC.Story {
             variableJumpRules_.AddEntriesFrom(input, _repeated_variableJumpRules_codec);
             break;
           }
+          case 114: {
+            BackgroundImage = input.ReadString();
+            break;
+          }
+          case 122: {
+            Expression = input.ReadString();
+            break;
+          }
+          case 130: {
+            CgImage = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -5651,11 +5626,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -5711,6 +5682,18 @@ namespace BMC.Story {
             variableJumpRules_.AddEntriesFrom(ref input, _repeated_variableJumpRules_codec);
             break;
           }
+          case 114: {
+            BackgroundImage = input.ReadString();
+            break;
+          }
+          case 122: {
+            Expression = input.ReadString();
+            break;
+          }
+          case 130: {
+            CgImage = input.ReadString();
+            break;
+          }
         }
       }
     }
@@ -5734,9 +5717,6 @@ namespace BMC.Story {
         [pbr::OriginalName("VIDEO")] Video = 1,
       }
 
-      /// <summary>
-      /// --- 友好度跳轉 ---
-      /// </summary>
       [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
       public sealed partial class AffectionJumpRule : pb::IMessage<AffectionJumpRule>
       #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -5980,11 +5960,7 @@ namespace BMC.Story {
         #else
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
                 break;
@@ -6015,11 +5991,7 @@ namespace BMC.Story {
         void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
                 break;
@@ -6046,9 +6018,6 @@ namespace BMC.Story {
 
       }
 
-      /// <summary>
-      /// --- 變數跳轉 ---
-      /// </summary>
       [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
       public sealed partial class VariableJumpRule : pb::IMessage<VariableJumpRule>
       #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -6136,9 +6105,6 @@ namespace BMC.Story {
         /// <summary>Field number for the "scope" field.</summary>
         public const int ScopeFieldNumber = 4;
         private global::BMC.Story.VariableScope scope_ = global::BMC.Story.VariableScope.SaveKey;
-        /// <summary>
-        /// [新增] 決定是檢查 SaveKey 還是 GlobalKey
-        /// </summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
         public global::BMC.Story.VariableScope Scope {
@@ -6295,11 +6261,7 @@ namespace BMC.Story {
         #else
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
                 break;
@@ -6330,11 +6292,7 @@ namespace BMC.Story {
         void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
                 break;
@@ -6403,6 +6361,7 @@ namespace BMC.Story {
     public PlayAvgDialogAction(PlayAvgDialogAction other) : this() {
       backgroundImage_ = other.backgroundImage_;
       frames_ = other.frames_.Clone();
+      isChatStyle_ = other.isChatStyle_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -6435,6 +6394,23 @@ namespace BMC.Story {
       get { return frames_; }
     }
 
+    /// <summary>Field number for the "is_chat_style" field.</summary>
+    public const int IsChatStyleFieldNumber = 3;
+    private bool isChatStyle_;
+    /// <summary>
+    /// 對話框改用「電腦聊天訊息」樣式(而不是一般 AVG 對話框)。原本是拿 background_image
+    /// 字串裡有沒有包含「聊天」兩個字去判斷，跟背景圖用同一個欄位是兩件事混在一起；
+    /// 拆成獨立欄位，background_image 專心只當背景圖位址用。
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool IsChatStyle {
+      get { return isChatStyle_; }
+      set {
+        isChatStyle_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -6452,6 +6428,7 @@ namespace BMC.Story {
       }
       if (BackgroundImage != other.BackgroundImage) return false;
       if(!frames_.Equals(other.frames_)) return false;
+      if (IsChatStyle != other.IsChatStyle) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -6461,6 +6438,7 @@ namespace BMC.Story {
       int hash = 1;
       if (BackgroundImage.Length != 0) hash ^= BackgroundImage.GetHashCode();
       hash ^= frames_.GetHashCode();
+      if (IsChatStyle != false) hash ^= IsChatStyle.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -6484,6 +6462,10 @@ namespace BMC.Story {
         output.WriteString(BackgroundImage);
       }
       frames_.WriteTo(output, _repeated_frames_codec);
+      if (IsChatStyle != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(IsChatStyle);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -6499,6 +6481,10 @@ namespace BMC.Story {
         output.WriteString(BackgroundImage);
       }
       frames_.WriteTo(ref output, _repeated_frames_codec);
+      if (IsChatStyle != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(IsChatStyle);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -6513,6 +6499,9 @@ namespace BMC.Story {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(BackgroundImage);
       }
       size += frames_.CalculateSize(_repeated_frames_codec);
+      if (IsChatStyle != false) {
+        size += 1 + 1;
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -6529,6 +6518,9 @@ namespace BMC.Story {
         BackgroundImage = other.BackgroundImage;
       }
       frames_.Add(other.frames_);
+      if (other.IsChatStyle != false) {
+        IsChatStyle = other.IsChatStyle;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -6540,11 +6532,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -6554,6 +6542,10 @@ namespace BMC.Story {
           }
           case 18: {
             frames_.AddEntriesFrom(input, _repeated_frames_codec);
+            break;
+          }
+          case 24: {
+            IsChatStyle = input.ReadBool();
             break;
           }
         }
@@ -6567,11 +6559,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -6581,6 +6569,10 @@ namespace BMC.Story {
           }
           case 18: {
             frames_.AddEntriesFrom(ref input, _repeated_frames_codec);
+            break;
+          }
+          case 24: {
+            IsChatStyle = input.ReadBool();
             break;
           }
         }
@@ -6655,14 +6647,14 @@ namespace BMC.Story {
         case ActionOneofCase.GameQte:
           GameQte = other.GameQte.Clone();
           break;
-        case ActionOneofCase.GamePuzzle:
-          GamePuzzle = other.GamePuzzle.Clone();
-          break;
         case ActionOneofCase.ShowChoices:
           ShowChoices = other.ShowChoices.Clone();
           break;
         case ActionOneofCase.PlayAvgDialog:
           PlayAvgDialog = other.PlayAvgDialog.Clone();
+          break;
+        case ActionOneofCase.GamePuzzle:
+          GamePuzzle = other.GamePuzzle.Clone();
           break;
         case ActionOneofCase.DispatchEvent:
           DispatchEvent = other.DispatchEvent.Clone();
@@ -6810,18 +6802,6 @@ namespace BMC.Story {
       }
     }
 
-    /// <summary>Field number for the "game_puzzle" field.</summary>
-    public const int GamePuzzleFieldNumber = 21;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::BMC.Story.GamePuzzleAction GamePuzzle {
-      get { return actionCase_ == ActionOneofCase.GamePuzzle ? (global::BMC.Story.GamePuzzleAction) action_ : null; }
-      set {
-        action_ = value;
-        actionCase_ = value == null ? ActionOneofCase.None : ActionOneofCase.GamePuzzle;
-      }
-    }
-
     /// <summary>Field number for the "show_choices" field.</summary>
     public const int ShowChoicesFieldNumber = 19;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6843,6 +6823,18 @@ namespace BMC.Story {
       set {
         action_ = value;
         actionCase_ = value == null ? ActionOneofCase.None : ActionOneofCase.PlayAvgDialog;
+      }
+    }
+
+    /// <summary>Field number for the "game_puzzle" field.</summary>
+    public const int GamePuzzleFieldNumber = 21;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::BMC.Story.GamePuzzleAction GamePuzzle {
+      get { return actionCase_ == ActionOneofCase.GamePuzzle ? (global::BMC.Story.GamePuzzleAction) action_ : null; }
+      set {
+        action_ = value;
+        actionCase_ = value == null ? ActionOneofCase.None : ActionOneofCase.GamePuzzle;
       }
     }
 
@@ -6871,9 +6863,9 @@ namespace BMC.Story {
       GameDice = 16,
       GameRussianRoulette = 17,
       GameQte = 18,
-      GamePuzzle = 21,
       ShowChoices = 19,
       PlayAvgDialog = 20,
+      GamePuzzle = 21,
       DispatchEvent = 22,
     }
     private ActionOneofCase actionCase_ = ActionOneofCase.None;
@@ -6916,9 +6908,9 @@ namespace BMC.Story {
       if (!object.Equals(GameDice, other.GameDice)) return false;
       if (!object.Equals(GameRussianRoulette, other.GameRussianRoulette)) return false;
       if (!object.Equals(GameQte, other.GameQte)) return false;
-      if (!object.Equals(GamePuzzle, other.GamePuzzle)) return false;
       if (!object.Equals(ShowChoices, other.ShowChoices)) return false;
       if (!object.Equals(PlayAvgDialog, other.PlayAvgDialog)) return false;
+      if (!object.Equals(GamePuzzle, other.GamePuzzle)) return false;
       if (!object.Equals(DispatchEvent, other.DispatchEvent)) return false;
       if (ActionCase != other.ActionCase) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -6939,9 +6931,9 @@ namespace BMC.Story {
       if (actionCase_ == ActionOneofCase.GameDice) hash ^= GameDice.GetHashCode();
       if (actionCase_ == ActionOneofCase.GameRussianRoulette) hash ^= GameRussianRoulette.GetHashCode();
       if (actionCase_ == ActionOneofCase.GameQte) hash ^= GameQte.GetHashCode();
-      if (actionCase_ == ActionOneofCase.GamePuzzle) hash ^= GamePuzzle.GetHashCode();
       if (actionCase_ == ActionOneofCase.ShowChoices) hash ^= ShowChoices.GetHashCode();
       if (actionCase_ == ActionOneofCase.PlayAvgDialog) hash ^= PlayAvgDialog.GetHashCode();
+      if (actionCase_ == ActionOneofCase.GamePuzzle) hash ^= GamePuzzle.GetHashCode();
       if (actionCase_ == ActionOneofCase.DispatchEvent) hash ^= DispatchEvent.GetHashCode();
       hash ^= (int) actionCase_;
       if (_unknownFields != null) {
@@ -7135,14 +7127,14 @@ namespace BMC.Story {
       if (actionCase_ == ActionOneofCase.GameQte) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(GameQte);
       }
-      if (actionCase_ == ActionOneofCase.GamePuzzle) {
-        size += 2 + pb::CodedOutputStream.ComputeMessageSize(GamePuzzle);
-      }
       if (actionCase_ == ActionOneofCase.ShowChoices) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(ShowChoices);
       }
       if (actionCase_ == ActionOneofCase.PlayAvgDialog) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(PlayAvgDialog);
+      }
+      if (actionCase_ == ActionOneofCase.GamePuzzle) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(GamePuzzle);
       }
       if (actionCase_ == ActionOneofCase.DispatchEvent) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(DispatchEvent);
@@ -7220,12 +7212,6 @@ namespace BMC.Story {
           }
           GameQte.MergeFrom(other.GameQte);
           break;
-        case ActionOneofCase.GamePuzzle:
-          if (GamePuzzle == null) {
-            GamePuzzle = new global::BMC.Story.GamePuzzleAction();
-          }
-          GamePuzzle.MergeFrom(other.GamePuzzle);
-          break;
         case ActionOneofCase.ShowChoices:
           if (ShowChoices == null) {
             ShowChoices = new global::BMC.Story.ShowChoicesAction();
@@ -7237,6 +7223,12 @@ namespace BMC.Story {
             PlayAvgDialog = new global::BMC.Story.PlayAvgDialogAction();
           }
           PlayAvgDialog.MergeFrom(other.PlayAvgDialog);
+          break;
+        case ActionOneofCase.GamePuzzle:
+          if (GamePuzzle == null) {
+            GamePuzzle = new global::BMC.Story.GamePuzzleAction();
+          }
+          GamePuzzle.MergeFrom(other.GamePuzzle);
           break;
         case ActionOneofCase.DispatchEvent:
           if (DispatchEvent == null) {
@@ -7257,11 +7249,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -7401,11 +7389,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -7809,11 +7793,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -7852,11 +7832,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -8264,11 +8240,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -8323,11 +8295,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
@@ -8381,9 +8349,6 @@ namespace BMC.Story {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static partial class Types {
-      /// <summary>
-      /// --- 友好度跳轉 ---
-      /// </summary>
       [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
       public sealed partial class NodeAffectionJumpRule : pb::IMessage<NodeAffectionJumpRule>
       #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -8627,11 +8592,7 @@ namespace BMC.Story {
         #else
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
                 break;
@@ -8662,11 +8623,7 @@ namespace BMC.Story {
         void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
                 break;
@@ -8693,9 +8650,6 @@ namespace BMC.Story {
 
       }
 
-      /// <summary>
-      /// --- 變數跳轉 ---
-      /// </summary>
       [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
       public sealed partial class NodeVariableJumpRule : pb::IMessage<NodeVariableJumpRule>
       #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -8783,9 +8737,6 @@ namespace BMC.Story {
         /// <summary>Field number for the "scope" field.</summary>
         public const int ScopeFieldNumber = 4;
         private global::BMC.Story.VariableScope scope_ = global::BMC.Story.VariableScope.SaveKey;
-        /// <summary>
-        /// [新增] 決定是檢查 SaveKey 還是 GlobalKey
-        /// </summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
         public global::BMC.Story.VariableScope Scope {
@@ -8942,11 +8893,7 @@ namespace BMC.Story {
         #else
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
                 break;
@@ -8977,11 +8924,7 @@ namespace BMC.Story {
         void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
-          if ((tag & 7) == 4) {
-            // Abort on any end group tag.
-            return;
-          }
-          switch(tag) {
+            switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
                 break;
@@ -9205,11 +9148,7 @@ namespace BMC.Story {
     #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
@@ -9236,11 +9175,7 @@ namespace BMC.Story {
     void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
+        switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
