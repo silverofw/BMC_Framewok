@@ -84,3 +84,6 @@ crashlytics-build.properties
 
 # VSCode 個人設定
 .vscode/
+
+# CodeGraph 的本機索引（SQLite + WAL），每台機器自己 codegraph init 建
+.codegraph/
