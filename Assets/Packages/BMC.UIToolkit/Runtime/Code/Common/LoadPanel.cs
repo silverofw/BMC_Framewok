@@ -30,6 +30,16 @@ namespace BMC.UIToolkit
         /// <summary>進退場動畫秒數，需與 UIT_Common.uss 的 transition-duration 一致</summary>
         private const float ANIMATION_TIME = 0.5f;
 
+        /// <summary>
+        /// 跑滿之後停在「完成」狀態多久才開始淡出（秒）。
+        ///
+        /// 【為什麼需要這一段】完成色是靠 USS 的 transition 漸變上去的（預設 0.4s），
+        /// 而原本加完 class 的同一幀就把進度條藏起來並開始淡出 —— 顏色連第一幀都沒畫到，
+        /// 玩家不但看不到完成色，連 100% 本身都來不及看見。
+        /// 這個值要比 uss 那邊的 transition-duration 長一點。
+        /// </summary>
+        private const float COMPLETE_HOLD_TIME = 0.6f;
+
         /// <summary>每秒最多跑幾 %：與 uGUI 版的 progressSpeed 預設值相同</summary>
         private const float PROGRESS_SPEED = 50f;
 
@@ -275,7 +285,13 @@ namespace BMC.UIToolkit
             Log.Info("[LoadPanel] Reached 100%, generating report...");
             PrintReport();
 
-            SetBarVisible(false);
+            // 先停一下，讓 100% 與完成色真的被看見（見 COMPLETE_HOLD_TIME）
+            await UniTask.WaitForSeconds(COMPLETE_HOLD_TIME, ignoreTimeScale: true);
+            if (IsClosed)
+                return;
+
+            // 【不要在這裡 SetBarVisible(false)】那會讓進度條在淡出開始的瞬間憑空消失，
+            // 只剩一片遮罩在淡。讓它跟著 cover 一起淡掉，收尾才完整。
             cover?.RemoveFromClassList("bmc-load-cover--shown");
 
             await UniTask.WaitForSeconds(ANIMATION_TIME, ignoreTimeScale: true);
