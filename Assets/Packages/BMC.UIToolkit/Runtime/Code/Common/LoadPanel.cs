@@ -33,6 +33,9 @@ namespace BMC.UIToolkit
         /// <summary>每秒最多跑幾 %：與 uGUI 版的 progressSpeed 預設值相同</summary>
         private const float PROGRESS_SPEED = 50f;
 
+        /// <summary>轉圈每秒轉動角度</summary>
+        private const float SPINNER_SPEED = 260f;
+
         private static bool AutoFinish;
 
         /// <summary>
@@ -60,7 +63,10 @@ namespace BMC.UIToolkit
         private VisualElement cover;
         private VisualElement barRoot;
         private VisualElement barFill;
+        private VisualElement barCursor;
+        private VisualElement spinner;
         private Label progressLabel;
+        private Label tipLabel;
 
         private Action onStartAction;
         private Action onFinishCallback;
@@ -73,8 +79,13 @@ namespace BMC.UIToolkit
         private int targetProgress;    // 目標進度 (0-100)
         private bool isLoading;
 
+        private float spinnerAngle;
+
         /// <summary>平滑進度的每幀更新，對應 uGUI 版的 Update</summary>
         private IVisualElementScheduledItem ticker;
+
+        /// <summary>轉圈動畫，全程跑（含淡入淡出期間），跟進度無關所以獨立一個 scheduler</summary>
+        private IVisualElementScheduledItem spinnerTicker;
 
         protected override void OnInit()
         {
@@ -86,7 +97,13 @@ namespace BMC.UIToolkit
             cover = Root.Q<VisualElement>("cover");
             barRoot = Root.Q<VisualElement>("bar-root");
             barFill = Root.Q<VisualElement>("bar-fill");
+            barCursor = Root.Q<VisualElement>("bar-cursor");
+            spinner = Root.Q<VisualElement>("spinner");
             progressLabel = Root.Q<Label>("progress");
+            tipLabel = Root.Q<Label>("tip");
+
+            spinnerAngle = 0f;
+            spinnerTicker = Root.schedule.Execute(RotateSpinner).Every(0);
         }
 
         protected override void OnClose()
@@ -94,8 +111,20 @@ namespace BMC.UIToolkit
             ticker?.Pause();
             ticker = null;
 
+            spinnerTicker?.Pause();
+            spinnerTicker = null;
+
             if (Instance == this)
                 Instance = null;
+        }
+
+        private void RotateSpinner()
+        {
+            if (spinner == null)
+                return;
+
+            spinnerAngle = (spinnerAngle + Time.unscaledDeltaTime * SPINNER_SPEED) % 360f;
+            spinner.style.rotate = new Rotate(spinnerAngle);
         }
 
         public void Setup(Action startAction, Action finishAction)
@@ -113,6 +142,11 @@ namespace BMC.UIToolkit
             targetProgress = 0;
             isLoading = false;
             progressRecords.Clear();
+
+            SetTipText(null);
+
+            barFill?.RemoveFromClassList("bmc-load-bar__fill--complete");
+            barCursor?.RemoveFromClassList("bmc-load-bar__cursor--complete");
 
             UpdateUI(0f);
             SetBarVisible(false);
@@ -166,6 +200,11 @@ namespace BMC.UIToolkit
             {
                 isLoading = false;
                 ticker?.Pause();
+
+                // 跑滿才由藍轉綠，靠 USS transition 做漸變色過渡，不是瞬間變色
+                barFill?.AddToClassList("bmc-load-bar__fill--complete");
+                barCursor?.AddToClassList("bmc-load-bar__cursor--complete");
+
                 PerformHideSequence().Forget();
             }
         }
@@ -173,12 +212,17 @@ namespace BMC.UIToolkit
         private void UpdateUI(float val)
         {
             int displayVal = Mathf.FloorToInt(val);
+            float clamped = Mathf.Clamp(val, 0f, ProgressMax);
 
             if (barFill != null)
-                barFill.style.width = Length.Percent(Mathf.Clamp(val, 0f, ProgressMax));
+                barFill.style.width = Length.Percent(clamped);
+
+            // 圖示跟著跑條前進：left 用跟 fill 一樣的百分比，USS 用 translate -50% 對齊中心
+            if (barCursor != null)
+                barCursor.style.left = Length.Percent(clamped);
 
             if (progressLabel != null)
-                progressLabel.text = displayVal.ToString();
+                progressLabel.text = $"{displayVal}%";
         }
 
         private void SetBarVisible(bool visible)
@@ -187,7 +231,8 @@ namespace BMC.UIToolkit
                 barRoot.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
-        public void SetProgress(int progress, string tip)
+        /// <param name="tip">選填的提示文字，不帶或傳空字串就不顯示提示列</param>
+        public void SetProgress(int progress, string tip = null)
         {
             RecordTip(tip);
             targetProgress = Mathf.Clamp(progress, 0, ProgressMax);
@@ -196,7 +241,8 @@ namespace BMC.UIToolkit
         /// <summary>
         /// 呼叫加載完成
         /// </summary>
-        public void SetMaxProgress(string tip)
+        /// <param name="tip">選填的提示文字，不帶或傳空字串就不顯示提示列</param>
+        public void SetMaxProgress(string tip = null)
         {
             RecordTip(tip);
             targetProgress = ProgressMax;
@@ -207,6 +253,21 @@ namespace BMC.UIToolkit
             float now = Time.realtimeSinceStartup;
             progressRecords.Add((now - lastProgressTime, tip));
             lastProgressTime = now;
+
+            SetTipText(tip);
+        }
+
+        /// <summary>
+        /// 沒有提示文字時直接隱藏該列，而不是留一行空白佔版面。
+        /// </summary>
+        private void SetTipText(string tip)
+        {
+            if (tipLabel == null)
+                return;
+
+            bool hasTip = !string.IsNullOrEmpty(tip);
+            tipLabel.text = hasTip ? tip : string.Empty;
+            tipLabel.style.display = hasTip ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private async UniTaskVoid PerformHideSequence()

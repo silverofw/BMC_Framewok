@@ -3,6 +3,15 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.3.0] - 2026-09-09
+
+### Changed
+- `LoadPanel`（讀取畫面）視覺整體重做：版面改貼底置中、跑條長度加倍並加上跟隨進度的
+  圓角方型圖示、跑滿時由藍轉綠做漸變色過渡、轉圈動畫改成乾淨的細圓環（拿掉容易糊成
+  實心球的柔光暈）。
+- `LoadPanel.SetProgress`／`SetMaxProgress` 的 `tip` 參數改為選填，留空時提示文字列
+  會直接隱藏，不再佔版面。
+
 ## [1.1.2] - 2026-08-25
 
 ### Fixed

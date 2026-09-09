@@ -648,8 +648,9 @@ MultiListView .unity-collection-view__item:focus {
     right: 0;
     bottom: 0;
     align-items: center;
-    justify-content: center;
-    background-color: rgb(12, 12, 16);
+    /* 整體貼底置中：原本是螢幕正中央，改成靠底部對齊 */
+    justify-content: flex-end;
+    background-color: rgb(13, 15, 20);
 
     opacity: 0;
     transition-property: opacity;
@@ -661,36 +662,113 @@ MultiListView .unity-collection-view__item:focus {
     opacity: 1;
 }
 
+.bmc-load-content {
+    align-items: center;
+    padding-bottom: 8%;
+}
+
+/* spinner 外框，單純置中用，不套其他效果 */
+.bmc-load-spinner-wrap {
+    width: 56px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+/* 轉圈本體：純透明底的細圓環，只有一邊上色形成高亮弧段，
+   由 LoadPanel 每幀疊加 rotate 角度轉動。之前疊了柔光暈 box-shadow
+   在 Unity 的算圖下糊成一顆實心球，不好看，這版拿掉只留乾淨的圈。 */
+.bmc-load-spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    border-width: 4px;
+    border-color: rgba(255, 255, 255, 0.12);
+    border-top-color: rgb(120, 165, 255);
+}
+
+.bmc-load-title {
+    font-size: 13px;
+    color: rgba(230, 233, 242, 0.6);
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+    margin-bottom: 22px;
+}
+
+/* 長度兩倍：40% → 80%、320px → 640px，並加 max-width 避免超寬螢幕下條子誇張地長 */
 .bmc-load-bar-root {
-    width: 46%;
-    min-width: 320px;
+    width: 80%;
+    min-width: 640px;
+    max-width: 960px;
     align-items: center;
 }
 
-/* 進度條底槽 */
+/* 進度條底槽：改成較細的膠囊型，視覺上更接近現代讀取條而非粗長條 */
 .bmc-load-bar {
     width: 100%;
-    height: 14px;
-    background-color: rgb(38, 38, 46);
-    border-radius: 7px;
+    height: 8px;
+    background-color: rgb(30, 32, 40);
+    border-radius: 4px;
     overflow: hidden;
 }
 
 /* 實際進度：寬度由 LoadPanel 以百分比逐幀寫入，
-   這裡不設 transition，平滑已經由 MoveTowards 做過了，
-   再疊一層補間會讓進度看起來慢半拍。 */
+   這裡不對 width 設 transition，平滑已經由 MoveTowards 做過了，
+   再疊一層補間會讓進度看起來慢半拍。
+   background-color／box-shadow 則保留 transition：跑滿時 LoadPanel 會加上
+   --complete class，顏色由藍轉綠會有漸變色過渡的效果。 */
 .bmc-load-bar__fill {
     width: 0;
     height: 100%;
-    background-color: rgb(70, 110, 200);
-    border-radius: 7px;
+    background-color: rgb(100, 150, 255);
+    border-radius: 4px;
+    box-shadow: 0 0 10px 1px rgba(100, 150, 255, 0.55);
+    transition-property: background-color, box-shadow;
+    transition-duration: 0.4s;
+    transition-timing-function: ease-out;
+}
+
+.bmc-load-bar__fill--complete {
+    background-color: rgb(90, 220, 165);
+    box-shadow: 0 0 14px 3px rgba(90, 220, 165, 0.6);
+}
+
+/* 跟著進度跑的小圖示：改放在跑條「上方」，圓角方型（不是圓點）。
+   left 由 LoadPanel 寫百分比，translate 只在水平方向 -50%，
+   讓圖示中心對齊該百分比座標，垂直位置則用 top 固定offset 貼在條子正上方。 */
+.bmc-load-bar__cursor {
+    position: absolute;
+    top: -18px;
+    left: 0%;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 8px 2px rgba(100, 150, 255, 0.8);
+    translate: -50% 0;
+    transition-property: box-shadow;
+    transition-duration: 0.4s;
+    transition-timing-function: ease-out;
+}
+
+.bmc-load-bar__cursor--complete {
+    box-shadow: 0 0 10px 3px rgba(90, 220, 165, 0.85);
 }
 
 .bmc-load-progress {
-    font-size: 16px;
-    color: rgb(230, 230, 238);
+    font-size: 15px;
+    color: rgb(225, 228, 238);
     -unity-font-style: bold;
-    margin-top: 10px;
+    margin-top: 14px;
+}
+
+/* 讀取進度說明（RecordTip 帶進來的文字），弱化色調不搶進度數字的焦點 */
+.bmc-load-tip {
+    font-size: 12px;
+    color: rgba(210, 213, 224, 0.5);
+    margin-top: 6px;
+    -unity-text-align: middle-center;
 }
 
 /* ---------- UIToggle ---------- */

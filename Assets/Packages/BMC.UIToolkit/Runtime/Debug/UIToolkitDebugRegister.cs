@@ -90,13 +90,13 @@ namespace BMC.UIToolkit
                     LoadPanel.Show(async () =>
                     {
                         await UniTask.WaitForSeconds(1f);
-                        LoadPanel.Instance.SetProgress(33, "p33");
+                        LoadPanel.Instance.SetProgress(33, "初始化中");
 
                         await UniTask.WaitForSeconds(1f);
-                        LoadPanel.Instance.SetProgress(66, "p66");
+                        LoadPanel.Instance.SetProgress(66, "載入資源中");
 
                         await UniTask.WaitForSeconds(1f);
-                        LoadPanel.Instance.SetMaxProgress("p100");
+                        LoadPanel.Instance.SetMaxProgress("載入完成");
                     });
                 });
             }),

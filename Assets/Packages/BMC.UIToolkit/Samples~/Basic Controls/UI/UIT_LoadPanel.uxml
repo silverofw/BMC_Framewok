@@ -3,11 +3,22 @@
     <!-- cover：整片遮罩。LoadPanel 加上 shown 修飾 class 觸發 USS 淡入淡出，
          取代 uGUI 版的 UIEffectTweener 轉場。 -->
     <ui:VisualElement name="cover" class="bmc-load-cover">
-        <ui:VisualElement name="bar-root" class="bmc-load-bar-root">
-            <ui:VisualElement name="bar-bg" class="bmc-load-bar">
-                <ui:VisualElement name="bar-fill" class="bmc-load-bar__fill" />
+        <ui:VisualElement name="content" class="bmc-load-content">
+            <!-- spinner：由 C# 每幀轉動製造轉圈效果 -->
+            <ui:VisualElement name="spinner-wrap" class="bmc-load-spinner-wrap">
+                <ui:VisualElement name="spinner" class="bmc-load-spinner" />
             </ui:VisualElement>
-            <ui:Label text="0" name="progress" class="bmc-load-progress" />
+            <bmc:UILabel text="LOADING" local-key="UI_LOADING" name="title" class="bmc-load-title" />
+            <ui:VisualElement name="bar-root" class="bmc-load-bar-root">
+                <ui:VisualElement name="bar-bg" class="bmc-load-bar">
+                    <ui:VisualElement name="bar-fill" class="bmc-load-bar__fill" />
+                </ui:VisualElement>
+                <!-- bar-cursor：疊在 bar-bg 之上（要放在後面才會蓋過去），
+                     left 由 LoadPanel 用跟 bar-fill 一樣的百分比驅動，靠 translate -50% 讓圖示中心對齊進度尖端 -->
+                <ui:VisualElement name="bar-cursor" class="bmc-load-bar__cursor" />
+                <ui:Label text="0%" name="progress" class="bmc-load-progress" />
+                <ui:Label text="" name="tip" class="bmc-load-tip" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
