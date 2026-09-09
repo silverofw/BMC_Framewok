@@ -336,20 +336,19 @@ namespace BMC.Story
         /// <summary>
         /// 等 Yoga 版面算完一次。UI Toolkit 的佈局是非同步的，跟 uGUI 的
         /// Canvas.ForceUpdateCanvases() 同步佈局不一樣，捲動位置要算對寬度必須先等這個。
+        ///
+        /// 原本靠「resolvedStyle.width 是否已經 > 0」判斷要不要等：這在第一次開面板時會踩雷——
+        /// contentRoot 換到新章節前(ClearOldLayout 之前)如果剛好殘留舊版面的寬度(例如同一顆
+        /// StoryGraphView 被重疊呼叫、或前一次佈局的殘值還沒被下一次 Yoga pass 蓋掉)，這裡會誤判
+        /// 「已經算完」直接跳過等待，读到的其實是新節點加進去之前的舊寬度，捲動位置因此算得
+        /// 偏短，停在接近第一個節點的地方，要重開一次面板(這次殘值已經跟新內容一致)才會準。
+        /// 改成固定等兩個 frame：不管 geometry 事件會不會觸發(新舊寬度剛好相同時事件不會發生，
+        /// 用事件等待可能整個掛住)，兩個 frame 後 Yoga 一定至少跑過一次完整版面重算。
         /// </summary>
-        private UniTask WaitForLayoutAsync()
+        private async UniTask WaitForLayoutAsync()
         {
-            if (contentRoot.resolvedStyle.width > 0f)
-                return UniTask.CompletedTask;
-
-            var tcs = new UniTaskCompletionSource();
-            void Handler(GeometryChangedEvent e)
-            {
-                contentRoot.UnregisterCallback<GeometryChangedEvent>(Handler);
-                tcs.TrySetResult();
-            }
-            contentRoot.RegisterCallback<GeometryChangedEvent>(Handler);
-            return tcs.Task;
+            await UniTask.Yield(PlayerLoopTiming.Update);
+            await UniTask.Yield(PlayerLoopTiming.Update);
         }
 
         public void ClearOldLayout()
