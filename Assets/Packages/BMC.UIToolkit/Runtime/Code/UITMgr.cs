@@ -104,6 +104,18 @@ namespace BMC.UIToolkit
         private const string ASSET_DEFAULT_THEME = "UIT_Theme";
 
         /// <summary>
+        /// 選用的 PanelSettings 範本資產位址。存在的話會拿它 Instantiate 當執行期預設
+        /// PanelSettings 的底子，帶過去的 private 欄位 m_ICUDataAsset 就不會是空的——
+        /// 純 ScriptableObject.CreateInstance 生出來的 PanelSettings 沒有這個欄位，
+        /// Standalone build 裡只要用到進階文字生成器(ICU)，文字排版就會整段丟
+        /// NullReferenceException(在 Editor 或連線模式下不會踩到，只有真的出 build
+        /// 才會爆——Unity 官方對這個情況的建議做法就是讓 build 裡至少含一個
+        /// PanelSettings 資產，見 UnityEngine.TextCore.Text.ICUDataAssetUtilities)。
+        /// 消費端專案沒有建立這個範本資產也沒關係，找不到就照舊用 CreateInstance。
+        /// </summary>
+        private const string ASSET_PANEL_SETTINGS_TEMPLATE = "UIT_PanelSettingsTemplate";
+
+        /// <summary>
         /// 面板資源的位址前綴。
         ///
         /// uGUI 版 BMC.UI 直接以類別名稱當資源位址，而收集器採 AddressByFileName，
@@ -205,6 +217,10 @@ namespace BMC.UIToolkit
             if (theme == null)
                 return;
 
+            PanelSettings settingsTemplate = null;
+            if (ResMgr.Instance.Check(ASSET_PANEL_SETTINGS_TEMPLATE))
+                settingsTemplate = await ResMgr.Instance.LoadAssetAsync<PanelSettings>(ASSET_PANEL_SETTINGS_TEMPLATE, false);
+
             // 先建立為停用狀態，等 panelSettings 指派完再啟用：
             // UIDocument 在 OnEnable 就會依 panelSettings 建立 rootVisualElement，
             // 順序顛倒會拿到 null 的 rootVisualElement。
@@ -213,15 +229,17 @@ namespace BMC.UIToolkit
             GameObject.DontDestroyOnLoad(go);
 
             var document = go.AddComponent<UIDocument>();
-            document.panelSettings = CreateDefaultPanelSettings(theme, sortingOrder);
+            document.panelSettings = CreateDefaultPanelSettings(theme, sortingOrder, settingsTemplate);
             go.SetActive(true);
 
             UseRootDocument(document);
         }
 
-        private static PanelSettings CreateDefaultPanelSettings(ThemeStyleSheet theme, float sortingOrder)
+        private static PanelSettings CreateDefaultPanelSettings(ThemeStyleSheet theme, float sortingOrder, PanelSettings template = null)
         {
-            var settings = ScriptableObject.CreateInstance<PanelSettings>();
+            // 有範本就 Instantiate(完整序列化複製，連 private 欄位一起帶過去)，
+            // 沒有就退回原本的 CreateInstance，行為跟改動前一致。
+            var settings = template != null ? UnityEngine.Object.Instantiate(template) : ScriptableObject.CreateInstance<PanelSettings>();
             settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
             settings.referenceResolution = new Vector2Int(1920, 1080);
             settings.sortingOrder = sortingOrder;
