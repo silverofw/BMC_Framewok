@@ -412,6 +412,35 @@ namespace BMC.UIToolkit
             return CreatePanel<T>(asset, layer);
         }
 
+        /// <summary>
+        /// 以執行期才知道的型別開啟面板，對應 uGUI 版 UIMgr 同名的 Type 版 ShowPanel——
+        /// 用來接資料驅動的面板類別名稱(例如劇本設定裡存的 Puzzle prefab 類別字串)，
+        /// 呼叫端當下無法用泛型直接指定 T。
+        ///
+        /// ShowPanel&lt;T&gt; 有 new() 約束，反射呼叫在執行期才會驗證這件事——
+        /// 傳進來的型別必須有 public 無參數建構子，跟其他 UIPanel 子類別一樣。
+        /// </summary>
+        public async UniTask<UIPanel> ShowPanel(Type type, UILayer layer = UILayer.SCENE_UI_1, bool checkSame = true)
+        {
+            var method = typeof(UITMgr).GetMethod(nameof(ShowPanel), 1, new Type[] { typeof(UILayer), typeof(bool) });
+            var genericMethod = method.MakeGenericMethod(type);
+            var taskObj = genericMethod.Invoke(this, new object[] { layer, checkSame });
+            var asUniTaskMethod = taskObj.GetType().GetMethod("AsUniTask");
+            var uniTask = (UniTask)asUniTaskMethod.Invoke(taskObj, null);
+            await uniTask;
+            return GetPanel(type);
+        }
+
+        private UIPanel GetPanel(Type type)
+        {
+            foreach (var p in panels)
+            {
+                if (p.GetType() == type)
+                    return p;
+            }
+            return null;
+        }
+
         private bool TryGetExisting<T>(out T panel) where T : UIPanel
         {
             panel = GetPanel<T>();
