@@ -19,6 +19,15 @@ namespace BMC.Build.Editor
     ///   -bmcProfile &lt;資產路徑&gt;   指定要用哪一份 BuildProfile(專案有多份時)
     ///   -bmcNoPlayer             只出資源與 CDN 資料夾，不出母包
     ///   -bmcFullGenerate         BuildAll 時連 AOT 一起重生(等同不分兩趟，通常不需要)
+    ///   -bmcFullVersion          這趟是完全版建置——BuildRunner 會把消費端專案標記為
+    ///                            「完全版限定」的收集群組切成啟用再打包(見 BuildRunner.BuildAll)。
+    ///                            消費端沒有這種群組的話這個旗標什麼都不做，可以放心一直帶著。
+    ///   -bmcActiveBuildProfile &lt;資產路徑&gt;
+    ///       出手前先把 Unity 6 的 Active Build Profile(UnityEditor.Build.Profile.BuildProfile，
+    ///       決定 scripting define/輸出子資料夾名稱那個，跟上面的 BMC.Build.Editor.BuildProfile
+    ///       是兩回事)切成指定的那份。Demo 版靠這個切到帶 DEMO_BUILD define 的 Build Profile，
+    ///       其餘 Generate／BuildAll 流程完全共用，不用另外寫一套。兩趟(Generate/BuildAll)都要帶，
+    ///       因為是兩個各自獨立的 Unity 行程。
     /// </summary>
     public static class CI
     {
@@ -27,6 +36,7 @@ namespace BMC.Build.Editor
         {
             Run("Generate", () =>
             {
+                ApplyActiveBuildProfileFromArgs();
                 BuildRunner.Generate();
                 return true;
             });
@@ -37,13 +47,15 @@ namespace BMC.Build.Editor
         {
             Run("BuildAll", () =>
             {
+                ApplyActiveBuildProfileFromArgs();
                 var profile = ResolveProfile();
                 if (profile == null) return false;
 
                 bool ok = BuildRunner.BuildAll(
                     profile,
                     fastMode: !HasFlag("-bmcFullGenerate"),
-                    buildPlayer: !HasFlag("-bmcNoPlayer"));
+                    buildPlayer: !HasFlag("-bmcNoPlayer"),
+                    fullVersion: HasFlag("-bmcFullVersion"));
 
                 // 上傳要明確指定，理由見 BuildRunner.MenuDeployCdn（deployment 配額）
                 if (ok && HasFlag("-bmcDeploy")) CdnSync.Deploy(profile);
@@ -72,6 +84,23 @@ namespace BMC.Build.Editor
             {
                 EditorApplication.Exit(code);
             }
+        }
+
+        private static void ApplyActiveBuildProfileFromArgs()
+        {
+            string path = GetArg("-bmcActiveBuildProfile");
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            var profile = AssetDatabase.LoadAssetAtPath<UnityEditor.Build.Profile.BuildProfile>(path);
+            if (profile == null)
+            {
+                Debug.LogError($"[CI] -bmcActiveBuildProfile 指定的路徑載不到 Build Profile: {path}");
+                return;
+            }
+
+            UnityEditor.Build.Profile.BuildProfile.SetActiveBuildProfile(profile);
+            Debug.Log($"[CI] Active Build Profile -> '{profile.name}'");
         }
 
         private static BuildProfile ResolveProfile()

@@ -1,3 +1,4 @@
+using System;
 using HybridCLR.Editor.Commands;
 using UnityEditor;
 using UnityEngine;
@@ -78,6 +79,45 @@ namespace BMC.Build.Editor
             EditorUtility.RevealInFinder(path);
         }
 
+        /// <summary>
+        /// Demo 版路徑是消費端專案自己決定的(不同專案的 Build Profile 命名/位置不一定一樣)，
+        /// 這裡只認一個約定路徑；沒有的話直接報錯提示先建立，不猜測、不自動生成。
+        /// </summary>
+        private const string DemoBuildProfileAssetPath = "Assets/Settings/Build Profiles/WindowsDemo.asset";
+
+        [MenuItem("BMC/Build/產生 build_demo.bat (Demo 版，不開 Unity 打包用)", false, 301)]
+        public static void MenuCreateDemoBatch()
+        {
+            var demoProfile = AssetDatabase.LoadAssetAtPath<UnityEditor.Build.Profile.BuildProfile>(DemoBuildProfileAssetPath);
+            if (demoProfile == null)
+            {
+                Debug.LogError($"[BuildRunner] 找不到 Demo 用的 Build Profile: {DemoBuildProfileAssetPath}。"
+                    + "請先建立一份帶 DEMO_BUILD scripting define 的 Unity Build Profile 資產。");
+                return;
+            }
+
+            string path = BatchFileWriter.WriteDemo(DemoBuildProfileAssetPath);
+            EditorUtility.RevealInFinder(path);
+        }
+
+        /// <summary>完全版路徑一樣是消費端專案自己決定的約定路徑，沒有就直接報錯提示先建立。</summary>
+        private const string FullBuildProfileAssetPath = "Assets/Settings/Build Profiles/WindowsFull.asset";
+
+        [MenuItem("BMC/Build/產生 build_full.bat (完全版，不開 Unity 打包用)", false, 302)]
+        public static void MenuCreateFullBatch()
+        {
+            var fullProfile = AssetDatabase.LoadAssetAtPath<UnityEditor.Build.Profile.BuildProfile>(FullBuildProfileAssetPath);
+            if (fullProfile == null)
+            {
+                Debug.LogError($"[BuildRunner] 找不到完全版用的 Build Profile: {FullBuildProfileAssetPath}。"
+                    + "請先建立一份帶 FULL_VERSION_BUILD scripting define 的 Unity Build Profile 資產。");
+                return;
+            }
+
+            string path = BatchFileWriter.WriteFull(FullBuildProfileAssetPath);
+            EditorUtility.RevealInFinder(path);
+        }
+
         // =========================================================
         // 步驟
         // =========================================================
@@ -93,7 +133,11 @@ namespace BMC.Build.Editor
         /// 第 2 趟：編熱更 DLL -> 複製到資源目錄 -> 打資源包 -> 同步 CDN 資料夾 -> 出母包。
         /// 任何一步失敗就中止並回傳 false。
         /// </summary>
-        public static bool BuildAll(BuildProfile profile, bool fastMode, bool buildPlayer)
+        /// <param name="fullVersion">
+        /// 是不是完全版建置。見 <see cref="ApplyFullVersionOnlyGroups"/>——消費端專案沒有用到
+        /// 「FullOnly」命名慣例的分組時，這個參數完全不影響任何行為，可以放心一直傳 false。
+        /// </param>
+        public static bool BuildAll(BuildProfile profile, bool fastMode, bool buildPlayer, bool fullVersion = false)
         {
             if (profile == null)
             {
@@ -106,6 +150,8 @@ namespace BMC.Build.Editor
                 Debug.LogError($"[BuildRunner] profile 設定有問題，已中止：{reason}");
                 return false;
             }
+
+            ApplyFullVersionOnlyGroups(fullVersion);
 
             var target = EditorUserBuildSettings.activeBuildTarget;
             Debug.Log($"[BuildRunner] 開始出版：target={target} version={Application.version} fastMode={fastMode}");
@@ -175,6 +221,41 @@ namespace BMC.Build.Editor
 
             Debug.Log($"[BuildRunner] {e.packageName} 套用設定：{pipelineName} / "
                       + $"{e.bundledCopyOption}({e.bundledCopyParams}) / {e.compressOption} / {e.fileNameStyle}");
+        }
+
+        /// <summary>
+        /// 完全版/普通版分流：框架不知道也不需要知道消費端專案的分組叫什麼名字，
+        /// 靠命名慣例——YooAsset 收集設定裡任何名稱以 "FullOnly" 結尾的分組(不管在哪個
+        /// package 底下)都視為「完全版限定素材」，這裡依 fullVersion 統一切成
+        /// EnableGroup/DisableGroup 再存檔。消費端專案沒有這種分組時，這裡直接找不到
+        /// 任何東西可切，等同沒有作用，可以放心一直呼叫。
+        /// </summary>
+        private static void ApplyFullVersionOnlyGroups(bool fullVersion)
+        {
+            if (!BundleCollectorSettingData.HasSettingAsset())
+                return;
+
+            string ruleName = fullVersion ? nameof(EnableGroup) : nameof(DisableGroup);
+            bool changed = false;
+
+            foreach (var package in BundleCollectorSettingData.Setting.Packages)
+            {
+                foreach (var group in package.Groups)
+                {
+                    if (!group.GroupName.EndsWith("FullOnly", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    if (group.ActiveRuleName == ruleName)
+                        continue;
+
+                    group.ActiveRuleName = ruleName;
+                    BundleCollectorSettingData.ModifyGroup(package, group);
+                    changed = true;
+                    Debug.Log($"[BuildRunner] 完全版限定分組 '{group.GroupName}' -> {ruleName}");
+                }
+            }
+
+            if (changed)
+                BundleCollectorSettingData.SaveFile();
         }
     }
 }
