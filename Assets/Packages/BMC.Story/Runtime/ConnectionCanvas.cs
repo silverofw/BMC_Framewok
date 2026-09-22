@@ -22,7 +22,7 @@ namespace BMC.Story
 
         public List<Connection> connections = new List<Connection>();
 
-        public float lineThickness = 5f;
+        public float lineThickness = 2.5f;
         public int segments = 50;
         public Ease lineEase = Ease.Linear;
 
@@ -30,6 +30,14 @@ namespace BMC.Story
         public float noiseStrength = 30f;
         public float noiseFrequency = 10f;
         public float noiseSpeed = 15f;
+
+        /// <summary>要畫幾股。1 是原本的單一粗線；&gt;1 時除了主股，其餘幾股會用不同的噪聲
+        /// 取樣相位各自岔開路徑，但兩端仍然釘在同一個起點/終點——視覺上是主電弧兩側
+        /// 岔出幾根較細較淡的髮絲，不是好幾條等粗的線疊在一起變得更粗。</summary>
+        public int strandCount = 3;
+
+        /// <summary>額外股噪聲取樣相位的間隔。數字越大，各股岔開的路徑差異越明顯。</summary>
+        public float strandPhaseStep = 23.7f;
 
         public bool useFlicker = true;
         public float minAlpha = 0.4f;
@@ -113,41 +121,53 @@ namespace BMC.Story
             if (dist < 0.1f)
                 return;
 
-            Color finalColor = color;
-            finalColor.a *= currentFlickerAlpha;
-            painter.strokeColor = finalColor;
-            painter.lineWidth = lineThickness * currentFlickerWidth;
-
             Vector2 overallDir = (end - start).normalized;
             Vector2 overallNormal = new Vector2(-overallDir.y, overallDir.x);
 
-            painter.BeginPath();
-            painter.MoveTo(start);
-
-            for (int i = 1; i <= segments; i++)
+            int strands = Mathf.Max(1, strandCount);
+            for (int s = 0; s < strands; s++)
             {
-                float t = i / (float)segments;
+                bool isCore = s == 0;
+                // 岔出去的髮絲比主股細、更透明、抖動幅度更大——才會像「從主電弧裡岔開」，
+                // 不是好幾條等粗的線疊在一起看起來更粗。
+                float widthScale = isCore ? 1f : 0.45f;
+                float alphaScale = isCore ? 1f : 0.5f;
+                float strandNoiseStrength = isCore ? noiseStrength : noiseStrength * 1.7f;
+                float phase = s * strandPhaseStep;
 
-                float x = Mathf.Lerp(start.x, end.x, t);
-                float y = DOVirtual.EasedValue(start.y, end.y, t, lineEase);
-                Vector2 basePoint = new Vector2(x, y);
+                Color finalColor = color;
+                finalColor.a *= currentFlickerAlpha * alphaScale;
+                painter.strokeColor = finalColor;
+                painter.lineWidth = lineThickness * currentFlickerWidth * widthScale;
 
-                if (useLightning && i < segments)
+                painter.BeginPath();
+                painter.MoveTo(start);
+
+                for (int i = 1; i <= segments; i++)
                 {
-                    // Sin 讓兩端點的偏移量歸零，確保準確連接首尾
-                    float pinMask = Mathf.Sin(t * Mathf.PI);
+                    float t = i / (float)segments;
 
-                    float noise1 = Mathf.PerlinNoise(t * noiseFrequency + timeOffset, 0f) * 2f - 1f;
-                    float noise2 = Mathf.PerlinNoise(t * noiseFrequency * 2.5f - timeOffset, 5f) * 2f - 1f;
+                    float x = Mathf.Lerp(start.x, end.x, t);
+                    float y = DOVirtual.EasedValue(start.y, end.y, t, lineEase);
+                    Vector2 basePoint = new Vector2(x, y);
 
-                    float totalNoise = (noise1 + noise2 * 0.3f) * noiseStrength * pinMask;
-                    basePoint += overallNormal * totalNoise;
+                    if (useLightning && i < segments)
+                    {
+                        // Sin 讓兩端點的偏移量歸零，確保準確連接首尾(每一股都一樣釘住兩端)
+                        float pinMask = Mathf.Sin(t * Mathf.PI);
+
+                        float noise1 = Mathf.PerlinNoise(t * noiseFrequency + timeOffset + phase, 0f) * 2f - 1f;
+                        float noise2 = Mathf.PerlinNoise(t * noiseFrequency * 2.5f - timeOffset + phase, 5f) * 2f - 1f;
+
+                        float totalNoise = (noise1 + noise2 * 0.3f) * strandNoiseStrength * pinMask;
+                        basePoint += overallNormal * totalNoise;
+                    }
+
+                    painter.LineTo(basePoint);
                 }
 
-                painter.LineTo(basePoint);
+                painter.Stroke();
             }
-
-            painter.Stroke();
         }
     }
 }
