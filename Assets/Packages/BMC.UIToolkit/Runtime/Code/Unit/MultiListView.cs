@@ -132,7 +132,16 @@ namespace BMC.UIToolkit
             RegisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
             RegisterCallback<PointerMoveEvent>(OnPointerMove, TrickleDown.TrickleDown);
             RegisterCallback<PointerUpEvent>(OnPointerUp, TrickleDown.TrickleDown);
-            RegisterCallback<PointerCaptureOutEvent>(_ => ResetDrag());
+            // 【只管自己掉的捕捉】PointerCaptureOutEvent 會從失去捕捉的元素往上冒泡，
+            // 所以儲存格裡的按鈕掉捕捉時這裡也收得到。不濾掉 target 的話會變成：
+            // 儲存格放 UIButton -> Clickable 在 PointerDown 當下先捕捉指標 ->
+            // 拖曳超過門檻時這裡 CapturePointer 把捕捉搶回來 -> 按鈕收到 CaptureOut
+            // 並冒泡上來 -> 拖曳在剛啟動的同一幀被自己 ResetDrag 掉，整個清單拖不動。
+            RegisterCallback<PointerCaptureOutEvent>(evt =>
+            {
+                if (evt.target == this)
+                    ResetDrag();
+            });
         }
 
         #region 拖曳捲動
