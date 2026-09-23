@@ -30,3 +30,22 @@ UIButton {
 UIButton:active {
     scale: 0.9 0.9;
 }
+
+/* 拿掉 ListView 內建的滑過／選取灰底。
+
+   那是 Unity 預設執行期主題給編輯器風格清單用的，遊戲清單的外觀一律來自美術切圖，
+   多一層灰底只會髒掉畫面。而且 MultiListView 多欄時「一個項目」是一整列(裡面 N 格)，
+   灰底會整排一起亮，看起來像「一次選了一排」——實際上 MultiListView 的
+   selectionType 本來就是 None，那不是選取、只是滑過。
+
+   兩組 class 都寫：Unity 舊版是 unity-list-view__item，新版改叫
+   unity-collection-view__item，兩個都還在預設主題裡。
+   要讓某個清單有滑過回饋的話，在那份面板的 uss 針對自己的項目 class 加就好。 */
+.unity-list-view__item:hover,
+.unity-list-view__item--selected,
+.unity-list-view__item--selected:hover,
+.unity-collection-view__item:hover,
+.unity-collection-view__item--selected,
+.unity-collection-view__item--selected:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
