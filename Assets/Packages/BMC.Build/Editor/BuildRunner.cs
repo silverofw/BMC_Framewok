@@ -195,8 +195,48 @@ namespace BMC.Build.Editor
                 return false;
             }
 
+            StripDontShipFolders(report.summary.outputPath);
+
             Debug.Log($"[BuildRunner] 全部完成 -> {report.summary.outputPath}");
             return true;
+        }
+
+        /// <summary>
+        /// 刪掉母包旁邊的 *_BackUpThisFolder_ButDontShipItWithYourGame 與 *_DoNotShip
+        /// (IL2CPP 的 C++ 中間檔、PDB、Burst 除錯資訊)，輸出資料夾才接近實際發行體積。
+        /// 實測一個 Windows demo 版是 2.1GB -> 328MB。
+        ///
+        /// 【為什麼寫在這裡而不是 IPostprocessBuildWithReport】消費端試過用建置後回呼刪，
+        /// 但那個時機這些資料夾還沒到齊，回呼掃過去是空的、什麼都沒刪，而且不會有任何訊息，
+        /// 看起來就像功能不存在。這裡是 BuildPlayer 整個回來之後，時機明確。
+        /// </summary>
+        private static void StripDontShipFolders(string outputPath)
+        {
+            if (string.IsNullOrEmpty(outputPath))
+                return;
+
+            string dir = System.IO.Path.GetDirectoryName(outputPath);
+            if (string.IsNullOrEmpty(dir) || !System.IO.Directory.Exists(dir))
+                return;
+
+            foreach (var path in System.IO.Directory.GetDirectories(dir))
+            {
+                string name = System.IO.Path.GetFileName(path);
+                if (name.IndexOf("DontShip", StringComparison.OrdinalIgnoreCase) < 0
+                    && name.IndexOf("DoNotShip", StringComparison.OrdinalIgnoreCase) < 0
+                    && name.IndexOf("BackUpThisFolder", StringComparison.OrdinalIgnoreCase) < 0)
+                    continue;
+
+                try
+                {
+                    System.IO.Directory.Delete(path, true);
+                    Debug.Log($"[BuildRunner] 已刪中間檔資料夾 {name}");
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"[BuildRunner] 刪不掉 {name}：{e.Message}");
+                }
+            }
         }
 
         /// <summary>
