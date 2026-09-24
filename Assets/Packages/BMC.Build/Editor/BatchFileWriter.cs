@@ -50,6 +50,20 @@ namespace BMC.Build.Editor
             return WriteInternal(FullFileName, "BuildLogs_Full", extraArgs);
         }
 
+        /// <summary>
+        /// 產生一支任意組合的打包 bat。給消費端自己的版本用 —— 版本怎麼切是專案自己的事，
+        /// 框架不該知道「steam_demo」「web_demo」這種專案名詞，但寫 bat 的那套樣板
+        /// (Unity 路徑、兩趟 executeMethod、log 資料夾、錯誤處理)應該共用。
+        ///
+        /// 在這之前這個方法是 private，消費端要多一種版本只能整段複製一份 bat 樣板，
+        /// 樣板一改就兩邊不同步。
+        /// </summary>
+        /// <param name="fileName">產出的檔名，例如 build_web_demo.bat</param>
+        /// <param name="logDirName">log 資料夾名，例如 BuildLogs_WebDemo</param>
+        /// <param name="extraArgs">兩趟 executeMethod 都會帶上的額外參數，可為 null</param>
+        public static string WriteCustom(string fileName, string logDirName, string extraArgs)
+            => WriteInternal(fileName, logDirName, extraArgs);
+
         private static string WriteInternal(string fileName, string logDirName, string extraArgs)
         {
             string projectRoot = Directory.GetParent(Application.dataPath).FullName;
