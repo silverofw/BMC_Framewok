@@ -37,7 +37,7 @@ namespace BMC.Story
         public float dragThreshold = 10f;
 
         private Vector2 dragStartPointer;
-        private float dragStartOffsetX;
+        private Vector2 dragStartOffset;
         private int dragPointerId = -1;
         private bool isPointerDown;
         private bool isDragging;
@@ -53,18 +53,46 @@ namespace BMC.Story
             AddToClassList("story-graph-view");
             style.flexGrow = 1f;
 
-            scrollView = new ScrollView(ScrollViewMode.Horizontal) { name = "graph-scroll" };
+            // 兩軸都要能捲：橫向是劇情深度，縱向是同深度的節點疊在同一欄裡。同深度節點一多
+            // (例如 0-9 之後一次分出五個節點，一張卡約 250px、五張超過 1200px)整欄就比螢幕高，
+            // 只有單軸可捲時下面幾張既被切掉也滑不到。
+            //
+            // 單軸模式還有一個更隱性的問題：那時候 contentContainer 的高度等於可視高度，比它高的
+            // 內容算「溢出」而不是「可捲動範圍」，再加上下面那段垂直置中，整份內容在
+            // scrollOffset.y = 0 時就已經被往上推了 (內容高 - 可視高) / 2 ——而 scrollOffset.y
+            // 不能是負的，被推上去那一段永遠捲不回來。實測 1200x600 可視區 + depth 10 疊五張卡：
+            // 15 張卡裡有 12 張(depth 0~10 每欄的第一張，加上 depth 10 的第二張)不管怎麼捲都
+            // 沒辦法完整看到。改成雙軸之後 contentContainer 改為貼合內容高度，這個問題一起消失。
+            scrollView = new ScrollView(ScrollViewMode.VerticalAndHorizontal) { name = "graph-scroll" };
             scrollView.AddToClassList("story-graph-view__scroll");
             scrollView.style.flexGrow = 1f;
             Add(scrollView);
+
+            // 下面四行純粹是把「內容比可視區矮時，圖表垂直置中」這個外觀補回來(拿掉不影響可捲動
+            // 範圍，每一張卡照樣到得了)。雙軸模式下 ScrollView 的內部佈局跟單軸模式差很多，
+            // 以下全部實測於 Unity 6000.5.3f1：
+            // 1. 單軸模式的 contentViewport 會填滿整個 ScrollView；雙軸模式改成「貼合內容高度」，
+            //    內容矮的時候整張圖會縮在上緣、下面空一塊。先把可視區高度變回確定值，第 3 點的
+            //    百分比才解析得出來(對著高度不確定的父層算百分比，Yoga 會直接忽略)。
+            // 2. contentContainer 的 flex-direction 單軸模式是 row(交叉軸=垂直)、雙軸模式是
+            //    column(交叉軸=水平)。所以舊版靠 contentRoot 的 alignSelf = Center 做垂直置中，
+            //    搬到雙軸模式只會變成「水平置中」——垂直置中改由 contentContainer 的
+            //    justify-content 負責(主軸方向剛好對調)。
+            // 3. contentContainer 高度貼合內容，內容矮時沒有多餘空間可以置中，要用 min-height
+            //    至少撐到可視高度；內容高的時候 min-height 撐不到它，照樣貼合內容、照樣可捲，
+            //    也就不會重演上面那種「置中把內容推出可捲範圍」的狀況。
+            var viewportRow = scrollView.contentViewport.parent;
+            if (viewportRow != null)
+                viewportRow.style.flexGrow = 1f;
+            scrollView.contentViewport.style.height = Length.Percent(100f);
+            scrollView.contentContainer.style.minHeight = Length.Percent(100f);
+            scrollView.contentContainer.style.justifyContent = Justify.Center;
 
             contentRoot = new VisualElement { name = "graph-content" };
             contentRoot.AddToClassList("story-graph-view__content");
             // 分欄佈局是結構性需求(不是外觀細節)，直接寫死在 C# 裡，不依賴消費端的 UXML 有沒有帶對應
             // 樣式表——漏接樣式表時，VisualElement 預設的 flex-direction 是 column，欄位會全部疊成一直排。
             contentRoot.style.flexDirection = FlexDirection.Row;
-            // 內容通常比可視高度矮，預設會貼在頂端；圖表垂直置中比較符合直覺。
-            contentRoot.style.alignSelf = Align.Center;
             scrollView.Add(contentRoot);
 
             // UI Toolkit 的 ScrollView 預設只吃滾輪與捲軸，滑鼠在內容上拖曳不會平移
@@ -102,7 +130,7 @@ namespace BMC.Story
             isDragging = false;
             dragPointerId = evt.pointerId;
             dragStartPointer = evt.position;
-            dragStartOffsetX = scrollView.scrollOffset.x;
+            dragStartOffset = scrollView.scrollOffset;
         }
 
         private void OnPointerMove(PointerMoveEvent evt)
@@ -110,11 +138,15 @@ namespace BMC.Story
             if (!isPointerDown || evt.pointerId != dragPointerId)
                 return;
 
-            float delta = evt.position.x - dragStartPointer.x;
+            Vector2 delta = (Vector2)evt.position - dragStartPointer;
 
             if (!isDragging)
             {
-                if (Mathf.Abs(delta) < dragThreshold)
+                // 門檻比的是位移向量長度，不是單軸分量。只看 X 的話，純垂直拖曳(X 位移 0)永遠
+                // 過不了門檻：畫面不會跟著動，而且因為一直沒進入拖曳狀態、沒擷取指標，放手時
+                // 節點項目照樣收到 PointerUp 合成出 ClickEvent——變成「想往下滑結果開了一個節點」。
+                // 用平方比較省掉開根號，跟 delta.magnitude < dragThreshold 等價。
+                if (delta.sqrMagnitude < dragThreshold * dragThreshold)
                     return;
 
                 isDragging = true;
@@ -123,9 +155,7 @@ namespace BMC.Story
                 this.CapturePointer(evt.pointerId);
             }
 
-            var offset = scrollView.scrollOffset;
-            offset.x = ClampScrollX(dragStartOffsetX - delta);
-            scrollView.scrollOffset = offset;
+            scrollView.scrollOffset = ClampScrollOffset(dragStartOffset - delta);
 
             evt.StopPropagation();
         }
@@ -152,12 +182,19 @@ namespace BMC.Story
             dragPointerId = -1;
         }
 
-        private float ClampScrollX(float value)
+        /// <summary>
+        /// 把捲動位置夾回可視範圍。兩軸同一條式子(內容尺寸 - 可視尺寸，不足就是 0)，
+        /// 只是把原本的單軸 ClampScrollX 擴成 Vector2 版。
+        /// </summary>
+        private Vector2 ClampScrollOffset(Vector2 value)
         {
-            float viewportWidth = scrollView.contentViewport.resolvedStyle.width;
-            float contentWidth = contentRoot.resolvedStyle.width;
-            float maxScrollX = Mathf.Max(0f, contentWidth - viewportWidth);
-            return Mathf.Clamp(value, 0f, maxScrollX);
+            var viewport = scrollView.contentViewport.resolvedStyle;
+            var content = contentRoot.resolvedStyle;
+            float maxScrollX = Mathf.Max(0f, content.width - viewport.width);
+            float maxScrollY = Mathf.Max(0f, content.height - viewport.height);
+            return new Vector2(
+                Mathf.Clamp(value.x, 0f, maxScrollX),
+                Mathf.Clamp(value.y, 0f, maxScrollY));
         }
 
         #endregion
@@ -329,8 +366,25 @@ namespace BMC.Story
             float contentWidth = contentRoot.resolvedStyle.width;
             float maxScrollX = Mathf.Max(0f, contentWidth - viewportWidth);
 
+            // X 軸維持原本的「深度比例」算法，一個字都沒改。
             float normalizedPos = currentMaxDepth > 0 ? Mathf.Clamp01((float)targetDepth / currentMaxDepth) : 0f;
-            scrollView.scrollOffset = new Vector2(normalizedPos * maxScrollX, scrollView.scrollOffset.y);
+            float targetX = normalizedPos * maxScrollX;
+
+            // Y 軸沒有「深度比例」這種東西可以套(深度是橫向概念)，改成把目標節點自己的垂直中心
+            // 對齊可視區中心：同深度的節點垂直疊在同一欄裡，欄位一高(例如 0-9 之後一次分出五個
+            // 節點)光調 X 會讓目標節點停在可視區外。
+            // 內容沒有比可視區高的章節，maxScrollY 就是 0，ClampScrollOffset 會把它夾回 0，
+            // 結果跟改動前(Y 不動、開面板時本來就是 0)完全一樣。
+            float targetY = scrollView.scrollOffset.y;
+            if (nodeToElementMap.TryGetValue(targetNode, out VisualElement targetElement) && targetElement.parent != null)
+            {
+                // scrollOffset 量的是 contentContainer 座標系，所以換算到 contentContainer；
+                // layout 是「相對於自己父層(欄位)」的矩形，要從 parent 的座標系換算起。
+                Rect inContent = targetElement.parent.ChangeCoordinatesTo(scrollView.contentContainer, targetElement.layout);
+                targetY = inContent.center.y - scrollView.contentViewport.resolvedStyle.height * 0.5f;
+            }
+
+            scrollView.scrollOffset = ClampScrollOffset(new Vector2(targetX, targetY));
         }
 
         /// <summary>
@@ -400,6 +454,9 @@ namespace BMC.Story
                 case StoryEvent.ActionOneofCase.GamePuzzle:
                     if (!string.IsNullOrEmpty(evt.GamePuzzle.SuccessNodeId)) yield return evt.GamePuzzle.SuccessNodeId;
                     if (!string.IsNullOrEmpty(evt.GamePuzzle.FailNodeId)) yield return evt.GamePuzzle.FailNodeId;
+                    if (evt.GamePuzzle.BranchNodeIds != null)
+                        foreach (var id in evt.GamePuzzle.BranchNodeIds)
+                            if (!string.IsNullOrEmpty(id)) yield return id;
                     break;
                 case StoryEvent.ActionOneofCase.PlayAvgDialog:
                     if (evt.PlayAvgDialog.Frames != null)
