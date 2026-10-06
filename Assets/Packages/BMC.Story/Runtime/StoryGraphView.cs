@@ -43,6 +43,44 @@ namespace BMC.Story
         private bool isDragging;
 
         /// <summary>
+        /// 拖到邊緣外之後，內容最多還能被拉開的距離(像素)，也就是阻尼函式的漸近上限。
+        /// 阻尼函式：applied = maxOvershoot * over / (over + maxOvershoot)。
+        /// over = 0 附近的斜率是 1(對 over 微分得 maxOvershoot^2 / (over + maxOvershoot)^2，代 0 剛好是 1)，
+        /// 所以一開始完全跟手、不會有鈍感；之後漸趨平緩，over 再怎麼大也拖不過 maxOvershoot。
+        /// </summary>
+        public float maxOvershoot = 80f;
+
+        /// <summary>
+        /// 放手後回彈的指數衰減係數(每秒)。每幀做 Lerp(current, 0, 1 - exp(-springDecay * dt))，
+        /// 收斂時間是 ln(起始位移 / 收斂門檻) / springDecay，與幀率無關(用的是 unscaledDeltaTime)。
+        /// 14f 把 maxOvershoot 預設的 80px 收到 0.5px 以內約需 ln(80 / 0.5) / 14 ≈ 0.36 秒；
+        /// 要更俐落就調大，想抓 0.2 秒的話是 ln(160) / 0.2 ≈ 25.4。
+        /// </summary>
+        public float springDecay = 14f;
+
+        /// <summary>
+        /// 目前疊在 contentRoot 上的「超出量」，量的是 scrollOffset 的座標系(正值 = 使用者還想往
+        /// 右/下再多捲一點)，實際寫進 style.translate 時會取負，推導見 SetOvershoot。
+        ///
+        /// 這一段位移刻意不走 scrollView.scrollOffset ——「超出邊緣的位移」沒辦法用 scrollOffset
+        /// 表達。實測 Unity 6000.5.3f1 的 UnityEngine.UIElementsModule：
+        ///   ScrollView.scrollOffset 的 setter 是
+        ///       horizontalScroller.value = value.x; verticalScroller.value = value.y;
+        ///       m_ScrollOffset = new Vector2(horizontalScroller.value, verticalScroller.value);
+        ///   —— 寫進去之後又從 scroller 把值讀回來；而 Scroller.value → BaseSlider&lt;T&gt;.value 是
+        ///       TValueType val = (clamped ? GetClampedValue(value) : value);
+        ///   clamped 預設 true，GetClampedValue 最後就是 Clamp(newValue, lowValue, highValue)。
+        /// 所以超出範圍的值在 setter 裡就被夾掉了，讀回來永遠停在邊緣。
+        /// </summary>
+        private Vector2 overshootOffset;
+
+        /// <summary>回彈用的排程項目。只建立一次，之後靠 Resume / Pause 重複使用。</summary>
+        private IVisualElementScheduledItem springItem;
+
+        /// <summary>回彈收斂門檻的平方值：位移小於 0.5px 人眼看不出來，直接歸零收工。</summary>
+        private const float SpringEpsilonSqr = 0.25f;
+
+        /// <summary>
         /// 已載入的節點項目模板(EnsureItemTemplateAsync 完成後才有值)，供覆寫 ItemFactory 的消費端
         /// 重複使用同一份模板建立自己的項目子類別，不用另外再載一次。
         /// </summary>
@@ -130,7 +168,20 @@ namespace BMC.Story
             isDragging = false;
             dragPointerId = evt.pointerId;
             dragStartPointer = evt.position;
-            dragStartOffset = scrollView.scrollOffset;
+
+            // 回彈動畫還在跑的時候又按下去：先停掉排程，並且從「當下看得到的位置」接著拖，
+            // 不要瞬間跳回 0。OnPointerMove 算的是 raw = dragStartOffset - delta，按下那一瞬間
+            // delta 是 0，所以 dragStartOffset 必須等於當下的視覺位置
+            // (scrollOffset + 還沒彈完的超出量)，否則第一個 move 事件就會把超出量算成 0、閃一下。
+            //
+            // 這裡要加回去的是「阻尼前的原始超出量」，不是 translate 上的值：translate 存的是
+            // applied = M*o/(o+M)，直接拿它當起點會再被阻尼一次、變成 f(applied) < applied，
+            // 還是會往回縮一小段。用反函式 o = M*a/(M-a) 換算回去，第一個 move 事件算出來的
+            // applied 才會剛好等於當下的 translate，完全無縫。
+            StopSpringBack();
+            dragStartOffset = scrollView.scrollOffset + new Vector2(
+                InverseDampOvershoot(overshootOffset.x),
+                InverseDampOvershoot(overshootOffset.y));
         }
 
         private void OnPointerMove(PointerMoveEvent evt)
@@ -155,7 +206,12 @@ namespace BMC.Story
                 this.CapturePointer(evt.pointerId);
             }
 
-            scrollView.scrollOffset = ClampScrollOffset(dragStartOffset - delta);
+            // raw 是「完全跟手、不受任何限制」的目標捲動位置；clamped 是夾回可捲動範圍之後的值。
+            // 兩者的差就是超出邊緣的量，只有真的拖過頭才非零，平常一路都是 (0, 0)。
+            Vector2 raw = dragStartOffset - delta;
+            Vector2 clamped = ClampScrollOffset(raw);
+            scrollView.scrollOffset = clamped;
+            ApplyOvershoot(raw - clamped);
 
             evt.StopPropagation();
         }
@@ -180,6 +236,11 @@ namespace BMC.Story
             isPointerDown = false;
             isDragging = false;
             dragPointerId = -1;
+
+            // 回彈統一掛在這裡，不是只掛在 OnPointerUp：PointerCaptureOutEvent 也走這條路
+            // (指標被別的元素搶走、面板被關掉等等)，不這樣寫的話那些情況下超出量會卡住不彈回。
+            // 門檻內的按放不會產生超出量，StartSpringBack 會直接什麼都不做。
+            StartSpringBack();
         }
 
         /// <summary>
@@ -195,6 +256,155 @@ namespace BMC.Story
             return new Vector2(
                 Mathf.Clamp(value.x, 0f, maxScrollX),
                 Mathf.Clamp(value.y, 0f, maxScrollY));
+        }
+
+        /// <summary>
+        /// 兩軸的最大可捲動距離。刻意不去改 ClampScrollOffset(它的夾值算法要保持原樣)，
+        /// 這裡單獨再算一份，給「該軸到底有沒有捲動空間」判斷用。
+        /// </summary>
+        private Vector2 MaxScrollOffset()
+        {
+            var viewport = scrollView.contentViewport.resolvedStyle;
+            var content = contentRoot.resolvedStyle;
+            return new Vector2(
+                Mathf.Max(0f, content.width - viewport.width),
+                Mathf.Max(0f, content.height - viewport.height));
+        }
+
+        /// <summary>
+        /// 把超出量經過阻尼之後疊到 contentRoot 上。
+        /// </summary>
+        private void ApplyOvershoot(Vector2 overshoot)
+        {
+            // 只有「該軸真的有捲動空間」才給阻尼回彈。章節節點少的時候垂直根本捲不動
+            // (maxScrollY == 0)，這時若也給回彈，任何略帶斜角的水平拖曳都會順便上下晃一下，
+            // 手感變鬆。等同 iOS UIScrollView 的 alwaysBounceVertical 預設關閉。
+            Vector2 maxScroll = MaxScrollOffset();
+            if (maxScroll.x <= 0f)
+                overshoot.x = 0f;
+            if (maxScroll.y <= 0f)
+                overshoot.y = 0f;
+
+            SetOvershoot(new Vector2(DampOvershoot(overshoot.x), DampOvershoot(overshoot.y)));
+        }
+
+        /// <summary>
+        /// 阻尼函式：applied = maxOvershoot * over / (over + maxOvershoot)。
+        /// 逐軸處理，取絕對值算完再補回正負號(兩側對稱)。
+        /// 性質：over = 0 時為 0、斜率 1(跟手)；單調遞增；over 趨近無限大時上限趨近 maxOvershoot。
+        /// </summary>
+        private float DampOvershoot(float over)
+        {
+            if (maxOvershoot <= 0f)
+                return 0f;
+
+            float abs = Mathf.Abs(over);
+            if (abs <= 0f)
+                return 0f;
+
+            float applied = maxOvershoot * abs / (abs + maxOvershoot);
+            return over < 0f ? -applied : applied;
+        }
+
+        /// <summary>
+        /// DampOvershoot 的反函式：over = maxOvershoot * applied / (maxOvershoot - applied)。
+        /// 給「回彈中途又按下去」用，把 translate 上的阻尼後數值換算回原始超出量，接續拖曳才不會跳。
+        /// applied 恆小於 maxOvershoot(阻尼函式的上限)，不過還是夾一下分母，避免浮點誤差除到 0。
+        /// </summary>
+        private float InverseDampOvershoot(float applied)
+        {
+            if (maxOvershoot <= 0f)
+                return 0f;
+
+            float abs = Mathf.Min(Mathf.Abs(applied), maxOvershoot * 0.999f);
+            if (abs <= 0f)
+                return 0f;
+
+            float over = maxOvershoot * abs / (maxOvershoot - abs);
+            return applied < 0f ? -over : over;
+        }
+
+        /// <summary>
+        /// 把超出量寫成 contentRoot 的 translate。
+        ///
+        /// 正負號推導：ScrollView 本身就是用「translate = -scrollOffset」實作捲動的 ——
+        /// 6000.5.3f1 的 ScrollView.UpdateContentViewTransform 裡寫的是
+        ///     translate.x = this.RoundToPanelPixelSize(0f - vector.x);
+        ///     translate.y = this.RoundToPanelPixelSize(0f - vector.y);
+        /// 其中 vector 就是 scrollOffset。可見 scrollOffset 變大 → 內容往左/往上移動。
+        /// 超出量的語意是「使用者還想再往同一個方向多捲一點」，方向跟 scrollOffset 一致，
+        /// 所以也要取負：translate = (-applied.x, -applied.y)。
+        /// 寫成正號的話，往右邊緣拖會讓內容往右跑(等於反而彈出去)，一眼就看得出是錯的。
+        ///
+        /// 為什麼用 translate 而不是改 layout：translate 不參與排版，不會觸發 Yoga 重算，
+        /// 也就不會讓 ScrollView 重新夾一次 scrollOffset。
+        /// connectionCanvas 是 contentRoot 的子物件，連線會跟著卡片一起位移，這是對的。
+        /// </summary>
+        private void SetOvershoot(Vector2 value)
+        {
+            overshootOffset = value;
+            contentRoot.style.translate = new Translate(-value.x, -value.y);
+        }
+
+        /// <summary>
+        /// 放手後開始回彈。完全沒有超出量時(例如門檻內的按放)直接返回，
+        /// 連 inline translate 都不寫，節點點擊的行為跟改動前一模一樣。
+        /// </summary>
+        private void StartSpringBack()
+        {
+            if (overshootOffset == Vector2.zero)
+                return;
+
+            if (overshootOffset.sqrMagnitude < SpringEpsilonSqr)
+            {
+                SetOvershoot(Vector2.zero);
+                return;
+            }
+
+            // 排程物件只建立一次 —— schedule.Execute(...).Every(16) 建立當下就是啟動狀態，
+            // 所以第一次不用再 Resume；之後每次放手都重用同一顆，不會每次都 new 一個。
+            if (springItem == null)
+                springItem = schedule.Execute(StepSpringBack).Every(16);
+            else
+                springItem.Resume();
+        }
+
+        private void StopSpringBack()
+        {
+            if (springItem != null)
+                springItem.Pause();
+        }
+
+        /// <summary>
+        /// 指數衰減回 0。沒有用 USS transition 做這件事：這個 Unity 版本的 USS parser 連 calc()
+        /// 都不支援(之前已經被坑過一次)，用 C# 排程既可控也可驗。
+        /// </summary>
+        private void StepSpringBack()
+        {
+            // dt 用 unscaledDeltaTime：這張地圖是 UI，不該被 Time.timeScale 影響 ——
+            // 暫停選單把 timeScale 設成 0 的時候，回彈也要照樣跑完。
+            float dt = Time.unscaledDeltaTime;
+            Vector2 current = Vector2.Lerp(overshootOffset, Vector2.zero, 1f - Mathf.Exp(-springDecay * dt));
+
+            if (current.sqrMagnitude < SpringEpsilonSqr)
+            {
+                SetOvershoot(Vector2.zero);
+                StopSpringBack();
+                return;
+            }
+
+            SetOvershoot(current);
+        }
+
+        /// <summary>
+        /// 立刻把超出量歸零並停掉回彈排程。切換章節 / 重建節點 / ScrollToNode 都要呼叫，
+        /// 否則上一次拖曳殘留的偏移會疊在新版面或新捲動位置上。
+        /// </summary>
+        private void ResetOvershoot()
+        {
+            StopSpringBack();
+            if (overshootOffset != Vector2.zero)
+                SetOvershoot(Vector2.zero);
         }
 
         #endregion
@@ -358,6 +568,10 @@ namespace BMC.Story
             if (targetNode == null || !nodeDepthMap.ContainsKey(targetNode))
                 return;
 
+            // 程式化捲動要落在精確位置，殘留的回彈偏移會讓畫面看起來偏掉；
+            // 也必須停掉排程，否則接下來 await 的那兩個 frame 裡它會繼續把 translate 寫回去。
+            ResetOvershoot();
+
             await WaitForLayoutAsync();
 
             int targetDepth = nodeDepthMap[targetNode];
@@ -407,6 +621,11 @@ namespace BMC.Story
 
         public void ClearOldLayout()
         {
+            // 重建節點(切換章節、RefreshStoryLayout)之前先把拖曳殘留的回彈偏移歸零：
+            // contentRoot.Clear() 只清子元素，inline 的 translate 會留著，不歸零就會偏到新版面上。
+            // GenerateNodesBFS 一定是在這之後才跑，所以節點重建的入口由這裡一併涵蓋。
+            ResetOvershoot();
+
             contentRoot.Clear();
             contentRoot.Add(connectionCanvas);
 
