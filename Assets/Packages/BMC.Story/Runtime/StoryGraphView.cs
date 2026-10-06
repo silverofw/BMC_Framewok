@@ -642,6 +642,12 @@ namespace BMC.Story
             if (node.AutoJumpAffectionRules != null)
                 foreach (var rule in node.AutoJumpAffectionRules)
                     if (!string.IsNullOrEmpty(rule.TargetNodeId)) yield return rule.TargetNodeId;
+            // 變數跳轉規則也算出邊：有些節點(例如完全版限定內容)唯一的入邊就是上游的
+            // AutoJumpVariableRules，不列進來 GenerateNodesBFS 永遠走不到它，節點圖上整段
+            // 分支會憑空消失。這裡只負責「圖上有這條邊」，規則條件成不成立是執行期的事。
+            if (node.AutoJumpVariableRules != null)
+                foreach (var rule in node.AutoJumpVariableRules)
+                    if (!string.IsNullOrEmpty(rule.TargetNodeId)) yield return rule.TargetNodeId;
             if (node.OnEnterEvents != null)
                 foreach (var evt in node.OnEnterEvents)
                     foreach (var id in GetTargetsFromEvent(evt)) yield return id;
