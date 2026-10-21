@@ -24,8 +24,12 @@ namespace BMC.Build.Editor
         /// <summary>
         /// 同步單一資源包。sourceDirectory 傳 BuildResult.OutputPackageDirectory。
         /// 回傳目的地路徑；profile 沒設定 cdnRoot 或找不到平台對應時回 null(視為刻意跳過)。
+        ///
+        /// 【clearDestination】所有資源包都同步到同一個「平台/版本」資料夾，所以一趟出版只能
+        /// 在第一個包清一次。以前每個包都清，結果第二個包(RawPackage)把第一個包剛複製好的
+        /// 檔案全刪了，CDN 上只剩最後一個包。
         /// </summary>
-        public static string Sync(BuildProfile profile, BuildTarget target, string sourceDirectory)
+        public static string Sync(BuildProfile profile, BuildTarget target, string sourceDirectory, bool clearDestination = true)
         {
             if (profile == null || string.IsNullOrWhiteSpace(profile.cdnRoot))
                 return null;
@@ -48,7 +52,7 @@ namespace BMC.Build.Editor
             // 兩邊必須一致，不能用資源包自己的建置版本號(那是 yyyy-MM-dd-分鐘)。
             string destDirectory = Path.Combine(projectRoot, profile.cdnRoot, platformFolder, Application.version);
 
-            if (profile.cdnClearBeforeCopy && Directory.Exists(destDirectory))
+            if (clearDestination && profile.cdnClearBeforeCopy && Directory.Exists(destDirectory))
                 Directory.Delete(destDirectory, true);
             Directory.CreateDirectory(destDirectory);
 
@@ -67,8 +71,14 @@ namespace BMC.Build.Editor
 
                 string dest = Path.Combine(destDirectory, Path.GetFileName(file));
                 File.Copy(file, dest, true);
-                bytes += new FileInfo(file).Length;
+                long size = new FileInfo(file).Length;
+                bytes += size;
                 copied++;
+
+                if (size > PagesMaxFileBytes)
+                    Debug.LogError($"[CdnSync] {Path.GetFileName(file)} 有 {size / 1024f / 1024f:F1} MB，"
+                                   + "超過 Cloudflare Pages 單檔 25 MiB 上限，上傳會失敗。"
+                                   + "請把它所在的收集群組改成分開打包，或拆小素材。");
             }
 
             Debug.Log($"[CdnSync] {platformFolder}/{Application.version}: 複製 {copied} 個檔案"
@@ -204,6 +214,9 @@ namespace BMC.Build.Editor
                 return false;
             }
         }
+
+        /// <summary>Cloudflare Pages 單一檔案上限 25 MiB。</summary>
+        const long PagesMaxFileBytes = 25L * 1024 * 1024;
 
         /// <summary>上傳的時間上限。大部分只會傳變更的少數檔案，真的跑滿通常代表卡在等登入。</summary>
         const int TimeoutMs = 10 * 60 * 1000;

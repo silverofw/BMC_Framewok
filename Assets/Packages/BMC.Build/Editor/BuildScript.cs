@@ -24,7 +24,7 @@ namespace BMC.Build.Editor
         }
 
         // --- 獲取當前 Build Profile 名稱 ---
-        private static string GetActiveProfileName()
+        internal static string GetActiveProfileName()
         {
             string profileName = "DefaultProfile";
 

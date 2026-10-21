@@ -63,6 +63,22 @@ namespace BMC.Build.Editor
             });
         }
 
+        /// <summary>只出熱更，沿用已發出的母包。不需要先跑 Generate —— 跑了反而會被擋下來。</summary>
+        public static void BuildCodePatch()
+        {
+            Run("BuildCodePatch", () =>
+            {
+                ApplyActiveBuildProfileFromArgs();
+                var profile = ResolveProfile();
+                if (profile == null) return false;
+
+                bool ok = BuildRunner.BuildCodePatch(profile, fullVersion: HasFlag("-bmcFullVersion"));
+
+                if (ok && HasFlag("-bmcDeploy")) CdnSync.Deploy(profile);
+                return ok;
+            });
+        }
+
         // =========================================================
 
         private static void Run(string name, Func<bool> body)

@@ -51,6 +51,15 @@ namespace BMC.Build.Editor
             BuildAll(profile, fastMode: true, buildPlayer: false);
         }
 
+        [MenuItem("BMC/Build/2c. 只出熱更 (沿用已發出的母包)", false, 202)]
+        public static void MenuBuildCodePatch()
+        {
+            var profile = BuildProfile.Find();
+            if (profile == null) return;
+
+            BuildCodePatch(profile);
+        }
+
         /// <summary>
         /// 【為什麼上傳要獨立成一個選單，而不是接在出版後面】Cloudflare Pages 免費方案
         /// 每月 500 次 deployment，Direct Upload 也計入。反覆測試打包很容易吃掉配額，
@@ -166,23 +175,9 @@ namespace BMC.Build.Editor
             // 2. 複製熱更與補充元資料用的 AOT dll 到資源目錄
             BuildScript.CopyHotUpdateAssemblies(AotReferences.Resolve());
 
-            // 3. 打資源包
-            foreach (var entry in profile.packages)
-            {
-                ApplyToYooAsset(entry);
-
-                var result = BuildScript.ExecutePackageBuild(entry.packageName, entry.pipeline);
-                if (result == null || !result.Success)
-                {
-                    Debug.LogError($"[BuildRunner] 資源包 {entry.packageName} 建置失敗：{result?.ErrorInfo}");
-                    return false;
-                }
-
-                Debug.Log($"[BuildRunner] 資源包 {entry.packageName} 完成 -> {result.OutputPackageDirectory}");
-
-                // 4. 同步 CDN 資料夾(只複製客戶端真的會下載的檔案)
-                CdnSync.Sync(profile, target, result.OutputPackageDirectory);
-            }
+            // 3. 打資源包 + 4. 同步 CDN 資料夾
+            if (!BuildPackages(profile, target))
+                return false;
 
             if (!buildPlayer)
                 return true;
@@ -197,7 +192,69 @@ namespace BMC.Build.Editor
 
             StripDontShipFolders(report.summary.outputPath);
 
+            // 6. 封存母包基準，之後只出熱更要用(見 BaseFreeze)
+            if (!BaseFreeze.Archive(report.summary.outputPath))
+                return false;
+
             Debug.Log($"[BuildRunner] 全部完成 -> {report.summary.outputPath}");
+            return true;
+        }
+
+        /// <summary>
+        /// 只出熱更：母包已經發出去、不再重打時用。編熱更 DLL、打資源包、同步 CDN 資料夾，
+        /// 但補充元資料用的 AOT dll 一律換回出母包時封存的那份(<see cref="BaseFreeze"/>)。
+        /// AOT 端有改動時會直接中止 —— 那種改動熱更送不出去，只能重出母包。
+        /// </summary>
+        public static bool BuildCodePatch(BuildProfile profile, bool fullVersion = false)
+        {
+            if (profile == null)
+            {
+                Debug.LogError("[BuildRunner] 沒有 profile。");
+                return false;
+            }
+
+            if (!profile.Validate(out string reason))
+            {
+                Debug.LogError($"[BuildRunner] profile 設定有問題，已中止：{reason}");
+                return false;
+            }
+
+            ApplyFullVersionOnlyGroups(fullVersion);
+
+            var target = EditorUserBuildSettings.activeBuildTarget;
+            Debug.Log($"[BuildRunner] 開始出熱更：target={target} version={Application.version}");
+
+            CompileDllCommand.CompileDllActiveBuildTarget();
+            BuildScript.CopyHotUpdateAssemblies(AotReferences.Resolve());
+            if (!BaseFreeze.RestoreForPatch())
+                return false;
+
+            return BuildPackages(profile, target);
+        }
+
+        /// <summary>
+        /// 打每個資源包並同步到 CDN 資料夾(只複製客戶端真的會下載的檔案)。
+        /// 所有包同步到同一個資料夾，只有第一個包會先清空，見 <see cref="CdnSync.Sync"/>。
+        /// </summary>
+        private static bool BuildPackages(BuildProfile profile, BuildTarget target)
+        {
+            bool first = true;
+            foreach (var entry in profile.packages)
+            {
+                ApplyToYooAsset(entry);
+
+                var result = BuildScript.ExecutePackageBuild(entry.packageName, entry.pipeline);
+                if (result == null || !result.Success)
+                {
+                    Debug.LogError($"[BuildRunner] 資源包 {entry.packageName} 建置失敗：{result?.ErrorInfo}");
+                    return false;
+                }
+
+                Debug.Log($"[BuildRunner] 資源包 {entry.packageName} 完成 -> {result.OutputPackageDirectory}");
+
+                CdnSync.Sync(profile, target, result.OutputPackageDirectory, clearDestination: first);
+                first = false;
+            }
             return true;
         }
 
