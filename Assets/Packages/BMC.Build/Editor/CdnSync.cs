@@ -50,6 +50,9 @@ namespace BMC.Build.Editor
             string projectRoot = Directory.GetParent(Application.dataPath).FullName;
             // 版本用 Application.version：執行期的 GetHostServerURL 也是用它組網址的，
             // 兩邊必須一致，不能用資源包自己的建置版本號(那是 yyyy-MM-dd-分鐘)。
+            string channel = profile.GetCdnChannel();
+            if (!string.IsNullOrEmpty(channel))
+                platformFolder = platformFolder + "/" + channel;
             string destDirectory = Path.Combine(projectRoot, profile.cdnRoot, platformFolder, Application.version);
 
             if (clearDestination && profile.cdnClearBeforeCopy && Directory.Exists(destDirectory))
@@ -57,7 +60,7 @@ namespace BMC.Build.Editor
             Directory.CreateDirectory(destDirectory);
 
             var filters = profile.cdnFileFilters ?? new System.Collections.Generic.List<string>();
-            int copied = 0, skipped = 0;
+            int copied = 0, skipped = 0, oversized = 0;
             long bytes = 0;
 
             foreach (var file in Directory.GetFiles(sourceDirectory))
@@ -69,20 +72,28 @@ namespace BMC.Build.Editor
                     continue;
                 }
 
+                // 超過上限的檔一放進去，wrangler 整批上傳都會失敗，連其他檔案也上不去。
+                // 跳過它：母包本來就有一份，沒改到就用不到 CDN；改到了就只能拆小素材或出新母包。
+                long size = new FileInfo(file).Length;
+                if (size > PagesMaxFileBytes)
+                {
+                    oversized++;
+                    Debug.LogError($"[CdnSync] {Path.GetFileName(file)} 有 {size / 1024f / 1024f:F1} MB，"
+                                   + "超過 Cloudflare Pages 單檔 25 MiB 上限，沒有放進 CDN。"
+                                   + "母包裡那份照常能用；如果這次熱更有改到它，玩家會下載失敗，"
+                                   + "請拆小素材或出新母包。");
+                    continue;
+                }
+
                 string dest = Path.Combine(destDirectory, Path.GetFileName(file));
                 File.Copy(file, dest, true);
-                long size = new FileInfo(file).Length;
                 bytes += size;
                 copied++;
-
-                if (size > PagesMaxFileBytes)
-                    Debug.LogError($"[CdnSync] {Path.GetFileName(file)} 有 {size / 1024f / 1024f:F1} MB，"
-                                   + "超過 Cloudflare Pages 單檔 25 MiB 上限，上傳會失敗。"
-                                   + "請把它所在的收集群組改成分開打包，或拆小素材。");
             }
 
             Debug.Log($"[CdnSync] {platformFolder}/{Application.version}: 複製 {copied} 個檔案"
-                      + $"({bytes / 1024f / 1024f:F1} MB)，略過 {skipped} 個建置副產物\n  -> {destDirectory}");
+                      + $"({bytes / 1024f / 1024f:F1} MB)，略過 {skipped} 個建置副產物、{oversized} 個超過上限的檔"
+                      + $"\n  -> {destDirectory}");
             return destDirectory;
         }
 

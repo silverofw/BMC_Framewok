@@ -183,7 +183,9 @@ namespace BMC.Build.Editor
                 return true;
 
             // 5. 母包
-            var report = BuildScript.BuildForTarget(target, BuildScript.GetExtensionForTarget(target));
+            UnityEditor.Build.Reporting.BuildReport report;
+            using (CdnChannelStamp.Write(profile.GetCdnChannel()))
+                report = BuildScript.BuildForTarget(target, BuildScript.GetExtensionForTarget(target));
             if (report == null || report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
             {
                 Debug.LogError($"[BuildRunner] 母包建置失敗：{report?.summary.result}");

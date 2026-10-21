@@ -95,6 +95,12 @@ namespace BMC.Build.Editor
                  + "而不是更新既有的，所以要跟後台完全一致。")]
         public string cdnProjectName = "";
 
+        [Tooltip("CDN 路徑多一層 Unity Build Profile 名稱(平台/<Build Profile>/版本)，"
+                 + "讓 Steam、Demo、完全版各自一份資源，同版本號也不會互相覆蓋。"
+                 + "出母包時會把名稱寫進 Resources/" + CdnChannelStamp.ResourceName
+                 + "，執行期讀它組網址。")]
+        public bool cdnSplitByBuildProfile = false;
+
         // =========================================================
         // 取得
         // =========================================================
@@ -173,6 +179,12 @@ namespace BMC.Build.Editor
         public string GetPlatformFolder(BuildTarget target)
         {
             return platformFolders?.FirstOrDefault(p => p.target == target)?.folderName;
+        }
+
+        /// <summary>CDN 路徑裡平台與版本之間的那一層；沒開 cdnSplitByBuildProfile 就回 null。</summary>
+        public string GetCdnChannel()
+        {
+            return cdnSplitByBuildProfile ? BuildScript.GetActiveProfileName() : null;
         }
     }
 }
