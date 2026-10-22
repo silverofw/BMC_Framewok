@@ -140,7 +140,14 @@ namespace BMC.Story
             RegisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
             RegisterCallback<PointerMoveEvent>(OnPointerMove, TrickleDown.TrickleDown);
             RegisterCallback<PointerUpEvent>(OnPointerUp, TrickleDown.TrickleDown);
-            RegisterCallback<PointerCaptureOutEvent>(_ => ResetDrag());
+            // PointerCaptureOutEvent 會冒泡：按在節點(UIButton)上時，節點的 Clickable 先擷取了指標，
+            // 拖過門檻後這裡搶走指標，節點收到的 CaptureOut 冒泡上來不能當成「自己的拖曳被打斷」，
+            // 否則一按在節點上就永遠拖不動。只處理自己失去擷取的情況。
+            RegisterCallback<PointerCaptureOutEvent>(evt =>
+            {
+                if (evt.target == this)
+                    ResetDrag();
+            });
 
             connectionCanvas = new ConnectionCanvas { name = "graph-connections" };
             connectionCanvas.AddToClassList("story-graph-view__connections");
