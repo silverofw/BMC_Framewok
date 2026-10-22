@@ -137,6 +137,19 @@ namespace BMC.Build.Editor
             return profiles[0];
         }
 
+        /// <summary>
+        /// 拿回還活著的 profile。
+        /// 【為什麼需要】出資源包時建置管線會卸載沒用到的資產(Unloading N unused Assets)，
+        /// 呼叫端手上的 profile 就算還有 C# 參考也會被銷毀，之後 `profile == null` 變成 true。
+        /// 以前 CdnSync.Sync / Deploy 一進來就判 null 直接 return，整趟出版 CDN 資料夾一個檔都沒更新，
+        /// 而且一行 log 都沒有。銷毀了就重新載入，真的是 null 才回 null。
+        /// </summary>
+        public static BuildProfile Revive(BuildProfile profile)
+        {
+            if (profile != null) return profile;
+            return ReferenceEquals(profile, null) ? null : Find();
+        }
+
         /// <summary>設定有沒有明顯的錯，回傳 false 時 reason 說明原因。建置前先擋，不要等到執行期。</summary>
         public bool Validate(out string reason)
         {

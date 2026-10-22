@@ -31,6 +31,7 @@ namespace BMC.Build.Editor
         /// </summary>
         public static string Sync(BuildProfile profile, BuildTarget target, string sourceDirectory, bool clearDestination = true)
         {
+            profile = BuildProfile.Revive(profile);
             if (profile == null || string.IsNullOrWhiteSpace(profile.cdnRoot))
                 return null;
 
@@ -114,6 +115,7 @@ namespace BMC.Build.Editor
         /// <returns>成功回傳 true；沒設定專案名稱視為刻意跳過，回傳 false。</returns>
         public static bool Deploy(BuildProfile profile)
         {
+            profile = BuildProfile.Revive(profile);
             if (profile == null || string.IsNullOrWhiteSpace(profile.cdnRoot))
                 return false;
 
