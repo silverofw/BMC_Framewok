@@ -41,6 +41,8 @@ namespace BMC.Story
         private int dragPointerId = -1;
         private bool isPointerDown;
         private bool isDragging;
+        /// <summary>這次按下時先擷取指標的子孫(通常是節點卡片)，拖曳回呼暫時也掛在它身上，見 OnDescendantCapture。</summary>
+        private VisualElement capturedDescendant;
 
         /// <summary>
         /// 拖到邊緣外之後，內容最多還能被拉開的距離(像素)，也就是阻尼函式的漸近上限。
@@ -148,6 +150,12 @@ namespace BMC.Story
                 if (evt.target == this)
                     ResetDrag();
             });
+            // 按在節點上時，節點的 Clickable 一按下就擷取指標。被擷取的指標事件只會送到擷取者本身，
+            // 祖先的 TrickleDown 也收不到(Unity 6000.5.3f1 EventDispatchUtilities.DispatchToCapturingElement
+            // 以 isCapturingTarget 傳播，路徑只剩擷取者)，上面三個回呼在過門檻前一個 move 都看不到：
+            // 按住拖不動，放手後 Clickable 放掉擷取、這裡又沒收到 PointerUp 還以為按著，游標一動整張圖才黏上來。
+            // PointerCaptureEvent 會冒泡，看到子孫擷取了這次拖曳的指標，就把同一組回呼暫時掛到它身上。
+            RegisterCallback<PointerCaptureEvent>(OnDescendantCapture);
 
             connectionCanvas = new ConnectionCanvas { name = "graph-connections" };
             connectionCanvas.AddToClassList("story-graph-view__connections");
@@ -238,11 +246,36 @@ namespace BMC.Story
                 evt.StopPropagation();
         }
 
+        private void OnDescendantCapture(PointerCaptureEvent evt)
+        {
+            if (evt.target == this || !isPointerDown || evt.pointerId != dragPointerId)
+                return;
+            if (evt.target is not VisualElement captor || captor == capturedDescendant)
+                return;
+
+            DetachFromCapturedDescendant();
+            capturedDescendant = captor;
+            // 掛 TrickleDown：擷取者身上的 TrickleDown 回呼會在它自己的 Clickable 之前執行，
+            // 過門檻時才能先把指標搶過來並擋掉 Clickable 的 move。
+            captor.RegisterCallback<PointerMoveEvent>(OnPointerMove, TrickleDown.TrickleDown);
+            captor.RegisterCallback<PointerUpEvent>(OnPointerUp, TrickleDown.TrickleDown);
+        }
+
+        private void DetachFromCapturedDescendant()
+        {
+            if (capturedDescendant == null)
+                return;
+            capturedDescendant.UnregisterCallback<PointerMoveEvent>(OnPointerMove, TrickleDown.TrickleDown);
+            capturedDescendant.UnregisterCallback<PointerUpEvent>(OnPointerUp, TrickleDown.TrickleDown);
+            capturedDescendant = null;
+        }
+
         private void ResetDrag()
         {
             isPointerDown = false;
             isDragging = false;
             dragPointerId = -1;
+            DetachFromCapturedDescendant();
 
             // 回彈統一掛在這裡，不是只掛在 OnPointerUp：PointerCaptureOutEvent 也走這條路
             // (指標被別的元素搶走、面板被關掉等等)，不這樣寫的話那些情況下超出量會卡住不彈回。
