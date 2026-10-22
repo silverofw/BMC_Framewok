@@ -47,6 +47,11 @@ namespace BMC.Build.Editor
             public EFileNameStyle fileNameStyle = EFileNameStyle.HashName;
             public bool clearBuildCache = true;
             public bool useAssetDependencyDB = false;
+
+            [Tooltip("建置後複製到 CDN 資料夾。取消勾選 = 這個包照樣打、照樣進母包，但不上 CDN，"
+                     + "只能靠出新母包更新（例如影片包：檔案大又常超過 Cloudflare 單檔上限）。"
+                     + "執行期向 CDN 要版本會 404，HostPlayMode 會退回快取版本或母包內建資源。")]
+            public bool syncToCdn = true;
         }
 
         [Header("資源包")]

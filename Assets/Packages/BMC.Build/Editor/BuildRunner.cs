@@ -236,7 +236,8 @@ namespace BMC.Build.Editor
 
         /// <summary>
         /// 打每個資源包並同步到 CDN 資料夾(只複製客戶端真的會下載的檔案)。
-        /// 所有包同步到同一個資料夾，只有第一個包會先清空，見 <see cref="CdnSync.Sync"/>。
+        /// 所有包同步到同一個資料夾，只有第一個有同步的包會先清空，見 <see cref="CdnSync.Sync"/>。
+        /// <see cref="BuildProfile.PackageEntry.syncToCdn"/> 取消勾選的包只建置不同步。
         /// </summary>
         private static bool BuildPackages(BuildProfile profile, BuildTarget target)
         {
@@ -253,6 +254,12 @@ namespace BMC.Build.Editor
                 }
 
                 Debug.Log($"[BuildRunner] 資源包 {entry.packageName} 完成 -> {result.OutputPackageDirectory}");
+
+                if (!entry.syncToCdn)
+                {
+                    Debug.Log($"[BuildRunner] 資源包 {entry.packageName} 設定為不同步 CDN，跳過");
+                    continue;
+                }
 
                 CdnSync.Sync(profile, target, result.OutputPackageDirectory, clearDestination: first);
                 first = false;
