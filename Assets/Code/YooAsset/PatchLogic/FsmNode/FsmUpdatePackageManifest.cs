@@ -14,7 +14,7 @@ public class FsmUpdatePackageManifest : IStateNode
     }
     void IStateNode.OnEnter()
     {
-        PatchEventDefine.PatchStepsChange.SendEventMessage("更新资源清单！");
+        PatchEventDefine.PatchStepsChange.SendEventMessage("PATCH_STEP_UPDATE_MANIFEST");
         PatchWindow.behaviour.StartCoroutine(UpdateManifest());
     }
     void IStateNode.OnUpdate()

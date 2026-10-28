@@ -3,6 +3,18 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.4.0] - 2026-10-28
+
+### Added
+- 熱更新畫面（Patch 場景）的 UI Toolkit 版本：`PatchView` 元件＋`Runtime/Patch/` 的
+  `UIT_PatchView.uxml`、`UIT_PatchViewStyle.uss`、自己的 `PatchPanelSettings`／`PatchTheme`。
+  Patch 場景執行時熱更 DLL 與 YooAsset 資源都還沒載入，所以不走 `UITMgr`，直接掛在場景物件的
+  `UIDocument` 上。提供標題、逐格動畫、進度條、步驟提示、版號與可疊加的訊息框。
+- 套件版面只有素色外觀、不含圖片也不指定字型；專案美術寫在自己的換膚 USS 拖進
+  `PatchView.skin`，選擇器前面加 `.patch-skin` 就一定蓋得過預設。
+- `PatchLocal`：熱更新畫面專用的內建四語表（繁中／英／日／簡中），只看系統語言，
+  不支援的語言一律顯示英文。專案可用 `PatchLocal.Set` 換字或加字（例如換掉預設標題 `PATCH_TITLE`）。
+
 ## [1.3.0] - 2026-09-09
 
 ### Changed

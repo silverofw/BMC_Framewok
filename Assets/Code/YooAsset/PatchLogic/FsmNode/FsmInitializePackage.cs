@@ -16,7 +16,7 @@ internal class FsmInitializePackage : IStateNode
     }
     void IStateNode.OnEnter()
     {
-        PatchEventDefine.PatchStepsChange.SendEventMessage("初始化资源包！");
+        PatchEventDefine.PatchStepsChange.SendEventMessage("PATCH_STEP_INIT");
         PatchWindow.behaviour.StartCoroutine(InitPackage());
     }
     void IStateNode.OnUpdate()
