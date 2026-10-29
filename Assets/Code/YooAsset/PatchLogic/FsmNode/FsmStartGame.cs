@@ -13,7 +13,7 @@ internal class FsmStartGame : IStateNode
     }
     void IStateNode.OnEnter()
     {
-        PatchEventDefine.PatchStepsChange.SendEventMessage("更新完畢！");
+        PatchEventDefine.PatchStepsChange.SendEventMessage("PATCH_STEP_DONE");
         _owner.SetFinish();
     }
     void IStateNode.OnUpdate()

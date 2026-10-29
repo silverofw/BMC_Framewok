@@ -13,7 +13,7 @@ public class FsmDownloadPackageFiles : IStateNode
     }
     void IStateNode.OnEnter()
     {
-        PatchEventDefine.PatchStepsChange.SendEventMessage("开始下载资源文件！");
+        PatchEventDefine.PatchStepsChange.SendEventMessage("PATCH_STEP_DOWNLOADING");
         PatchWindow.behaviour.StartCoroutine(BeginDownload());
     }
     void IStateNode.OnUpdate()

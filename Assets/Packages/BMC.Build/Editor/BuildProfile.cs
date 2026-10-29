@@ -47,6 +47,11 @@ namespace BMC.Build.Editor
             public EFileNameStyle fileNameStyle = EFileNameStyle.HashName;
             public bool clearBuildCache = true;
             public bool useAssetDependencyDB = false;
+
+            [Tooltip("建置後複製到 CDN 資料夾。取消勾選 = 這個包照樣打、照樣進母包，但不上 CDN，"
+                     + "只能靠出新母包更新（例如影片包：檔案大又常超過 Cloudflare 單檔上限）。"
+                     + "執行期向 CDN 要版本會 404，HostPlayMode 會退回快取版本或母包內建資源。")]
+            public bool syncToCdn = true;
         }
 
         [Header("資源包")]
@@ -95,6 +100,12 @@ namespace BMC.Build.Editor
                  + "而不是更新既有的，所以要跟後台完全一致。")]
         public string cdnProjectName = "";
 
+        [Tooltip("CDN 路徑多一層 Unity Build Profile 名稱(平台/<Build Profile>/版本)，"
+                 + "讓 Steam、Demo、完全版各自一份資源，同版本號也不會互相覆蓋。"
+                 + "出母包時會把名稱寫進 Resources/" + CdnChannelStamp.ResourceName
+                 + "，執行期讀它組網址。")]
+        public bool cdnSplitByBuildProfile = false;
+
         // =========================================================
         // 取得
         // =========================================================
@@ -129,6 +140,19 @@ namespace BMC.Build.Editor
             }
 
             return profiles[0];
+        }
+
+        /// <summary>
+        /// 拿回還活著的 profile。
+        /// 【為什麼需要】出資源包時建置管線會卸載沒用到的資產(Unloading N unused Assets)，
+        /// 呼叫端手上的 profile 就算還有 C# 參考也會被銷毀，之後 `profile == null` 變成 true。
+        /// 以前 CdnSync.Sync / Deploy 一進來就判 null 直接 return，整趟出版 CDN 資料夾一個檔都沒更新，
+        /// 而且一行 log 都沒有。銷毀了就重新載入，真的是 null 才回 null。
+        /// </summary>
+        public static BuildProfile Revive(BuildProfile profile)
+        {
+            if (profile != null) return profile;
+            return ReferenceEquals(profile, null) ? null : Find();
         }
 
         /// <summary>設定有沒有明顯的錯，回傳 false 時 reason 說明原因。建置前先擋，不要等到執行期。</summary>
@@ -173,6 +197,12 @@ namespace BMC.Build.Editor
         public string GetPlatformFolder(BuildTarget target)
         {
             return platformFolders?.FirstOrDefault(p => p.target == target)?.folderName;
+        }
+
+        /// <summary>CDN 路徑裡平台與版本之間的那一層；沒開 cdnSplitByBuildProfile 就回 null。</summary>
+        public string GetCdnChannel()
+        {
+            return cdnSplitByBuildProfile ? BuildScript.GetActiveProfileName() : null;
         }
     }
 }

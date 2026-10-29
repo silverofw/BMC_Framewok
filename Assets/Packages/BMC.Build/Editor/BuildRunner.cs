@@ -1,3 +1,4 @@
+using System;
 using HybridCLR.Editor.Commands;
 using UnityEditor;
 using UnityEngine;
@@ -50,6 +51,15 @@ namespace BMC.Build.Editor
             BuildAll(profile, fastMode: true, buildPlayer: false);
         }
 
+        [MenuItem("BMC/Build/2c. 只出熱更 (沿用已發出的母包)", false, 202)]
+        public static void MenuBuildCodePatch()
+        {
+            var profile = BuildProfile.Find();
+            if (profile == null) return;
+
+            BuildCodePatch(profile);
+        }
+
         /// <summary>
         /// 【為什麼上傳要獨立成一個選單，而不是接在出版後面】Cloudflare Pages 免費方案
         /// 每月 500 次 deployment，Direct Upload 也計入。反覆測試打包很容易吃掉配額，
@@ -78,6 +88,45 @@ namespace BMC.Build.Editor
             EditorUtility.RevealInFinder(path);
         }
 
+        /// <summary>
+        /// Demo 版路徑是消費端專案自己決定的(不同專案的 Build Profile 命名/位置不一定一樣)，
+        /// 這裡只認一個約定路徑；沒有的話直接報錯提示先建立，不猜測、不自動生成。
+        /// </summary>
+        private const string DemoBuildProfileAssetPath = "Assets/Settings/Build Profiles/WindowsDemo.asset";
+
+        [MenuItem("BMC/Build/產生 build_demo.bat (Demo 版，不開 Unity 打包用)", false, 301)]
+        public static void MenuCreateDemoBatch()
+        {
+            var demoProfile = AssetDatabase.LoadAssetAtPath<UnityEditor.Build.Profile.BuildProfile>(DemoBuildProfileAssetPath);
+            if (demoProfile == null)
+            {
+                Debug.LogError($"[BuildRunner] 找不到 Demo 用的 Build Profile: {DemoBuildProfileAssetPath}。"
+                    + "請先建立一份帶 DEMO_BUILD scripting define 的 Unity Build Profile 資產。");
+                return;
+            }
+
+            string path = BatchFileWriter.WriteDemo(DemoBuildProfileAssetPath);
+            EditorUtility.RevealInFinder(path);
+        }
+
+        /// <summary>完全版路徑一樣是消費端專案自己決定的約定路徑，沒有就直接報錯提示先建立。</summary>
+        private const string FullBuildProfileAssetPath = "Assets/Settings/Build Profiles/WindowsFull.asset";
+
+        [MenuItem("BMC/Build/產生 build_full.bat (完全版，不開 Unity 打包用)", false, 302)]
+        public static void MenuCreateFullBatch()
+        {
+            var fullProfile = AssetDatabase.LoadAssetAtPath<UnityEditor.Build.Profile.BuildProfile>(FullBuildProfileAssetPath);
+            if (fullProfile == null)
+            {
+                Debug.LogError($"[BuildRunner] 找不到完全版用的 Build Profile: {FullBuildProfileAssetPath}。"
+                    + "請先建立一份帶 FULL_VERSION_BUILD scripting define 的 Unity Build Profile 資產。");
+                return;
+            }
+
+            string path = BatchFileWriter.WriteFull(FullBuildProfileAssetPath);
+            EditorUtility.RevealInFinder(path);
+        }
+
         // =========================================================
         // 步驟
         // =========================================================
@@ -93,7 +142,11 @@ namespace BMC.Build.Editor
         /// 第 2 趟：編熱更 DLL -> 複製到資源目錄 -> 打資源包 -> 同步 CDN 資料夾 -> 出母包。
         /// 任何一步失敗就中止並回傳 false。
         /// </summary>
-        public static bool BuildAll(BuildProfile profile, bool fastMode, bool buildPlayer)
+        /// <param name="fullVersion">
+        /// 是不是完全版建置。見 <see cref="ApplyFullVersionOnlyGroups"/>——消費端專案沒有用到
+        /// 「FullOnly」命名慣例的分組時，這個參數完全不影響任何行為，可以放心一直傳 false。
+        /// </param>
+        public static bool BuildAll(BuildProfile profile, bool fastMode, bool buildPlayer, bool fullVersion = false)
         {
             if (profile == null)
             {
@@ -106,6 +159,8 @@ namespace BMC.Build.Editor
                 Debug.LogError($"[BuildRunner] profile 設定有問題，已中止：{reason}");
                 return false;
             }
+
+            ApplyFullVersionOnlyGroups(fullVersion);
 
             var target = EditorUserBuildSettings.activeBuildTarget;
             Debug.Log($"[BuildRunner] 開始出版：target={target} version={Application.version} fastMode={fastMode}");
@@ -120,7 +175,73 @@ namespace BMC.Build.Editor
             // 2. 複製熱更與補充元資料用的 AOT dll 到資源目錄
             BuildScript.CopyHotUpdateAssemblies(AotReferences.Resolve());
 
-            // 3. 打資源包
+            // 3. 打資源包 + 4. 同步 CDN 資料夾
+            if (!BuildPackages(profile, target))
+                return false;
+
+            if (!buildPlayer)
+                return true;
+
+            // 5. 母包
+            UnityEditor.Build.Reporting.BuildReport report;
+            using (CdnChannelStamp.Write(profile.GetCdnChannel()))
+                report = BuildScript.BuildForTarget(target, BuildScript.GetExtensionForTarget(target));
+            if (report == null || report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+            {
+                Debug.LogError($"[BuildRunner] 母包建置失敗：{report?.summary.result}");
+                return false;
+            }
+
+            StripDontShipFolders(report.summary.outputPath);
+
+            // 6. 封存母包基準，之後只出熱更要用(見 BaseFreeze)
+            if (!BaseFreeze.Archive(report.summary.outputPath))
+                return false;
+
+            Debug.Log($"[BuildRunner] 全部完成 -> {report.summary.outputPath}");
+            return true;
+        }
+
+        /// <summary>
+        /// 只出熱更：母包已經發出去、不再重打時用。編熱更 DLL、打資源包、同步 CDN 資料夾，
+        /// 但補充元資料用的 AOT dll 一律換回出母包時封存的那份(<see cref="BaseFreeze"/>)。
+        /// AOT 端有改動時會直接中止 —— 那種改動熱更送不出去，只能重出母包。
+        /// </summary>
+        public static bool BuildCodePatch(BuildProfile profile, bool fullVersion = false)
+        {
+            if (profile == null)
+            {
+                Debug.LogError("[BuildRunner] 沒有 profile。");
+                return false;
+            }
+
+            if (!profile.Validate(out string reason))
+            {
+                Debug.LogError($"[BuildRunner] profile 設定有問題，已中止：{reason}");
+                return false;
+            }
+
+            ApplyFullVersionOnlyGroups(fullVersion);
+
+            var target = EditorUserBuildSettings.activeBuildTarget;
+            Debug.Log($"[BuildRunner] 開始出熱更：target={target} version={Application.version}");
+
+            CompileDllCommand.CompileDllActiveBuildTarget();
+            BuildScript.CopyHotUpdateAssemblies(AotReferences.Resolve());
+            if (!BaseFreeze.RestoreForPatch())
+                return false;
+
+            return BuildPackages(profile, target);
+        }
+
+        /// <summary>
+        /// 打每個資源包並同步到 CDN 資料夾(只複製客戶端真的會下載的檔案)。
+        /// 所有包同步到同一個資料夾，只有第一個有同步的包會先清空，見 <see cref="CdnSync.Sync"/>。
+        /// <see cref="BuildProfile.PackageEntry.syncToCdn"/> 取消勾選的包只建置不同步。
+        /// </summary>
+        private static bool BuildPackages(BuildProfile profile, BuildTarget target)
+        {
+            bool first = true;
             foreach (var entry in profile.packages)
             {
                 ApplyToYooAsset(entry);
@@ -134,23 +255,54 @@ namespace BMC.Build.Editor
 
                 Debug.Log($"[BuildRunner] 資源包 {entry.packageName} 完成 -> {result.OutputPackageDirectory}");
 
-                // 4. 同步 CDN 資料夾(只複製客戶端真的會下載的檔案)
-                CdnSync.Sync(profile, target, result.OutputPackageDirectory);
+                if (!entry.syncToCdn)
+                {
+                    Debug.Log($"[BuildRunner] 資源包 {entry.packageName} 設定為不同步 CDN，跳過");
+                    continue;
+                }
+
+                CdnSync.Sync(profile, target, result.OutputPackageDirectory, clearDestination: first);
+                first = false;
             }
-
-            if (!buildPlayer)
-                return true;
-
-            // 5. 母包
-            var report = BuildScript.BuildForTarget(target, BuildScript.GetExtensionForTarget(target));
-            if (report == null || report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
-            {
-                Debug.LogError($"[BuildRunner] 母包建置失敗：{report?.summary.result}");
-                return false;
-            }
-
-            Debug.Log($"[BuildRunner] 全部完成 -> {report.summary.outputPath}");
             return true;
+        }
+
+        /// <summary>
+        /// 刪掉母包旁邊的 *_BackUpThisFolder_ButDontShipItWithYourGame 與 *_DoNotShip
+        /// (IL2CPP 的 C++ 中間檔、PDB、Burst 除錯資訊)，輸出資料夾才接近實際發行體積。
+        /// 實測一個 Windows demo 版是 2.1GB -> 328MB。
+        ///
+        /// 【為什麼寫在這裡而不是 IPostprocessBuildWithReport】消費端試過用建置後回呼刪，
+        /// 但那個時機這些資料夾還沒到齊，回呼掃過去是空的、什麼都沒刪，而且不會有任何訊息，
+        /// 看起來就像功能不存在。這裡是 BuildPlayer 整個回來之後，時機明確。
+        /// </summary>
+        private static void StripDontShipFolders(string outputPath)
+        {
+            if (string.IsNullOrEmpty(outputPath))
+                return;
+
+            string dir = System.IO.Path.GetDirectoryName(outputPath);
+            if (string.IsNullOrEmpty(dir) || !System.IO.Directory.Exists(dir))
+                return;
+
+            foreach (var path in System.IO.Directory.GetDirectories(dir))
+            {
+                string name = System.IO.Path.GetFileName(path);
+                if (name.IndexOf("DontShip", StringComparison.OrdinalIgnoreCase) < 0
+                    && name.IndexOf("DoNotShip", StringComparison.OrdinalIgnoreCase) < 0
+                    && name.IndexOf("BackUpThisFolder", StringComparison.OrdinalIgnoreCase) < 0)
+                    continue;
+
+                try
+                {
+                    System.IO.Directory.Delete(path, true);
+                    Debug.Log($"[BuildRunner] 已刪中間檔資料夾 {name}");
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"[BuildRunner] 刪不掉 {name}：{e.Message}");
+                }
+            }
         }
 
         /// <summary>
@@ -175,6 +327,41 @@ namespace BMC.Build.Editor
 
             Debug.Log($"[BuildRunner] {e.packageName} 套用設定：{pipelineName} / "
                       + $"{e.bundledCopyOption}({e.bundledCopyParams}) / {e.compressOption} / {e.fileNameStyle}");
+        }
+
+        /// <summary>
+        /// 完全版/普通版分流：框架不知道也不需要知道消費端專案的分組叫什麼名字，
+        /// 靠命名慣例——YooAsset 收集設定裡任何名稱以 "FullOnly" 結尾的分組(不管在哪個
+        /// package 底下)都視為「完全版限定素材」，這裡依 fullVersion 統一切成
+        /// EnableGroup/DisableGroup 再存檔。消費端專案沒有這種分組時，這裡直接找不到
+        /// 任何東西可切，等同沒有作用，可以放心一直呼叫。
+        /// </summary>
+        private static void ApplyFullVersionOnlyGroups(bool fullVersion)
+        {
+            if (!BundleCollectorSettingData.HasSettingAsset())
+                return;
+
+            string ruleName = fullVersion ? nameof(EnableGroup) : nameof(DisableGroup);
+            bool changed = false;
+
+            foreach (var package in BundleCollectorSettingData.Setting.Packages)
+            {
+                foreach (var group in package.Groups)
+                {
+                    if (!group.GroupName.EndsWith("FullOnly", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    if (group.ActiveRuleName == ruleName)
+                        continue;
+
+                    group.ActiveRuleName = ruleName;
+                    BundleCollectorSettingData.ModifyGroup(package, group);
+                    changed = true;
+                    Debug.Log($"[BuildRunner] 完全版限定分組 '{group.GroupName}' -> {ruleName}");
+                }
+            }
+
+            if (changed)
+                BundleCollectorSettingData.SaveFile();
         }
     }
 }

@@ -1,0 +1,179 @@
+/* 熱更新畫面的預設版面：只有位置、大小與素色，沒有圖片也不指定字型。
+   專案美術寫在自己的換膚 USS（拖進 PatchView.skin），選擇器前面加 .patch-skin，例如
+   「.patch-skin.patch-cover」「.patch-skin .patch-bar」，權重較高，不必管載入順序。
+   字級以 1920 寬面板為準：標題 21、步驟說明 16、版本號 15，訊息框標題 26、內文與按鈕 21。 */
+
+.patch-cover {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: rgb(8, 8, 9);
+}
+
+.patch-content {
+    width: 100%;
+    align-items: center;
+    padding-bottom: 98px;
+}
+
+/* 動畫＋標題，底部對齊 */
+.patch-title-row {
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 22px;
+}
+
+.patch-anim {
+    width: 160px;
+    height: 100px;
+    margin-right: 8px;
+    background-position-x: left;
+    background-position-y: bottom;
+    background-repeat: no-repeat;
+}
+
+.patch-title {
+    font-size: 21px;
+    color: rgb(150, 150, 150);
+    letter-spacing: 6px;
+    margin: 0;
+    padding: 0 0 4px 0;
+}
+
+/* 寬度寫死 px，裡面的填色條要用同一個寬度 */
+.patch-bar-root {
+    width: 710px;
+    align-items: stretch;
+}
+
+.patch-bar {
+    height: 16px;
+    background-color: rgb(30, 30, 32);
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+/* 仿 Image fillAmount：PatchView 把 bar-fill 寬度寫成百分比，填色條固定全寬，只露出一部分 */
+.patch-bar__fill {
+    width: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.patch-bar-fill-img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 710px;
+    background-color: rgb(170, 170, 175);
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+/* 目前步驟／下載進度，放在進度條下方，不撐開版面 */
+.patch-tip {
+    position: absolute;
+    top: 24px;
+    left: 0;
+    right: 0;
+    font-size: 16px;
+    color: rgb(120, 120, 120);
+    letter-spacing: 2px;
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
+}
+
+.patch-version {
+    position: absolute;
+    right: 24px;
+    bottom: 16px;
+    font-size: 15px;
+    color: rgb(100, 100, 100);
+    -unity-text-align: lower-right;
+    margin: 0;
+    padding: 0;
+}
+
+.patch-msg-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* ---- 訊息框 ---- */
+
+.patch-msg-mask {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.patch-msg-box {
+    min-width: 440px;
+    max-width: 640px;
+    min-height: 260px;
+    padding-top: 36px;
+    padding-right: 44px;
+    padding-bottom: 32px;
+    padding-left: 44px;
+    align-items: stretch;
+    justify-content: center;
+    background-color: rgb(24, 24, 26);
+    border-width: 1px;
+    border-color: rgb(70, 70, 74);
+}
+
+.patch-msg-title {
+    font-size: 26px;
+    color: rgb(255, 255, 255);
+    letter-spacing: 4px;
+    -unity-text-align: middle-center;
+    margin-bottom: 14px;
+    white-space: normal;
+    flex-shrink: 0;
+}
+
+.patch-msg-text {
+    font-size: 21px;
+    color: rgb(220, 220, 220);
+    -unity-text-align: middle-center;
+    margin-bottom: 26px;
+    white-space: normal;
+}
+
+.patch-msg-button-row {
+    flex-direction: row;
+    justify-content: center;
+}
+
+.patch-msg-button {
+    width: 164px;
+    height: 38px;
+    margin: 0 8px;
+    padding: 0;
+    border-width: 0;
+    background-color: rgb(60, 60, 64);
+    -unity-background-scale-mode: stretch-to-fill;
+    color: rgb(220, 220, 220);
+    font-size: 21px;
+    letter-spacing: 4px;
+    -unity-text-align: middle-center;
+}
+
+/* 滑鼠滑過或手把／鍵盤選到（focus） */
+.patch-msg-button:hover,
+.patch-msg-button:focus {
+    background-color: rgb(110, 110, 116);
+    color: rgb(255, 255, 255);
+}

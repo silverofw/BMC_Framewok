@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <!-- 熱更新畫面（Patch 場景）。這時熱更 DLL 和 YooAsset 資源都還沒載入，
+         所以不能用 bmc:UILabel 的 local-key：文字由 PatchView.cs 依 PatchLocal 的內建四語表填入。
+         這份版面只有素色外觀、不指定字型；專案美術寫在自己的換膚 USS，拖進 PatchView 的 skin。 -->
+    <Style src="UIT_PatchViewStyle.uss" />
+    <ui:VisualElement name="cover" picking-mode="Ignore" class="patch-cover">
+        <ui:VisualElement name="content" picking-mode="Ignore" class="patch-content">
+            <ui:VisualElement name="title-row" picking-mode="Ignore" class="patch-title-row">
+                <!-- 逐格動畫：PatchView 依序切換「{前綴}1」…「{前綴}{格數}」class，每格的圖寫在換膚 USS -->
+                <ui:VisualElement name="anim" picking-mode="Ignore" class="patch-anim" />
+                <ui:Label text="Loading ..." name="title" picking-mode="Ignore" class="patch-title" />
+            </ui:VisualElement>
+            <ui:VisualElement name="bar-root" picking-mode="Ignore" class="patch-bar-root">
+                <ui:VisualElement name="bar-bg" picking-mode="Ignore" class="patch-bar">
+                    <ui:VisualElement name="bar-fill" picking-mode="Ignore" class="patch-bar__fill">
+                        <ui:VisualElement name="bar-fill-img" picking-mode="Ignore" class="patch-bar-fill-img" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Label text="" name="tip" picking-mode="Ignore" class="patch-tip" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label text="" name="version" picking-mode="Ignore" class="patch-version" />
+        <!-- 訊息框由 PatchView.cs 依需要建立並放進這一層，可同時疊好幾個 -->
+        <ui:VisualElement name="msg-layer" picking-mode="Ignore" class="patch-msg-layer" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,76 +1,26 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using BMC.UIToolkit;
 using UniFramework.Event;
 using UnityEngine;
-using UnityEngine.UI;
 
+/// <summary>
+/// 熱更新畫面：把 Patch 流程的事件轉成 PatchView（BMC.UIToolkit 套件）的畫面更新。
+/// 版面與內建多語表都在套件裡。要換美術就寫一份換膚 USS 拖進 PatchView 的 skin 欄位，
+/// 要換標題就在 Awake 用 PatchLocal.Set("PATCH_TITLE", …) 蓋掉預設的「讀取中 ...」。
+/// </summary>
+[RequireComponent(typeof(PatchView))]
 public class PatchWindow : MonoBehaviour
 {
     public static string cdnUrl = "https://cdn.pages.dev/";
     public static MonoBehaviour behaviour;
-    /// <summary>
-    /// 对话框封装类
-    /// </summary>
-    private class MessageBox
-    {
-        private GameObject _cloneObject;
-        private Text _content;
-        private Button _btnOK;
-        private System.Action _clickOK;
-
-        public bool ActiveSelf
-        {
-            get
-            {
-                return _cloneObject.activeSelf;
-            }
-        }
-
-        public void Create(GameObject cloneObject)
-        {
-            _cloneObject = cloneObject;
-            _content = cloneObject.transform.Find("txt_content").GetComponent<Text>();
-            _btnOK = cloneObject.transform.Find("btn_ok").GetComponent<Button>();
-            _btnOK.onClick.AddListener(OnClickYes);
-        }
-        public void Show(string content, System.Action clickOK)
-        {
-            _content.text = content;
-            _clickOK = clickOK;
-            _cloneObject.SetActive(true);
-            _cloneObject.transform.SetAsLastSibling();
-        }
-        public void Hide()
-        {
-            _content.text = string.Empty;
-            _clickOK = null;
-            _cloneObject.SetActive(false);
-        }
-        private void OnClickYes()
-        {
-            _clickOK?.Invoke();
-            Hide();
-        }
-    }
 
     private readonly EventGroup _eventGroup = new EventGroup();
-    private readonly List<MessageBox> _msgBoxList = new List<MessageBox>();
 
-    // UGUI相关
-    [SerializeField] private Text versionText;
-    [SerializeField] private GameObject _messageBoxObj;
-    private Slider _slider;
-    private Text _tips;
+    private PatchView _view;
 
     void Awake()
     {
         behaviour = this;
-        _slider = transform.Find("UIWindow/Slider").GetComponent<Slider>();
-        _tips = transform.Find("UIWindow/Slider/txt_tips").GetComponent<Text>();
-        _tips.text = "Initializing the game world !";
-        _messageBoxObj = transform.Find("UIWindow/MessgeBox").gameObject;
-        _messageBoxObj.SetActive(false);
+        _view = GetComponent<PatchView>();
 
         _eventGroup.AddListener<PatchEventDefine.InitializeFailed>(OnHandleEventMessage);
         _eventGroup.AddListener<PatchEventDefine.PatchStepsChange>(OnHandleEventMessage);
@@ -79,6 +29,10 @@ public class PatchWindow : MonoBehaviour
         _eventGroup.AddListener<PatchEventDefine.PackageVersionRequestFailed>(OnHandleEventMessage);
         _eventGroup.AddListener<PatchEventDefine.PackageManifestUpdateFailed>(OnHandleEventMessage);
         _eventGroup.AddListener<PatchEventDefine.WebFileDownloadFailed>(OnHandleEventMessage);
+    }
+    void Start()
+    {
+        _view.SetTips(PatchLocal.Get("PATCH_STEP_INIT"));
     }
     void OnDestroy()
     {
@@ -92,62 +46,46 @@ public class PatchWindow : MonoBehaviour
     {
         if (message is PatchEventDefine.InitializeFailed)
         {
-            System.Action callback = () =>
-            {
-                UserEventDefine.UserTryInitialize.SendEventMessage();
-            };
-            ShowMessageBox($"Failed to initialize package !", callback);
+            _view.ShowMessageBox(PatchLocal.Get("PATCH_INIT_FAILED"), PatchLocal.Get("PATCH_BTN_RETRY"),
+                () => UserEventDefine.UserTryInitialize.SendEventMessage());
         }
         else if (message is PatchEventDefine.PatchStepsChange)
         {
             var msg = message as PatchEventDefine.PatchStepsChange;
-            _tips.text = msg.Tips;
+            _view.SetTips(PatchLocal.Get(msg.Tips));
             UnityEngine.Debug.Log(msg.Tips);
         }
         else if (message is PatchEventDefine.FoundUpdateFiles)
         {
             var msg = message as PatchEventDefine.FoundUpdateFiles;
-            System.Action callback = () =>
-            {
-                UserEventDefine.UserBeginDownloadWebFiles.SendEventMessage();
-            };
             float sizeMB = msg.TotalSizeBytes / 1048576f;
             sizeMB = Mathf.Clamp(sizeMB, 0.1f, float.MaxValue);
-            string totalSizeMB = sizeMB.ToString("f1");
-            ShowMessageBox($"Found update patch files, Total count {msg.TotalCount} Total szie {totalSizeMB}MB", callback);
+            _view.ShowMessageBox(PatchLocal.Format("PATCH_FOUND_UPDATE", msg.TotalCount, sizeMB.ToString("f1")), PatchLocal.Get("PATCH_BTN_DOWNLOAD"),
+                () => UserEventDefine.UserBeginDownloadWebFiles.SendEventMessage());
         }
         else if (message is PatchEventDefine.DownloadUpdate)
         {
             var msg = message as PatchEventDefine.DownloadUpdate;
-            _slider.value = (float)msg.CurrentDownloadCount / msg.TotalDownloadCount;
+            _view.SetProgress(msg.TotalDownloadCount > 0 ? (float)msg.CurrentDownloadCount / msg.TotalDownloadCount : 0f);
             string currentSizeMB = (msg.CurrentDownloadSizeBytes / 1048576f).ToString("f1");
             string totalSizeMB = (msg.TotalDownloadSizeBytes / 1048576f).ToString("f1");
-            _tips.text = $"{msg.CurrentDownloadCount}/{msg.TotalDownloadCount} {currentSizeMB}MB/{totalSizeMB}MB";
+            _view.SetTips(PatchLocal.Format("PATCH_DOWNLOAD_PROGRESS", msg.CurrentDownloadCount, msg.TotalDownloadCount, currentSizeMB, totalSizeMB));
         }
         else if (message is PatchEventDefine.PackageVersionRequestFailed)
         {
-            System.Action callback = () =>
-            {
-                UserEventDefine.UserTryRequestPackageVersion.SendEventMessage();
-            };
-            ShowMessageBox($"Failed to request package version, please check the network status.", callback);
+            _view.ShowMessageBox(PatchLocal.Get("PATCH_VERSION_REQUEST_FAILED"), PatchLocal.Get("PATCH_BTN_RETRY"),
+                () => UserEventDefine.UserTryRequestPackageVersion.SendEventMessage());
         }
         else if (message is PatchEventDefine.PackageManifestUpdateFailed)
         {
-            System.Action callback = () =>
-            {
-                UserEventDefine.UserTryUpdatePackageManifest.SendEventMessage();
-            };
-            ShowMessageBox($"Failed to update patch manifest, please check the network status.", callback);
+            _view.ShowMessageBox(PatchLocal.Get("PATCH_MANIFEST_FAILED"), PatchLocal.Get("PATCH_BTN_RETRY"),
+                () => UserEventDefine.UserTryUpdatePackageManifest.SendEventMessage());
         }
         else if (message is PatchEventDefine.WebFileDownloadFailed)
         {
             var msg = message as PatchEventDefine.WebFileDownloadFailed;
-            System.Action callback = () =>
-            {
-                UserEventDefine.UserTryDownloadWebFiles.SendEventMessage();
-            };
-            ShowMessageBox($"Failed to download file : {msg.FileName}", callback);
+            _view.ShowMessageBox(PatchLocal.Format("PATCH_DOWNLOAD_FAILED", msg.FileName), PatchLocal.Get("PATCH_BTN_RETRY"),
+                () => UserEventDefine.UserTryDownloadWebFiles.SendEventMessage());
         }
         else
         {
@@ -156,41 +94,17 @@ public class PatchWindow : MonoBehaviour
     }
 
     /// <summary>
-    /// 显示对话框
+    /// 显示对话框（按鈕顯示「確認」）。content 是已經翻好的文字
     /// </summary>
     public void ShowMessageBox(string content, System.Action ok)
     {
-        // 尝试获取一个可用的对话框
-        MessageBox msgBox = null;
-        for (int i = 0; i < _msgBoxList.Count; i++)
-        {
-            var item = _msgBoxList[i];
-            if (item.ActiveSelf == false)
-            {
-                msgBox = item;
-                break;
-            }
-        }
-
-        // 如果没有可用的对话框，则创建一个新的对话框
-        if (msgBox == null)
-        {
-            msgBox = new MessageBox();
-            var cloneObject = GameObject.Instantiate(_messageBoxObj, _messageBoxObj.transform.parent);
-            msgBox.Create(cloneObject);
-            _msgBoxList.Add(msgBox);
-        }
-
-        // 显示对话框
-        msgBox.Show(content, ok);
+        _view.ShowMessageBox(content, ok);
     }
 
     public void UpdatePatchInfo()
     {
-        _slider.value = 1f;
-        var versionInfo = $"{Application.version}";
+        _view.SetProgress(1f);
         var package = YooAsset.YooAssets.GetPackage("DefaultPackage");
-        versionInfo += $"\nPatch Version : {package.GetPackageVersion()}";
-        versionText.text = versionInfo;
+        _view.SetVersion(PatchLocal.Format("PATCH_VERSION_INFO", Application.version, package.GetPackageVersion()));
     }
 }

@@ -13,7 +13,7 @@ internal class FsmDownloadPackageOver : IStateNode
     }
     void IStateNode.OnEnter()
     {
-        PatchEventDefine.PatchStepsChange.SendEventMessage("资源文件下载完毕！");
+        PatchEventDefine.PatchStepsChange.SendEventMessage("PATCH_STEP_DOWNLOAD_OVER");
         _machine.ChangeState<FsmClearCacheBundle>();
     }
     void IStateNode.OnUpdate()

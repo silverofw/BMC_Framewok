@@ -14,7 +14,7 @@ internal class FsmRequestPackageVersion : IStateNode
     }
     void IStateNode.OnEnter()
     {
-        PatchEventDefine.PatchStepsChange.SendEventMessage("请求资源版本 !");
+        PatchEventDefine.PatchStepsChange.SendEventMessage("PATCH_STEP_REQUEST_VERSION");
         PatchWindow.behaviour.StartCoroutine(UpdatePackageVersion());
     }
     void IStateNode.OnUpdate()

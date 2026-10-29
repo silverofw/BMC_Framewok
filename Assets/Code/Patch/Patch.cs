@@ -1,5 +1,6 @@
 ﻿using BMC.Core;
 using BMC.UI;
+using BMC.UIToolkit;
 using Cysharp.Threading.Tasks;
 using HybridCLR;
 using System;
@@ -115,7 +116,7 @@ public class Patch : MonoBehaviour
         {
             // 版本不匹配，跳轉商店更新
             Debug.LogWarning($"[版本檢查] 版本不匹配，請更新應用程式。當前版本: {appVersion}, 伺服器版本: {serverAppVersion}");
-            patchWindow.ShowMessageBox("PLEASE_UPDATE_APPLICATION", () =>
+            patchWindow.ShowMessageBox(PatchLocal.Get("PLEASE_UPDATE_APPLICATION"), () =>
             {
                 //Application.OpenURL(ServerMgr.GetStoreUrl());
             });

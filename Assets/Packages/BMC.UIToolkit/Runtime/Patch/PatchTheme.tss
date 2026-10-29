@@ -1,0 +1,6 @@
+/* 熱更新畫面（PatchView）專用主題。專案自己的主題通常放在熱更資源裡，母包這一層拿不到，
+   所以套件另備一份。必須匯入 Unity 預設主題，少了這行一個字都不會顯示。 */
+@import url("unity-theme://default");
+
+VisualElement {
+}

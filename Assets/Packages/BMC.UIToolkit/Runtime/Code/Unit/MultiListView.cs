@@ -132,7 +132,16 @@ namespace BMC.UIToolkit
             RegisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
             RegisterCallback<PointerMoveEvent>(OnPointerMove, TrickleDown.TrickleDown);
             RegisterCallback<PointerUpEvent>(OnPointerUp, TrickleDown.TrickleDown);
-            RegisterCallback<PointerCaptureOutEvent>(_ => ResetDrag());
+            // 【只管自己掉的捕捉】PointerCaptureOutEvent 會從失去捕捉的元素往上冒泡，
+            // 所以儲存格裡的按鈕掉捕捉時這裡也收得到。不濾掉 target 的話會變成：
+            // 儲存格放 UIButton -> Clickable 在 PointerDown 當下先捕捉指標 ->
+            // 拖曳超過門檻時這裡 CapturePointer 把捕捉搶回來 -> 按鈕收到 CaptureOut
+            // 並冒泡上來 -> 拖曳在剛啟動的同一幀被自己 ResetDrag 掉，整個清單拖不動。
+            RegisterCallback<PointerCaptureOutEvent>(evt =>
+            {
+                if (evt.target == this)
+                    ResetDrag();
+            });
         }
 
         #region 拖曳捲動
@@ -282,6 +291,17 @@ namespace BMC.UIToolkit
             row.style.flexDirection = FlexDirection.Row;
             row.style.height = itemHeight;
             row.style.marginBottom = spacingY;
+
+            // 【用行內樣式壓掉滑過灰底，不是靠樣式表】ListView 會給每一列加上
+            // unity-collection-view__item，Unity 預設執行期主題對它的 :hover 有一層灰底。
+            // 那是給編輯器風格清單用的，遊戲清單的外觀一律來自美術切圖；多欄時「一列」
+            // 裝的是 N 個格子，灰底會整排一起亮，看起來像「一次選了一排」。
+            //
+            // 在主題裡寫覆寫規則不可靠：消費端可能換自己的 PanelSettings 主題、
+            // 匯入的 Samples 主題也不會跟著套件更新，而且同權重規則誰贏要看載入順序。
+            // 行內樣式的優先權高於所有樣式表(含 :hover)，是這裡唯一能保證的做法。
+            // 代價：列的背景不能再用 USS 調——要底色請畫在格子(makeItem 產生的那層)上。
+            row.style.backgroundColor = Color.clear;
 
             int columns = Mathf.Max(1, scrollRow);
             for (int i = 0; i < columns; i++)
