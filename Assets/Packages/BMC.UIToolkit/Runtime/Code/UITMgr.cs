@@ -142,13 +142,27 @@ namespace BMC.UIToolkit
         private List<UIPanel> panels;
 
         /// <summary>
-        /// 追蹤還在載入中的 ShowPanel&lt;T&gt; 請求(鍵為面板型別，值為 UniTask&lt;T&gt;.Preserve() 過的
-        /// 可重複等待版本)。ShowPanel 內部要 await 資源載入才會把面板加進 panels 清單，
+        /// 追蹤還在載入中的 ShowPanel&lt;T&gt; 請求(鍵為面板型別，值為 PendingShow&lt;T&gt;)。
+        /// ShowPanel 內部要 await 資源載入才會把面板加進 panels 清單，
         /// 在那之前 checkSame 完全看不到「已經在開了」——同一顆按鈕在極短時間內被觸發兩次
         /// (例如輸入事件重複派送)就會建出兩份面板、各自搶同一批資源。這裡讓載入中的重複請求
-        /// 直接等同一份 task，而不是各自起一份新的。
+        /// 等同一份結果，而不是各自起一份新的。
+        ///
+        /// 【不能用 UniTask.Preserve() 共用】Preserve 只在「完成之後」才能重複 await；
+        /// 還在載入時它把 continuation 直接轉給底層只收一個的來源，兩個呼叫端同時在等
+        /// 就丟「Already continuation registered」(連按兩下開始鍵就踩到)。
+        /// UniTaskCompletionSource 才收得下多個同時等待的呼叫端。
         /// </summary>
         private readonly Dictionary<Type, object> pendingShowTasks = new();
+
+        /// <summary>
+        /// 一筆載入中的 ShowPanel。Waiters 等到真的有第二個呼叫端才建：
+        /// 沒人等的 completion source 若被設成例外，會在 GC 時被 UniTask 當成未觀察例外再報一次。
+        /// </summary>
+        private sealed class PendingShow<T> where T : UIPanel
+        {
+            public UniTaskCompletionSource<T> Waiters;
+        }
 
         protected override void Init()
         {
@@ -381,25 +395,41 @@ namespace BMC.UIToolkit
             if (checkSame && TryGetExisting<T>(out var exist))
                 return exist;
 
-            if (checkSame && pendingShowTasks.TryGetValue(typeof(T), out var pendingObj))
-                return await (UniTask<T>)pendingObj;
+            if (!checkSame)
+                return await ShowPanelCore<T>(layer);
 
-            var task = ShowPanelCore<T>(layer);
-            if (checkSame)
+            if (pendingShowTasks.TryGetValue(typeof(T), out var pendingObj))
             {
-                task = task.Preserve();
-                pendingShowTasks[typeof(T)] = task;
+                var pending = (PendingShow<T>)pendingObj;
+                pending.Waiters ??= new UniTaskCompletionSource<T>();
+                return await pending.Waiters.Task;
             }
 
+            var self = new PendingShow<T>();
+            pendingShowTasks[typeof(T)] = self;
+            T panel;
             try
             {
-                return await task;
+                panel = await ShowPanelCore<T>(layer);
             }
-            finally
+            catch (Exception e)
             {
-                if (checkSame)
-                    pendingShowTasks.Remove(typeof(T));
+                RemovePending(typeof(T), self);
+                // OperationCanceledException 會被轉成取消狀態
+                self.Waiters?.TrySetException(e);
+                throw;
             }
+
+            // 先移除再通知：等待者的接續是同步執行的，它們若再開一次同一張面板，要看到的是已建好的面板而不是載入中
+            RemovePending(typeof(T), self);
+            self.Waiters?.TrySetResult(panel);
+            return panel;
+        }
+
+        private void RemovePending(Type type, object pending)
+        {
+            if (pendingShowTasks.TryGetValue(type, out var current) && ReferenceEquals(current, pending))
+                pendingShowTasks.Remove(type);
         }
 
         private async UniTask<T> ShowPanelCore<T>(UILayer layer) where T : UIPanel, new()

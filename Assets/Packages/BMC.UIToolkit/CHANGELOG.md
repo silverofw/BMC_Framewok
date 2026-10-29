@@ -3,6 +3,15 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.4.1] - 2026-10-29
+
+### Fixed
+- 同一張面板還在載入時再呼叫一次 `ShowPanel<T>`（例如連按兩下開始鍵），不再丟
+  「Already continuation registered」。原本兩個呼叫端共用 `UniTask.Preserve()` 過的 task，
+  但 Preserve 只在完成後才能重複 await，載入中同時等待會撞上只收一個接續的底層來源。
+  改成載入中的重複請求等同一個 `UniTaskCompletionSource`，兩邊都拿到同一個面板實例
+  （載入失敗則同樣收到例外）。公開 API 不變。
+
 ## [1.4.0] - 2026-10-28
 
 ### Added
