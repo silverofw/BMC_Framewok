@@ -3,6 +3,17 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.0.17] - 2026-10-29
+
+### Fixed
+- 同一個實體被存進兩個 chunk、讀檔時同一個 guid 生兩次（遊戲端症狀：主角重複、找不到主角）。
+  成因是 `MoveRuntimeEntity` 遇到目標 chunk 未載入會暫緩搬移：實體留在舊 chunk，座標卻已經是新的；
+  下一次移動照座標算「舊 chunk」會算錯格，原本那格一直掛著它，存檔時兩格各寫一份。
+  - `MoveRuntimeEntity`：照舊座標算出的 chunk 裡沒有它，就到所有載入中的 chunk 找出來移掉；新格已經有就先移再加。
+  - 卸載 chunk 時（`SaveAndUnloadChunkAsync`），座標其實落在另一個載入中 chunk 的實體交給那一格，
+    不寫進這一格、也不會被這一格的銷毀迴圈銷毀（以前主角會在自己腳下被銷毀）。目標格沒載入就照舊寫在原格。
+  - `Chunk.RemoveEntity`：空間索引裡的位置跟傳進來的座標對不上時，整份索引掃一次移掉，不再留下殘影。
+
 ## [1.0.16] - 2026-08-23
 
 ### Removed

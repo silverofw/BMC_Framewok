@@ -42,14 +42,35 @@ namespace InfiniteMap
         {
             Entities.Remove(guid);
 
-            if (spatialIndex.TryGetValue(pos, out var list))
+            if (spatialIndex.TryGetValue(pos, out var list) && list.Remove(guid))
             {
-                list.Remove(guid);
                 if (list.Count == 0)
                 {
                     spatialIndex.Remove(pos);
                 }
+                return;
             }
+
+            // 【索引裡的位置跟傳進來的對不上】實體的座標改過、但沒照實通知這個 chunk 時
+            // (例如 MoveRuntimeEntity 因為目標 chunk 未載入而暫緩搬移)，空間索引還記著舊格子。
+            // 照傳進來的座標移不掉，就整份索引掃一次 —— 只有出狀況時才會走到，平常不花這個錢。
+            RemoveFromIndexAnywhere(guid);
+        }
+
+        void RemoveFromIndexAnywhere(long guid)
+        {
+            Pos3? hit = null;
+            foreach (var kv in spatialIndex)
+            {
+                if (kv.Value.Remove(guid))
+                {
+                    if (kv.Value.Count == 0)
+                        hit = kv.Key;
+                    break;
+                }
+            }
+            if (hit.HasValue)
+                spatialIndex.Remove(hit.Value);
         }
 
         /// <summary>
