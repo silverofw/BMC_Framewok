@@ -28,8 +28,17 @@ namespace BMC.UIToolkit
             instance = go.AddComponent<UIToolkitDebugTrigger>();
         }
 
+        /// <summary>
+        /// F4 開 UI Toolkit 除錯面板。預設開；給玩家的包（試玩版等）由遊戲端關掉。
+        /// 跟 BMC.UI 的 UIInputTrigger.DebugHotkeyEnabled（F2）是一對。
+        /// </summary>
+        public static bool HotkeyEnabled = true;
+
         private void Update()
         {
+            if (!HotkeyEnabled)
+                return;
+
             var keyboard = Keyboard.current;
             if (keyboard == null)
                 return;
