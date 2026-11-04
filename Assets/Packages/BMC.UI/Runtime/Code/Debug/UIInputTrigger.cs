@@ -17,6 +17,12 @@ namespace BMC.UI
         // --- 靜態開關 ---
         public static bool ShowFPS = false;
 
+        /// <summary>
+        /// F2 開除錯面板、F3 切 FPS。預設開；給玩家的包（試玩版等）由遊戲端關掉。
+        /// ESC 關面板與錯誤彈窗不受影響。
+        /// </summary>
+        public static bool DebugHotkeyEnabled = true;
+
         private float _deltaTime = 0.0f;
 
         [RuntimeInitializeOnLoadMethod]
@@ -101,6 +107,9 @@ namespace BMC.UI
                 UIMgr.Instance.closeJoypadPanel();
                 return;
             }
+
+            if (!DebugHotkeyEnabled)
+                return;
 
             if (keyboard.f2Key.wasPressedThisFrame)
             {
