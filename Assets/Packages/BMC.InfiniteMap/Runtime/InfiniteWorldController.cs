@@ -289,12 +289,29 @@ namespace InfiniteMap.Unity
                 return;
             }
 
-            if (activeChunks.TryGetValue(oldCPos, out Chunk oldChunk))
+            if (activeChunks.TryGetValue(oldCPos, out Chunk oldChunk) && oldChunk.Entities.Contains(guid))
             {
                 oldChunk.RemoveEntity(guid, oldPos);
             }
+            else
+            {
+                // 【舊座標算出來的 chunk 裡沒有它】上面「暫緩搬移」之後，實體還掛在當初那個 chunk，
+                // 座標卻已經是新的了；下一次移動照座標算舊 chunk 會算錯格，原本那格就一直掛著它，
+                // 存檔時兩格都寫一份 —— 讀回來同一個 guid 生兩次。所以算錯就到所有載入中的 chunk 找出來移掉。
+                foreach (var c in activeChunks.Values)
+                {
+                    if (c != newChunk && c.Entities.Contains(guid))
+                        c.RemoveEntity(guid, oldPos);
+                }
+            }
 
-            newChunk.AddEntity(guid, newPos);
+            if (!newChunk.Entities.Contains(guid))
+                newChunk.AddEntity(guid, newPos);
+            else
+            {
+                newChunk.RemoveEntity(guid, oldPos);
+                newChunk.AddEntity(guid, newPos);
+            }
         }
         
         public async UniTask DestroyAndSaveAllAsync()
@@ -607,7 +624,11 @@ namespace InfiniteMap.Unity
             return null; 
         }
 
-        private async UniTask SaveChunkStateAsync(Chunk chunk)
+        /// <param name="handOverStrays">
+        /// 卸載這一格時才開：裡面掛著「座標其實在別格」的實體，而那一格正載入著，就把它交過去、不寫進這一格。
+        /// 見 <see cref="HandOverStray"/>。整批存檔（ForceSaveAllAsync）不開 —— 交給已經存完的那一格會兩邊都沒寫到。
+        /// </param>
+        private async UniTask SaveChunkStateAsync(Chunk chunk, bool handOverStrays = false)
         {
             ChunkProto proto = new ChunkProto
             {
@@ -626,6 +647,8 @@ namespace InfiniteMap.Unity
                     try
                     {
                         EntityProto latestState = OnEntitySerialize.Invoke(guid);
+                        if (latestState != null && handOverStrays && HandOverStray(chunk, guid, latestState))
+                            continue;
                         if (latestState != null)
                         {
                             // 【重要，不能省】這個 Clone 不是多餘的：latestState 現在通常就是上層
@@ -683,13 +706,41 @@ namespace InfiniteMap.Unity
             await UniTask.SwitchToMainThread();
         }
 
+        /// <summary>
+        /// 卸載中的 chunk 裡有個實體，座標其實落在另一個**載入中**的 chunk：把它的歸屬交過去，回 true（這一格不寫它）。
+        ///
+        /// 【為什麼要交】MoveRuntimeEntity 遇到目標 chunk 未載入會暫緩搬移，實體留在舊 chunk、座標卻是新的
+        /// （傳送最常見）。舊 chunk 之後被卸載的話：存檔把實體寫進舊格的檔案，接著 OnEntityDestroy 把活著的實體
+        /// 銷毀 —— 主角就這樣在自己腳下消失；之後它走進新格又被加進新格，兩個檔案各存一份，下次讀檔同一個 guid 生兩次。
+        /// 交過去之後它不在這一格的 Entities 裡，卸載的銷毀迴圈也就不會碰它。
+        /// 目標格沒載入就不交，照舊寫在這一格 —— 寧可位置舊，也不要哪裡都沒寫到。
+        /// </summary>
+        private bool HandOverStray(Chunk chunk, long guid, EntityProto state)
+        {
+            if (state.Pos == null)
+                return false;
+            var pos = new Pos3(state.Pos.X, state.Pos.Y, state.Pos.H);
+            CPos home = pos.ToCPos(ChunkSize);
+            if (home.Equals(chunk.Pos))
+                return false;
+            var activeChunks = GetActiveChunks();
+            if (activeChunks == null || !activeChunks.TryGetValue(home, out Chunk owner) || owner == chunk)
+                return false;
+
+            chunk.RemoveEntity(guid, pos);
+            if (!owner.Entities.Contains(guid))
+                owner.AddEntity(guid, pos);
+            Debug.LogWarning($"[World] 卸載 chunk {chunk.Pos} 時發現 guid {guid} 的座標在 {home}，改交給那一格。");
+            return true;
+        }
+
         private async UniTask SaveAndUnloadChunkAsync(Chunk chunk)
         {
             foreach(var s in _subSystem)
             {
                 s.OnChunkUnloaded(chunk.Pos);
             }
-            await SaveChunkStateAsync(chunk);
+            await SaveChunkStateAsync(chunk, handOverStrays: true);
 
             // 確保回到主執行緒進行銷毀
             await UniTask.SwitchToMainThread();

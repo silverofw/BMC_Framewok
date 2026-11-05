@@ -3,12 +3,28 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
-## [1.4.1] - 2026-11-05
+## [1.4.3] - 2026-11-05
 
 ### Fixed
 - `Toast` 第二則之後不播進場動畫、直接跳到終點：原本只用 `ExecuteLater(0)` 延一幀加進場 class，
   但 UXML 已快取時，排程會在新面板第一次算樣式之前就跑，transition 沒有起點。
   改成等第一次 `GeometryChangedEvent`（樣式與排版都已算過）後才開始進場與停留計時。
+
+## [1.4.2] - 2026-10-30
+
+### Fixed
+- 確認框（`MsgPanel`）按 A／J 會執行「取消」，跟按鍵提示「J 確定、K 取消」相反。游標清單是先取消、再確定，
+  起始游標停在第一顆（取消），而 A 鍵按的是游標選到的那一顆。改成有確定鈕時起始游標停在確定；
+  清單順序不動、方向鍵照樣能移到取消，B 照舊是取消。
+
+## [1.4.1] - 2026-10-29
+
+### Fixed
+- 同一張面板還在載入時再呼叫一次 `ShowPanel<T>`（例如連按兩下開始鍵），不再丟
+  「Already continuation registered」。原本兩個呼叫端共用 `UniTask.Preserve()` 過的 task，
+  但 Preserve 只在完成後才能重複 await，載入中同時等待會撞上只收一個接續的底層來源。
+  改成載入中的重複請求等同一個 `UniTaskCompletionSource`，兩邊都拿到同一個面板實例
+  （載入失敗則同樣收到例外）。公開 API 不變。
 
 ## [1.4.0] - 2026-10-28
 

@@ -97,7 +97,11 @@ namespace BMC.UIToolkit
             if (hasConfirm && confirmButton != null)
                 items.Add(confirmButton);
 
-            InitJoyPad(items);
+            // 【預設游標停在確定】A 鍵按的是游標選到的那一顆。以前游標從清單第一顆（取消）開始，
+            // 按 A／J 等於取消，跟按鍵提示「J 確定、K 取消」相反（離開地城、死亡接關都是這個框）。
+            // 清單順序不動（方向鍵左右照畫面走），只把起始游標放到確定；B 照舊是取消。
+            int start = hasConfirm && confirmButton != null ? items.IndexOf(confirmButton) : 0;
+            InitJoyPad(items, start);
         }
 
         private void HandleConfirm()
