@@ -3,6 +3,13 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.4.1] - 2026-11-05
+
+### Fixed
+- `Toast` 第二則之後不播進場動畫、直接跳到終點：原本只用 `ExecuteLater(0)` 延一幀加進場 class，
+  但 UXML 已快取時，排程會在新面板第一次算樣式之前就跑，transition 沒有起點。
+  改成等第一次 `GeometryChangedEvent`（樣式與排版都已算過）後才開始進場與停留計時。
+
 ## [1.4.0] - 2026-10-28
 
 ### Added

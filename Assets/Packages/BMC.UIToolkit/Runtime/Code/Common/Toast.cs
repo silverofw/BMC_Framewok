@@ -70,9 +70,22 @@ namespace BMC.UIToolkit
                 return;
             }
 
-            // transition 需要「先有初始值、下一幀才變更」才會播放，
-            // 因此進場 class 延到下一幀再加。
-            box.schedule.Execute(() => box.AddToClassList("bmc-toast--shown")).ExecuteLater(0);
+            // transition 需要「先算過一次初始樣式、之後才變更」才會播放。
+            // 只靠 ExecuteLater(0) 不夠：同一幀內排程比樣式計算先跑，新複製出來的面板
+            // 會在還沒有初始樣式時就被加上進場 class，結果直接跳到終點、不播動畫
+            // （UXML 已快取時的第二則之後最容易遇到）。因此等第一次排版完成（此時樣式必已算過）再開始。
+            EventCallback<GeometryChangedEvent> onFirstLayout = null;
+            onFirstLayout = _ =>
+            {
+                box.UnregisterCallback(onFirstLayout);
+                box.schedule.Execute(() => StartTimeline(staySeconds)).ExecuteLater(0);
+            };
+            box.RegisterCallback(onFirstLayout);
+        }
+
+        private void StartTimeline(float staySeconds)
+        {
+            box.AddToClassList("bmc-toast--shown");
 
             int stayMs = ENTER_MS + UnityEngine.Mathf.RoundToInt(staySeconds * 1000f);
             box.schedule.Execute(() =>
