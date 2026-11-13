@@ -630,15 +630,90 @@ namespace InfiniteMap.Unity
         /// </param>
         private async UniTask SaveChunkStateAsync(Chunk chunk, bool handOverStrays = false)
         {
+            // 確保回到主執行緒進行序列化
+            await UniTask.SwitchToMainThread();
+
+            ChunkProto proto = BuildChunkProto(chunk, handOverStrays);
+
+            // 【重要】fileName/filePath 要在切執行緒「之前」先算好：_saveDirectory 在
+            // IsEditorMode(地圖編輯器烘焙工作流程)時會即時呼叫 Application.dataPath，這是
+            // Unity 規定只能在主執行緒呼叫的 API，不能等到切到 thread pool 之後才算。
+            string fileName = $"chunk_{WorldId}_{chunk.Pos.x}_{chunk.Pos.y}.bytes";
+            string filePath = Path.Combine(_saveDirectory, fileName);
+
+            // 【效能】proto 到這裡已經是不再被其他執行緒碰到的純資料物件，ToByteArray()
+            // 是純 CPU 運算(chunk 動輒 500~800 個 entity，這一步過去在主執行緒上實測要價
+            // 70ms+，是玩家跨 chunk 邊界卡頓的主因)，離開主執行緒不影響正確性。
+            await UniTask.SwitchToThreadPool();
+
+            byte[] dataToSave = proto.ToByteArray();
+
+            var fileLock = GetFileLock(filePath);
+            await fileLock.WaitAsync();
+            try { await File.WriteAllBytesAsync(filePath, dataToSave); }
+            catch (Exception e) { Debug.LogError($"[IO] 寫入存檔失敗 {chunk.Pos}: {e}"); }
+            finally { fileLock.Release(); }
+
+            // 確保呼叫端(SaveAndUnloadChunkAsync/ForceSaveAllAsync 等)拿回控制權時仍在
+            // 主執行緒，維持這個方法一直以來「回傳時已在主執行緒」的隱含契約。
+            await UniTask.SwitchToMainThread();
+        }
+
+        /// <summary>
+        /// 離開程式時的存檔：全程同步、只在主執行緒，寫完才回來。(BMC.InfiniteMap 1.0.18)
+        ///
+        /// 【為什麼不能用 ForceSaveAllAsync().Wait()】OnApplicationQuit 不能 await，以前是在主執行緒上 Wait(1000)
+        /// 等非同步存檔；但那條路會先 await 子系統的 SaveAsync（遊戲端 AtomECS 的是 UniTask.Yield，要下一幀；
+        /// 火車的 WriteAllBytesAsync 接續也排回主執行緒）——主執行緒被 Wait 卡住，下一幀永遠不來，
+        /// 1 秒逾時、chunk 一格都沒寫。直接關視窗、編輯器停止 Play 時，上次換區／卸載之後的地圖變動全丟。
+        ///
+        /// 子系統的 SaveAsync 只觸發不等（全域檔照樣開始寫；需要下一幀的那部分本來就做不到）；
+        /// chunk 照非同步存檔同一份內容（BuildChunkProto）同步寫檔，跟正在進行的卸載存檔搶同一個檔時用同一把鎖。
+        /// </summary>
+        public void SaveAllBlocking(int lockTimeoutMs = 2000)
+        {
+            foreach (var s in _subSystem)
+            {
+                try { s.SaveAsync().Forget(); }
+                catch (Exception e) { Debug.LogError($"[Quit] 子系統存檔失敗 {s}: {e}"); }
+            }
+            if (_world == null) return;
+            var activeChunks = GetActiveChunks();
+            if (activeChunks == null || activeChunks.Count == 0) return;
+
+            int saved = 0;
+            foreach (var chunk in new List<Chunk>(activeChunks.Values))
+            {
+                string filePath = Path.Combine(_saveDirectory, $"chunk_{WorldId}_{chunk.Pos.x}_{chunk.Pos.y}.bytes");
+                var fileLock = GetFileLock(filePath);
+                bool locked = false;
+                try
+                {
+                    byte[] dataToSave = BuildChunkProto(chunk, handOverStrays: false).ToByteArray();
+                    locked = fileLock.Wait(lockTimeoutMs);
+                    if (!locked)
+                        Debug.LogWarning($"[Quit] {chunk.Pos} 的存檔鎖 {lockTimeoutMs}ms 內拿不到，照寫");
+                    File.WriteAllBytes(filePath, dataToSave);
+                    saved++;
+                }
+                catch (Exception e) { Debug.LogError($"[Quit] 寫入存檔失敗 {chunk.Pos}: {e}"); }
+                finally { if (locked) fileLock.Release(); }
+            }
+            Debug.Log($"[Quit] 離開程式存檔：{saved}/{activeChunks.Count} 格");
+        }
+
+        /// <summary>
+        /// 一格 chunk 要寫進檔案的內容（主執行緒上呼叫）：問上層每個實體的最新狀態，問不到用安全快取。
+        /// 非同步存檔與離開程式的同步存檔共用（SaveChunkStateAsync／SaveAllBlocking）。
+        /// </summary>
+        private ChunkProto BuildChunkProto(Chunk chunk, bool handOverStrays)
+        {
             ChunkProto proto = new ChunkProto
             {
                 Cx = chunk.Pos.x,
                 Cy = chunk.Pos.y,
                 LastTime = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
-
-            // 確保回到主執行緒進行序列化
-            await UniTask.SwitchToMainThread();
 
             foreach (long guid in chunk.Entities.ToList())
             {
@@ -682,28 +757,7 @@ namespace InfiniteMap.Unity
                 }
             }
 
-            // 【重要】fileName/filePath 要在切執行緒「之前」先算好：_saveDirectory 在
-            // IsEditorMode(地圖編輯器烘焙工作流程)時會即時呼叫 Application.dataPath，這是
-            // Unity 規定只能在主執行緒呼叫的 API，不能等到切到 thread pool 之後才算。
-            string fileName = $"chunk_{WorldId}_{chunk.Pos.x}_{chunk.Pos.y}.bytes";
-            string filePath = Path.Combine(_saveDirectory, fileName);
-
-            // 【效能】proto 到這裡已經是不再被其他執行緒碰到的純資料物件，ToByteArray()
-            // 是純 CPU 運算(chunk 動輒 500~800 個 entity，這一步過去在主執行緒上實測要價
-            // 70ms+，是玩家跨 chunk 邊界卡頓的主因)，離開主執行緒不影響正確性。
-            await UniTask.SwitchToThreadPool();
-
-            byte[] dataToSave = proto.ToByteArray();
-
-            var fileLock = GetFileLock(filePath);
-            await fileLock.WaitAsync();
-            try { await File.WriteAllBytesAsync(filePath, dataToSave); }
-            catch (Exception e) { Debug.LogError($"[IO] 寫入存檔失敗 {chunk.Pos}: {e}"); }
-            finally { fileLock.Release(); }
-
-            // 確保呼叫端(SaveAndUnloadChunkAsync/ForceSaveAllAsync 等)拿回控制權時仍在
-            // 主執行緒，維持這個方法一直以來「回傳時已在主執行緒」的隱含契約。
-            await UniTask.SwitchToMainThread();
+            return proto;
         }
 
         /// <summary>

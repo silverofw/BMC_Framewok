@@ -3,6 +3,17 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.0.18] - 2026-11-13
+
+### Fixed
+- 直接關視窗、編輯器停止 Play 時，chunk 一格都沒存（遊戲端症狀：長屋完工後重開又變回工地，上次換區／卸載之後的地圖變動全丟）。
+  成因是 `OnApplicationQuit` 在主執行緒上 `ForceSaveAllAsync().AsTask().Wait(1000)`：非同步存檔先 await 子系統的
+  `SaveAsync`（要下一幀才能往下走），主執行緒卻被 Wait 卡住，1 秒逾時。
+  - 新增 `InfiniteWorldController.SaveAllBlocking()`：全程同步、只在主執行緒寫完載入中的 chunk；子系統 `SaveAsync` 只觸發不等。
+    跟正在進行的卸載存檔搶同一個檔時用同一把檔案鎖（逾時照寫）。
+  - `InfiniteWorldMono.OnApplicationQuit` 改呼叫 `SaveAllBlocking()`。
+  - chunk 內容抽成 `BuildChunkProto`，非同步存檔與同步存檔共用同一份；換區、卸載的非同步存檔行為不變。
+
 ## [1.0.17] - 2026-10-29
 
 ### Fixed

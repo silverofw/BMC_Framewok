@@ -238,13 +238,11 @@ namespace InfiniteMap.Unity
 
         private void OnApplicationQuit()
         {
-            // 離開遊戲時強制存檔
-            // 因為 OnApplicationQuit 無法等待 async，所以將 UniTask 轉為 Task 以便使用 Wait() 阻塞主執行緒
+            // 離開遊戲時強制存檔（直接關視窗、編輯器停止 Play 也走這裡）。
+            // 【同步存檔，不 Wait 非同步工作】(1.0.18) 以前是 ForceSaveAllAsync().AsTask().Wait(1000)：
+            // 非同步存檔要下一幀才能往下走，主執行緒卻被 Wait 卡住，1 秒逾時、chunk 一格都沒寫。理由見 SaveAllBlocking。
             if (Controller != null)
-            {
-                // 修正：離開程式時只需要將目前活躍區塊存檔，不需要重新 SwitchZone
-                Controller.ForceSaveAllAsync().AsTask().Wait(1000);
-            }
+                Controller.SaveAllBlocking();
         }
 
         private void OnDrawGizmos()
