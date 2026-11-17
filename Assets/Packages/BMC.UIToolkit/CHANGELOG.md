@@ -3,6 +3,19 @@
 本套件的重要變更皆記錄於此。
 格式依循 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號採用[語意化版本](https://semver.org/lang/zh-TW/)。
 
+## [1.4.5] - 2026-11-17
+
+### Changed
+- 合併兩條分支的變更：F4 除錯熱鍵開關 `HotkeyEnabled`（給玩家的包可以關掉），
+  以及 `Toast` 同時觸發多則改成排隊依序出現、不再疊在一起。
+
+## [1.4.3] - 2026-11-05
+
+### Fixed
+- `Toast` 第二則之後不播進場動畫、直接跳到終點：原本只用 `ExecuteLater(0)` 延一幀加進場 class，
+  但 UXML 已快取時，排程會在新面板第一次算樣式之前就跑，transition 沒有起點。
+  改成等第一次 `GeometryChangedEvent`（樣式與排版都已算過）後才開始進場與停留計時。
+
 ## [1.4.2] - 2026-10-30
 
 ### Fixed

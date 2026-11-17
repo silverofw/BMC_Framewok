@@ -398,6 +398,9 @@ namespace BMC.Core
                 catch (Exception e)
                 {
                     Debug.LogError($"[SaveMgr] 載入異常: {e}");
+                    // 接下來會換成空存檔，下一次 SaveCurrentSlot 就把原檔蓋掉。
+                    // 先把讀不了的原檔(連同 v1 簽章檔)複製一份留底，事後還有機會人工救回。
+                    BackupUnreadableSlot(slot);
                     InitializeNewSave(slot);
                 }
             }
@@ -562,6 +565,29 @@ namespace BMC.Core
                 // 真正的線索都在內層例外與堆疊裡，只看 Message 查不出來。
                 Debug.LogError($"[SaveMgr] 儲存失敗: {e}");
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// 流程：讀檔失敗時把主檔與簽章檔複製成「原檔名.bad_時間」留底。
+        /// 只複製不搬移(原檔留著，下次存檔才被覆蓋)；備份失敗只記警告，不影響後續建立新存檔。
+        /// </summary>
+        private void BackupUnreadableSlot(int slot)
+        {
+            string stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture);
+            foreach (string src in new[] { GetPath(slot), GetSigPath(slot) })
+            {
+                try
+                {
+                    if (!File.Exists(src)) continue;
+                    string dst = $"{src}.bad_{stamp}";
+                    File.Copy(src, dst, true);
+                    Debug.LogWarning($"[SaveMgr] 讀不了的存檔已備份到: {dst}");
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"[SaveMgr] 存檔備份失敗: {src} - {e.Message}");
+                }
             }
         }
 
