@@ -72,6 +72,17 @@ namespace InfiniteMap
             activeChunks = new Dictionary<CPos, Chunk>();
         }
 
+        /// <summary>
+        /// 中止這個世界的串流：之後不再載入、卸載任何 chunk（背景焦點迴圈在下一個檢查點停下）。
+        /// 給 InfiniteWorldController.Shutdown 用 —— 換場景後被換下來、但沒走 DestroyAndSaveAllAsync 的世界
+        /// （例：登入畫面進存檔），不能再被誰推一下焦點就在背景一塊塊卸載。
+        /// </summary>
+        public void Abort()
+        {
+            _isDestroyed = true;
+            _pendingFocusPos = null;
+        }
+
         public async UniTask UpdateFocusAsync(Pos3 focusPos)
         {
             if (_isDestroyed) return; // 系統已關閉，拒絕更新
@@ -170,6 +181,7 @@ namespace InfiniteMap
             bool hasUnloadedAny = false;
             foreach (var cPos in toUnload)
             {
+                if (_isDestroyed) return;
                 if (activeChunks.TryGetValue(cPos, out Chunk chunk))
                 {
                     activeChunks.Remove(cPos);

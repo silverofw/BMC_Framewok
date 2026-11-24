@@ -116,6 +116,35 @@ namespace InfiniteMap.Unity
 
         private List<IGlobalSystem> _subSystem = new List<IGlobalSystem>();
 
+        /// <summary>
+        /// 已經被換下來了（Shutdown）。之後不再呼叫任何子系統、不再發 OnEntitySpawn／OnEntityDestroy，
+        /// 焦點與載入半徑的變更一律忽略；Init（同一個 Controller 換 Zone）會重新啟用。
+        /// </summary>
+        public bool IsShutdown { get; private set; }
+
+        /// <summary>子系統清單；Shutdown 之後是空的（子系統多半是全域單例，已經在服務下一張地圖）。</summary>
+        private IReadOnlyList<IGlobalSystem> ActiveSubsystems =>
+            IsShutdown ? (IReadOnlyList<IGlobalSystem>)Array.Empty<IGlobalSystem>() : _subSystem;
+
+        /// <summary>
+        /// 換場景時把這個 Controller 關掉（Game001 wx-t346）。
+        ///
+        /// 【為什麼需要】子系統（AtomECSMgr 等）是全域單例、同時註冊在新舊兩個 Controller 上，
+        /// 回呼只帶 CPos、不帶是哪個世界。舊的 Controller 沒走 DestroyAndSaveAllAsync 就被換掉時
+        /// （例：登入畫面進存檔），它的世界還活著；新場景一推載入半徑或焦點，舊世界就在背景
+        /// 一塊塊卸載，子系統照座標清掉的是**新地圖**的貼圖 —— 畫面上整塊變黑。
+        ///
+        /// 已經 DestroyAndSaveAllAsync 過的 Controller 呼叫這個也安全（只是把旗標立起來）。
+        /// 不存檔：要存請先 await DestroyAndSaveAllAsync。
+        /// </summary>
+        public void Shutdown()
+        {
+            if (IsShutdown) return;
+            IsShutdown = true;
+            _hasFocusPosition = false;
+            _world?.Abort();
+        }
+
         public void Init(int worldId, int chunkSize, int loadRadius, float tileSize, string saveBasePath, bool isEditorMode = false, int loadDelayMs = 250, int chunkLoadIntervalMs = 50)
         {
             IsEditorMode = isEditorMode;
@@ -125,6 +154,7 @@ namespace InfiniteMap.Unity
             TileSize = tileSize;
             _saveBasePath = saveBasePath;
 
+            IsShutdown = false;
             _entityStateCache.Clear(); // 初始化時清空快取
             CleanupIdleFileLocks();    // 每次載入地圖時回收閒置的檔案鎖，避免 static 字典無限增長
 
@@ -141,7 +171,7 @@ namespace InfiniteMap.Unity
                 OnSaveChunkAsync = SaveAndUnloadChunkAsync
             };
 
-            foreach(var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 s.Init(chunkSize, saveBasePath, worldId);
             }
@@ -158,6 +188,7 @@ namespace InfiniteMap.Unity
         /// </summary>
         public void SetLoadRadius(int loadRadius)
         {
+            if (IsShutdown) return;
             loadRadius = Mathf.Max(1, loadRadius);
             if (LoadRadius == loadRadius) return;
             LoadRadius = loadRadius;
@@ -174,7 +205,7 @@ namespace InfiniteMap.Unity
         }
         public void Tick(int scale)
         {
-            foreach(var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 s.Tick(1);
             }
@@ -204,7 +235,7 @@ namespace InfiniteMap.Unity
 
         public void UpdateWorldFocus(Vector3 playerPosition)
         {
-            if (_world == null) return;
+            if (_world == null || IsShutdown) return;
 
             _lastFocusPosition = playerPosition;
             _hasFocusPosition = true;
@@ -226,7 +257,7 @@ namespace InfiniteMap.Unity
         {
             if (guid == 0 || _world == null) return;
 
-            foreach(var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 if(s.OnRuntimeEntityAdd(guid, config, pos))
                     return;
@@ -245,7 +276,7 @@ namespace InfiniteMap.Unity
         {
             if (guid == 0 || _world == null) return;
 
-            foreach(var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 if(s.OnRuntimeEntityRemove(guid, pos))
                     return;
@@ -265,7 +296,7 @@ namespace InfiniteMap.Unity
         {
             if (guid == 0 || _world == null || oldPos == newPos) return;
 
-            foreach(var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 if(s.OnRuntimeEntityMove(guid, oldPos, newPos))
                     return;
@@ -323,7 +354,7 @@ namespace InfiniteMap.Unity
                 Debug.Log($"[InfiniteWorldController] Zone_{WorldId} 已安全完成所有存檔與資源釋放。");
             }
             // 先讓場景物件資料寫回個別sys
-            foreach(var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 await s.SaveAsync();
             }
@@ -425,7 +456,7 @@ namespace InfiniteMap.Unity
 
         public async UniTask ForceSaveAllAsync()
         {
-            foreach(var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 await s.SaveAsync();
             }
@@ -526,7 +557,7 @@ namespace InfiniteMap.Unity
 
         private async UniTask<Chunk> LoadChunkFromDiskAsync(CPos cPos)
         {
-            foreach(var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 s.OnChunkLoaded(cPos);
             }
@@ -611,7 +642,8 @@ namespace InfiniteMap.Unity
                         // 就跟活著的資料共用同一個物件，之後任何變動都會直接反映在這裡，不需要另外同步。
                         _entityStateCache[ent.Guid] = ent;
 
-                        OnEntitySpawn?.Invoke(ent, loadedChunk.LastTime);
+                        if (!IsShutdown)
+                            OnEntitySpawn?.Invoke(ent, loadedChunk.LastTime);
                     }
                     catch (Exception ex)
                     {
@@ -672,7 +704,7 @@ namespace InfiniteMap.Unity
         /// </summary>
         public void SaveAllBlocking(int lockTimeoutMs = 2000)
         {
-            foreach (var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 try { s.SaveAsync().Forget(); }
                 catch (Exception e) { Debug.LogError($"[Quit] 子系統存檔失敗 {s}: {e}"); }
@@ -790,7 +822,7 @@ namespace InfiniteMap.Unity
 
         private async UniTask SaveAndUnloadChunkAsync(Chunk chunk)
         {
-            foreach(var s in _subSystem)
+            foreach (var s in ActiveSubsystems)
             {
                 s.OnChunkUnloaded(chunk.Pos);
             }
@@ -803,7 +835,8 @@ namespace InfiniteMap.Unity
             {
                 try
                 {
-                    OnEntityDestroy?.Invoke(guid);
+                    if (!IsShutdown)
+                        OnEntityDestroy?.Invoke(guid);
                 }
                 catch (Exception e)
                 {
