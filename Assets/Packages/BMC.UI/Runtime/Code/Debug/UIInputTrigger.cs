@@ -23,6 +23,13 @@ namespace BMC.UI
         /// </summary>
         public static bool DebugHotkeyEnabled = true;
 
+        /// <summary>
+        /// 出現 Error／Exception 時要不要彈錯誤面板（MsgPanel，顯示 log 與堆疊）。關掉時只寫 log、不彈面板。
+        /// 跟 DebugHotkeyEnabled 分開：熱鍵是「玩家能不能叫出除錯工具」，這個是「錯誤要不要直接攤在畫面上」，
+        /// 兩者的開關時機不一定一樣。對外發行的版本（例：試玩包）由遊戲端在啟動時關掉；開發版照舊會彈。
+        /// </summary>
+        public static bool ErrorPanelEnabled = true;
+
         private float _deltaTime = 0.0f;
 
         [RuntimeInitializeOnLoadMethod]
@@ -66,6 +73,8 @@ namespace BMC.UI
         static void HandleLog(string logString, string stackTrace, LogType type)
         {
             if (type != LogType.Error && type != LogType.Exception)
+                return;
+            if (!ErrorPanelEnabled)
                 return;
             if (_showingError)
                 return;
