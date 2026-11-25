@@ -79,7 +79,9 @@ namespace BMC.Build.Editor
             string buildPath = Path.Combine("Builds", target.ToString(), profileName, $"v{Application.version}");
             if (!Directory.Exists(buildPath)) { Directory.CreateDirectory(buildPath); }
 
-            string locationPathName = Path.Combine(buildPath, $"{Application.companyName}_{Application.productName}_{Application.version}{fileExtension}");
+            // exe 固定叫 <productName>.exe（Unity 會跟著產生 <productName>_Data），版本只放在上面的資料夾名稱。
+            // Steam 的啟動選項要固定檔名，檔名帶版本號的話每次上傳都得手動改名。
+            string locationPathName = Path.Combine(buildPath, $"{Application.productName}{fileExtension}");
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
             {
